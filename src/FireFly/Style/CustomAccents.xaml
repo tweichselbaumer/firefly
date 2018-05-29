@@ -1,17 +1,17 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:FireFly.Style">
-    <Color x:Key="HighlightColor">#d45500</Color>
+    <Color x:Key="HighlightColor">#FFCC3300</Color>
 
-    <Color x:Key="AccentBaseColor">#d45500</Color>
+    <Color x:Key="AccentBaseColor">#FFD63600</Color>
     <!--  80%  -->
-    <Color x:Key="AccentColor">#d45500</Color>
+    <Color x:Key="AccentColor">#CCD63600</Color>
     <!--  60%  -->
-    <Color x:Key="AccentColor2">#d45500</Color>
+    <Color x:Key="AccentColor2">#99D63600</Color>
     <!--  40%  -->
-    <Color x:Key="AccentColor3">#d45500</Color>
+    <Color x:Key="AccentColor3">#66D63600</Color>
     <!--  20%  -->
-    <Color x:Key="AccentColor4">#d45500</Color>
+    <Color x:Key="AccentColor4">#33D63600</Color>
 
     <!--  re-set brushes too  -->
     <SolidColorBrush x:Key="HighlightBrush" Color="{StaticResource HighlightColor}" />

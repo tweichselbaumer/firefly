@@ -38,55 +38,15 @@ namespace FireFly.Windows
 
             _syncContext = SynchronizationContext.Current;
 
-            connector = new LinkUpTcpClientConnector(IPAddress.Parse("127.0.0.1"), 3000);
+            //connector = new LinkUpTcpClientConnector(IPAddress.Parse("127.0.0.1"), 3000);
 
-            LinkUpNode node = new LinkUpNode();
-            node.Name = "leaf";
-            node.AddSubNode(connector);
+            //LinkUpNode node = new LinkUpNode();
+            //node.Name = "leaf";
+            //node.AddSubNode(connector);
 
-            bool ifFirst = true;
-
-            Task.Run(() =>
-            {
-                while (ifFirst)
-                {
-                    try
-                    {
-                        if (node.Labels.Count == 1)
-                        {
-                            foreach (LinkUpLabel lab in node.Labels)
-                            {
-                                if (lab is LinkUpPropertyLabel<Int32>)
-                                {
-                                    int value = (lab as LinkUpPropertyLabel<Int32>).Value;
-                                }
-                                else if (lab is LinkUpPropertyLabel_Binary)
-                                {
-                                    byte[] value = (lab as LinkUpPropertyLabel_Binary).Value;
-                                }
-                                else if (lab is LinkUpEventLabel)
-                                {
-                                    if (ifFirst)
-                                    {
-                                        (lab as LinkUpEventLabel).Subscribe();
-                                        (lab as LinkUpEventLabel).Fired += Program_Fired;
-                                    }
-                                }
-                            }
-                            ifFirst = false;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        lock (Console.Out)
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine(e.Message);
-                            Console.ResetColor();
-                        }
-                    }
-                }
-            });
+            //LinkUpEventLabel eventLabel = node.GetLabelByName<LinkUpEventLabel>("leaf/test/label_event");
+            //eventLabel.Subscribe();
+            //eventLabel.Fired += Program_Fired;
         }
 
         private void Program_Fired(LinkUpEventLabel label, byte[] data)
@@ -95,7 +55,7 @@ namespace FireFly.Windows
             CvInvoke.Imdecode(data, Emgu.CV.CvEnum.ImreadModes.Grayscale, mat);
             _syncContext.Post(o =>
             {
-                srcImg.Source = ToBitmapSource(mat);
+                //srcImg.Source = ToBitmapSource(mat);
             }
             , null);
         }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FireFly.Windows"
         mc:Ignorable="d"
-        Title="SplashScreen" Height="250" Width="400" Background="#d45500"
+        Title="SplashScreen" Height="250" Width="400" Background="{StaticResource AccentBaseColorBrush}"
         ResizeMode="NoResize" WindowStyle="None" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
