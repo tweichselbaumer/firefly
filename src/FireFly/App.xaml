@@ -10,10 +10,23 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
                 <!-- Accent and AppTheme setting -->
-                <!--<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />-->
-                <ResourceDictionary Source="/FireFly;component/Style/CustomAccents.xaml"/>
+                <ResourceDictionary Source="/FireFly;component/Style/CustomAccents.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="DescriptionHeaderStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="22" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="GeneralLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+            </Style>
+
+            <Style x:Key="GeneralTextBoxStyle" TargetType="TextBox">
+                <Setter Property="FontSize" Value="18" />
+            </Style>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>
