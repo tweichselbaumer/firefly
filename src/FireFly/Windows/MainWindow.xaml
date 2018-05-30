@@ -178,7 +178,7 @@
                             <Grid></Grid>
                         </Controls:HamburgerMenuIconItem.Tag>
                     </Controls:HamburgerMenuIconItem>
-                    <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=AccountCircle}" Label="Camera">
+                    <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Camera}" Label="Camera">
                         <Controls:HamburgerMenuIconItem.Tag>
                             <Views:CameraView DataContext="{Binding Source={StaticResource Data}, Path=CameraViewModel}" />
                         </Controls:HamburgerMenuIconItem.Tag>
@@ -191,9 +191,7 @@
                 <Controls:HamburgerMenuItemCollection>
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Settings}" Label="Settings">
                         <Controls:HamburgerMenuIconItem.Tag>
-                            <Grid>
-                                <Label Content="{Binding Source={StaticResource Data}, Path=ConnectivityState}" />
-                            </Grid>
+                            <Views:SettingView DataContext="{Binding Source={StaticResource Data}, Path=SettingViewModel}" />
                         </Controls:HamburgerMenuIconItem.Tag>
                     </Controls:HamburgerMenuIconItem>
                 </Controls:HamburgerMenuItemCollection>

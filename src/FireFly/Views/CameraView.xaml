@@ -3,10 +3,49 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:local="clr-namespace:FireFly.Views"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <Image Width="640" Height="480" Source="{Binding Path=ImageSource}"></Image>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="10" />
+        </Grid.RowDefinitions>
+
+        <Viewbox Grid.Column="1" Grid.Row="1">
+            <Border  BorderThickness="1" BorderBrush="Black">
+                <Image Width="640" Height="480" Source="{Binding Path=ImageSource}"/>
+            </Border>
+        </Viewbox>
+
+        <StackPanel Grid.Column="3" Grid.Row="1" CanHorizontallyScroll="False" CanVerticallyScroll="False">
+            <Label  Content="Enable Stream" Style="{DynamicResource GeneralLabelStyle}" />
+            <Controls:ToggleSwitch
+                IsChecked="{Binding Path=Enabled}" Margin="15,0,0,0"
+                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
+
+            <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
+
+            <Label  Content="Quality" Style="{DynamicResource GeneralLabelStyle}" />
+            <Slider Width="200"
+                AutoToolTipPlacement="TopLeft"
+                LargeChange="10"
+                Maximum="100"
+                Minimum="0"
+                Orientation="Horizontal"
+                SmallChange="1"
+                Style="{DynamicResource MahApps.Metro.Styles.Slider.Win10}"
+                Value="{Binding Path=Quality}" />
+        </StackPanel>
     </Grid>
 </UserControl>

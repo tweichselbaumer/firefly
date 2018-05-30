@@ -47,6 +47,6 @@
             </Path.Data>
         </Path>
 
-        <Label Grid.Row="3" Content="Startvorgang..." Foreground="White" FontSize="7pt" VerticalAlignment="Center" />
+        <Label Grid.Row="3" Content="Loading..." Foreground="White" FontSize="7pt" VerticalAlignment="Center" />
     </Grid>
 </Window>

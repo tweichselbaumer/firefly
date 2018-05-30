@@ -1,5 +1,7 @@
-﻿using LinkUp.Node;
+﻿using FireFly.Settings;
+using LinkUp.Node;
 using LinkUp.Raw;
+using System;
 using System.Net;
 using System.Threading;
 using System.Windows;
@@ -20,14 +22,25 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty NodeProperty =
             DependencyProperty.Register("Node", typeof(LinkUpNode), typeof(MainViewModel), new PropertyMetadata(null));
 
-        private readonly SynchronizationContext _SyncContext;
+        public static readonly DependencyProperty SettingViewModelProperty =
+            DependencyProperty.Register("SettingViewModel", typeof(SettingViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
+        private readonly SynchronizationContext _SyncContext;
         private LinkUpConnector _Connector;
+        private SettingContainer _SettingContainer = new SettingContainer();
+
+
 
         public MainViewModel()
         {
+            SettingContainer.SettingFileName = "config.json";
+            SettingContainer.Load();
+
             _SyncContext = SynchronizationContext.Current;
             CameraViewModel = new CameraViewModel(this);
+            SettingViewModel = new SettingViewModel(this);
+
+            SettingsUpdated(false);
         }
 
         public CameraViewModel CameraViewModel
@@ -62,15 +75,70 @@ namespace FireFly.ViewModels
             set { SetValue(NodeNameProperty, value); }
         }
 
+        public SettingContainer SettingContainer
+        {
+            get
+            {
+                return _SettingContainer;
+            }
+        }
+
+        public SettingViewModel SettingViewModel
+        {
+            get { return (SettingViewModel)GetValue(SettingViewModelProperty); }
+            set { SetValue(SettingViewModelProperty, value); }
+        }
+
+        public SynchronizationContext SyncContext
+        {
+            get
+            {
+                return _SyncContext;
+            }
+        }
+
+        internal void SettingsUpdated(bool connectionSettingsChanged)
+        {
+            if (SettingViewModel != null && CameraViewModel != null)
+            {
+                CameraViewModel.SettingsUpdated();
+                SettingViewModel.SettingsUpdated();
+
+                if (connectionSettingsChanged)
+                {
+                    if (_Connector != null)
+                    {
+                        _Connector.Dispose();
+                    }
+
+                    _Connector = new LinkUpTcpClientConnector(IPAddress.Parse(SettingViewModel.IpAddress), SettingViewModel.Port);
+                    _Connector.ConnectivityChanged += Connector_ConnectivityChanged;
+
+                    Node = new LinkUpNode();
+                    Node.Name = NodeName;
+                    Node.AddSubNode(Connector);
+                    UpdateLinkUpBindings();
+                }
+
+                _SettingContainer.Save();
+            }
+        }
+
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             MainViewModel mwvm = (d as MainViewModel);
-            if (mwvm.Connector != null)
+            if (mwvm.Connector == null)
             {
-                mwvm.Connector.Dispose();
+                try
+                {
+                    mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse(mwvm.SettingViewModel.IpAddress), mwvm.SettingViewModel.Port);
+                }
+                catch (Exception)
+                {
+                    mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse("127.0.0.1"), 3000);
+                }
+                mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
             }
-            mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse("192.168.1.232"), 3000);
-            mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
 
             mwvm.Node = new LinkUpNode();
             mwvm.Node.Name = mwvm.NodeName;
@@ -90,6 +158,7 @@ namespace FireFly.ViewModels
         private void UpdateLinkUpBindings()
         {
             CameraViewModel.UpdateLinkUpBindings();
+            SettingViewModel.UpdateLinkUpBindings();
         }
     }
 }
