@@ -5,3 +5,5 @@
 /src/FireFly/bin/Debug
 /src/FireFly/obj
 /src/packages
+.vs
+/src/.vs
