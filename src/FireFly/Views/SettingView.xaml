@@ -17,8 +17,8 @@
     </UserControl.Resources>
     <Grid>
         <Controls:MetroAnimatedSingleRowTabControl>
-            <TabItem Header="General">
-            </TabItem>
+            <!--<TabItem Header="General">
+            </TabItem>-->
             <TabItem Header="Connection">
                 <Grid>
                     <Grid.RowDefinitions>

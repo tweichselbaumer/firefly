@@ -183,6 +183,11 @@
                             <Views:CameraView DataContext="{Binding Source={StaticResource Data}, Path=CameraViewModel}" />
                         </Controls:HamburgerMenuIconItem.Tag>
                     </Controls:HamburgerMenuIconItem>
+                    <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=ChartLine}" Label="Data">
+                        <Controls:HamburgerMenuIconItem.Tag>
+                            <Views:DataPlotView DataContext="{Binding Source={StaticResource Data}, Path=DataPlotViewModel}" />
+                        </Controls:HamburgerMenuIconItem.Tag>
+                    </Controls:HamburgerMenuIconItem>
                 </Controls:HamburgerMenuItemCollection>
             </Controls:HamburgerMenu.ItemsSource>
 

@@ -29,7 +29,7 @@
         </Viewbox>
 
         <StackPanel Grid.Column="3" Grid.Row="1" CanHorizontallyScroll="False" CanVerticallyScroll="False">
-            <Label  Content="Enable Stream" Style="{DynamicResource GeneralLabelStyle}" />
+            <Label  Content="Enable" Style="{DynamicResource GeneralLabelStyle}" />
             <Controls:ToggleSwitch
                 IsChecked="{Binding Path=Enabled}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />

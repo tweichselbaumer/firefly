@@ -16,8 +16,11 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty ConnectivityStateProperty =
                     DependencyProperty.Register("ConnectivityState", typeof(LinkUpConnectivityState), typeof(MainViewModel), new PropertyMetadata(LinkUpConnectivityState.Disconnected));
 
+        public static readonly DependencyProperty DataPlotViewModelProperty =
+            DependencyProperty.Register("DataPlotViewModel", typeof(DataPlotViewModel), typeof(MainViewModel), new PropertyMetadata(null));
+
         public static readonly DependencyProperty NodeNameProperty =
-                    DependencyProperty.Register("NodeName", typeof(string), typeof(MainViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
+                            DependencyProperty.Register("NodeName", typeof(string), typeof(MainViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty NodeProperty =
             DependencyProperty.Register("Node", typeof(LinkUpNode), typeof(MainViewModel), new PropertyMetadata(null));
@@ -29,8 +32,6 @@ namespace FireFly.ViewModels
         private LinkUpConnector _Connector;
         private SettingContainer _SettingContainer = new SettingContainer();
 
-
-
         public MainViewModel()
         {
             SettingContainer.SettingFileName = "config.json";
@@ -39,6 +40,7 @@ namespace FireFly.ViewModels
             _SyncContext = SynchronizationContext.Current;
             CameraViewModel = new CameraViewModel(this);
             SettingViewModel = new SettingViewModel(this);
+            DataPlotViewModel = new DataPlotViewModel(this);
 
             SettingsUpdated(false);
         }
@@ -61,6 +63,12 @@ namespace FireFly.ViewModels
             {
                 return _Connector;
             }
+        }
+
+        public DataPlotViewModel DataPlotViewModel
+        {
+            get { return (DataPlotViewModel)GetValue(DataPlotViewModelProperty); }
+            set { SetValue(DataPlotViewModelProperty, value); }
         }
 
         public LinkUpNode Node
@@ -103,6 +111,7 @@ namespace FireFly.ViewModels
             {
                 CameraViewModel.SettingsUpdated();
                 SettingViewModel.SettingsUpdated();
+                DataPlotViewModel.SettingsUpdated();
 
                 if (connectionSettingsChanged)
                 {
@@ -159,6 +168,7 @@ namespace FireFly.ViewModels
         {
             CameraViewModel.UpdateLinkUpBindings();
             SettingViewModel.UpdateLinkUpBindings();
+            DataPlotViewModel.UpdateLinkUpBindings();
         }
     }
 }
