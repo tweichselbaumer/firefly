@@ -3,14 +3,15 @@
                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                       xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                       xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:Views="clr-namespace:FireFly.Views"
                       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                      xmlns:ViewModles="clr-namespace:FireFly.ViewModels"
                       xmlns:materialDesignConverters="clr-namespace:MaterialDesignThemes.Wpf.Converters;assembly=MaterialDesignThemes.Wpf"
                       Title="FireFly"
                       Height="720"
                       Width="1280">
     <Window.Resources>
         <ResourceDictionary>
-            <!--  This is the template for the menu items.  -->
             <DataTemplate x:Key="MenuItemTemplate" DataType="{x:Type Controls:HamburgerMenuIconItem}">
                 <Grid Height="48">
                     <Grid.ColumnDefinitions>
@@ -148,64 +149,81 @@
                 <Setter Property="PaneForeground" Value="{DynamicResource TextBrush}" />
                 <Setter Property="ShowSelectionIndicator" Value="True" />
             </Style>
-
+            <ViewModles:MainViewModel x:Key="Data" NodeName="firefly" />
         </ResourceDictionary>
     </Window.Resources>
-    <!--ItemInvoked="HamburgerMenuControl_OnItemInvoked"-->
-    <Controls:HamburgerMenu x:Name="HamburgerMenuControl"
+
+    <Grid DataContext="{Binding Source={StaticResource Data}, Path=.}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Controls:HamburgerMenu x:Name="HamburgerMenuControl"
+                                    Grid.Row="0"
                                     HamburgerWidth="48"
                                     IsPaneOpen="True"
                                     ItemTemplate="{StaticResource MenuItemTemplate}"
                                     OptionsItemTemplate="{StaticResource MenuItemTemplate}"
                                     SelectedIndex="0"
                                     Style="{StaticResource HamburgerMenuCreatorsStyle}"
-                                    VerticalScrollBarOnLeftSide="False">
-        <!--  Items  -->
-        <Controls:HamburgerMenu.ItemsSource>
-            <Controls:HamburgerMenuItemCollection>
-                <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Home}" Label="Home">
+                                    VerticalScrollBarOnLeftSide="False"
+                                    ItemClick="HamburgerMenuControl_OnItemClick"
+                                    OptionsItemClick="HamburgerMenuControl_OnItemClick">
+            <!--  Items  -->
+            <Controls:HamburgerMenu.ItemsSource>
+                <Controls:HamburgerMenuItemCollection>
+                    <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Home}" Label="Home">
+                        <Controls:HamburgerMenuIconItem.Tag>
+                            <Grid></Grid>
+                        </Controls:HamburgerMenuIconItem.Tag>
+                    </Controls:HamburgerMenuIconItem>
+                    <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=AccountCircle}" Label="Camera">
+                        <Controls:HamburgerMenuIconItem.Tag>
+                            <Views:CameraView DataContext="{Binding Source={StaticResource Data}, Path=CameraViewModel}" />
+                        </Controls:HamburgerMenuIconItem.Tag>
+                    </Controls:HamburgerMenuIconItem>
+                </Controls:HamburgerMenuItemCollection>
+            </Controls:HamburgerMenu.ItemsSource>
 
-                </Controls:HamburgerMenuIconItem>
-                <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=AccountCircle}" Label="Private">
+            <!--  Options  -->
+            <Controls:HamburgerMenu.OptionsItemsSource>
+                <Controls:HamburgerMenuItemCollection>
+                    <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Settings}" Label="Settings">
+                        <Controls:HamburgerMenuIconItem.Tag>
+                            <Grid>
+                                <Label Content="{Binding Source={StaticResource Data}, Path=ConnectivityState}" />
+                            </Grid>
+                        </Controls:HamburgerMenuIconItem.Tag>
+                    </Controls:HamburgerMenuIconItem>
+                </Controls:HamburgerMenuItemCollection>
+            </Controls:HamburgerMenu.OptionsItemsSource>
 
-                </Controls:HamburgerMenuIconItem>
-                <Controls:HamburgerMenuIconItem Icon="{iconPacks:Octicons Kind=Briefcase}" Label="Briefcase">
-                   
-                </Controls:HamburgerMenuIconItem>
-            </Controls:HamburgerMenuItemCollection>
-        </Controls:HamburgerMenu.ItemsSource>
-
-        <!--  Options  -->
-        <Controls:HamburgerMenu.OptionsItemsSource>
-            <Controls:HamburgerMenuItemCollection>
-                <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Settings}" Label="Settings">
-
-                </Controls:HamburgerMenuIconItem>
-            </Controls:HamburgerMenuItemCollection>
-        </Controls:HamburgerMenu.OptionsItemsSource>
-
-        <Controls:HamburgerMenu.ContentTemplate>
-            <DataTemplate DataType="{x:Type Controls:HamburgerMenuIconItem}">
-                <Grid Margin="20 0 10 0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0"
+            <Controls:HamburgerMenu.ContentTemplate>
+                <DataTemplate DataType="{x:Type Controls:HamburgerMenuIconItem}">
+                    <Grid Margin="20 0 10 0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0"
                                        Margin="0 15 0 5"
                                        Padding="0"
                                        FontFamily="{DynamicResource HeaderFontFamily}"
                                        FontSize="{DynamicResource HeaderFontSize}"
                                        Text="{Binding Label}" />
-                    <ScrollViewer Grid.Row="1"
+                        <ScrollViewer Grid.Row="1"
                                           Focusable="False"
                                           HorizontalScrollBarVisibility="Disabled"
                                           VerticalScrollBarVisibility="Auto">
-                        <ContentControl Content="{Binding Tag}" Focusable="False" />
-                    </ScrollViewer>
-                </Grid>
-            </DataTemplate>
-        </Controls:HamburgerMenu.ContentTemplate>
-
-    </Controls:HamburgerMenu>
+                            <ContentControl Content="{Binding Tag}" Focusable="False" />
+                        </ScrollViewer>
+                    </Grid>
+                </DataTemplate>
+            </Controls:HamburgerMenu.ContentTemplate>
+        </Controls:HamburgerMenu>
+        <StatusBar Grid.Row="1">
+            <StatusBarItem Content="{Binding Path=ConnectivityState, Mode=OneWay}" />
+        </StatusBar>
+    </Grid>
 </Controls:MetroWindow>
