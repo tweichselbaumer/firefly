@@ -24,20 +24,21 @@
 
         <Viewbox Grid.Column="1" Grid.Row="1">
             <Border  BorderThickness="1" BorderBrush="Black">
-                <Image Width="640" Height="480" Source="{Binding Path=ImageSource}"/>
+                <Image Width="640" Height="480" Source="{Binding Path=ImageSource}" />
             </Border>
         </Viewbox>
 
-        <StackPanel Grid.Column="3" Grid.Row="1" CanHorizontallyScroll="False" CanVerticallyScroll="False">
-            <Label  Content="Enable" Style="{DynamicResource GeneralLabelStyle}" />
-            <Controls:ToggleSwitch
+        <DockPanel Grid.Column="3" Grid.Row="1" VerticalAlignment="Stretch">
+            <StackPanel DockPanel.Dock="Top">
+                <Label  Content="Enable" Style="{DynamicResource GeneralLabelStyle}" />
+                <Controls:ToggleSwitch
                 IsChecked="{Binding Path=Enabled}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
-            <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
 
-            <Label  Content="Quality" Style="{DynamicResource GeneralLabelStyle}" />
-            <Slider Width="200"
+                <Label  Content="Quality" Style="{DynamicResource GeneralLabelStyle}" />
+                <Slider Width="200"
                 AutoToolTipPlacement="TopLeft"
                 LargeChange="10"
                 Maximum="100"
@@ -46,6 +47,11 @@
                 SmallChange="1"
                 Style="{DynamicResource MahApps.Metro.Styles.Slider.Win10}"
                 Value="{Binding Path=Quality}" />
-        </StackPanel>
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+                <Button Width="200" Content="calibrate" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" />
+                <Button Width="200" Content="record" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" />
+            </StackPanel>
+        </DockPanel>
     </Grid>
 </UserControl>
