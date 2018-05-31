@@ -18,10 +18,10 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty QualityProperty =
             DependencyProperty.Register("Quality", typeof(int), typeof(CameraViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
 
+        private LinkUpEventLabel _EventLabel;
         private MainViewModel _Parent;
 
         private LinkUpPropertyLabel<byte> _QualityLabel;
-        LinkUpEventLabel _EventLabel;
 
         public CameraViewModel(MainViewModel parent)
         {
@@ -82,7 +82,7 @@ namespace FireFly.ViewModels
             if (Parent.Node != null)
             {
                 _EventLabel = Parent.Node.GetLabelByName<LinkUpEventLabel>("firefly/test/label_event");
-                if(Enabled)
+                if (Enabled)
                     _EventLabel.Subscribe();
                 else
                     _EventLabel.Unsubscribe();
@@ -111,6 +111,7 @@ namespace FireFly.ViewModels
                     }
                     catch (Exception) { }
                     break;
+
                 case "Enabled":
                     changed = cvm.Parent.SettingContainer.Settings.StreamingSettings.Enabled != cvm.Enabled;
                     cvm.Parent.SettingContainer.Settings.StreamingSettings.Enabled = cvm.Enabled;
@@ -123,7 +124,6 @@ namespace FireFly.ViewModels
                             else
                                 cvm._EventLabel.Unsubscribe();
                         }
-                           
                     }
                     catch (Exception) { }
                     break;

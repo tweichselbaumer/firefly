@@ -188,6 +188,11 @@
                             <Views:DataPlotView DataContext="{Binding Source={StaticResource Data}, Path=DataPlotViewModel}" />
                         </Controls:HamburgerMenuIconItem.Tag>
                     </Controls:HamburgerMenuIconItem>
+                    <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Tune}" Label="Calibration">
+                        <Controls:HamburgerMenuIconItem.Tag>
+                            <Views:CalibrationView  />
+                        </Controls:HamburgerMenuIconItem.Tag>
+                    </Controls:HamburgerMenuIconItem>
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Video3d}" Label="Visualisation">
                         <Controls:HamburgerMenuIconItem.Tag>
                             <Grid></Grid>
