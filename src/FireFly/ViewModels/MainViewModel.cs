@@ -10,8 +10,11 @@ namespace FireFly.ViewModels
 {
     public class MainViewModel : DependencyObject
     {
+        public static readonly DependencyProperty CalibrationViewModelProperty =
+            DependencyProperty.Register("CalibrationViewModel", typeof(CalibrationViewModel), typeof(MainViewModel), new PropertyMetadata(null));
+
         public static readonly DependencyProperty CameraViewModelProperty =
-            DependencyProperty.Register("CameraViewModel", typeof(CameraViewModel), typeof(MainViewModel), new PropertyMetadata(null));
+                    DependencyProperty.Register("CameraViewModel", typeof(CameraViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
         public static readonly DependencyProperty ConnectivityStateProperty =
                     DependencyProperty.Register("ConnectivityState", typeof(LinkUpConnectivityState), typeof(MainViewModel), new PropertyMetadata(LinkUpConnectivityState.Disconnected));
@@ -29,7 +32,9 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("SettingViewModel", typeof(SettingViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
         private readonly SynchronizationContext _SyncContext;
+
         private LinkUpConnector _Connector;
+
         private SettingContainer _SettingContainer = new SettingContainer();
 
         public MainViewModel()
@@ -38,11 +43,19 @@ namespace FireFly.ViewModels
             SettingContainer.Load();
 
             _SyncContext = SynchronizationContext.Current;
+
             CameraViewModel = new CameraViewModel(this);
             SettingViewModel = new SettingViewModel(this);
             DataPlotViewModel = new DataPlotViewModel(this);
+            CalibrationViewModel = new CalibrationViewModel(this);
 
             SettingsUpdated(false);
+        }
+
+        public CalibrationViewModel CalibrationViewModel
+        {
+            get { return (CalibrationViewModel)GetValue(CalibrationViewModelProperty); }
+            set { SetValue(CalibrationViewModelProperty, value); }
         }
 
         public CameraViewModel CameraViewModel
@@ -112,6 +125,7 @@ namespace FireFly.ViewModels
                 CameraViewModel.SettingsUpdated();
                 SettingViewModel.SettingsUpdated();
                 DataPlotViewModel.SettingsUpdated();
+                CalibrationViewModel.SettingsUpdated();
 
                 if (connectionSettingsChanged)
                 {
@@ -169,6 +183,7 @@ namespace FireFly.ViewModels
             CameraViewModel.UpdateLinkUpBindings();
             SettingViewModel.UpdateLinkUpBindings();
             DataPlotViewModel.UpdateLinkUpBindings();
+            CalibrationViewModel.UpdateLinkUpBindings();
         }
     }
 }

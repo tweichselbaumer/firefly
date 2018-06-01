@@ -1,38 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 
 namespace FireFly.ViewModels
 {
-    public class DataPlotViewModel : DependencyObject
+    public class DataPlotViewModel : AbstractViewModel
     {
-        private MainViewModel _Parent;
-        public DataPlotViewModel(MainViewModel parent)
+        public DataPlotViewModel(MainViewModel parent) : base(parent)
         {
-            _Parent = parent;
         }
 
-        public MainViewModel Parent
+        internal override void SettingsUpdated()
         {
-            get
-            {
-                return _Parent;
-            }
         }
 
-        internal void SettingsUpdated()
-        {
-            
-        }
-
-        internal void UpdateLinkUpBindings()
+        internal override void UpdateLinkUpBindings()
         {
             if (Parent.Node != null)
             {
-               
             }
         }
 

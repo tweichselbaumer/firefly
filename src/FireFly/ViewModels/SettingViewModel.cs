@@ -2,7 +2,7 @@
 
 namespace FireFly.ViewModels
 {
-    public class SettingViewModel : DependencyObject
+    public class SettingViewModel : AbstractViewModel
     {
         public static readonly DependencyProperty IpAddressProperty =
             DependencyProperty.Register("IpAddress", typeof(string), typeof(SettingViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
@@ -10,11 +10,8 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty PortProperty =
             DependencyProperty.Register("Port", typeof(int), typeof(SettingViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
 
-        private MainViewModel _Parent;
-
-        public SettingViewModel(MainViewModel parent)
+        public SettingViewModel(MainViewModel parent) : base(parent)
         {
-            _Parent = parent;
         }
 
         public string IpAddress
@@ -23,27 +20,19 @@ namespace FireFly.ViewModels
             set { SetValue(IpAddressProperty, value); }
         }
 
-        public MainViewModel Parent
-        {
-            get
-            {
-                return _Parent;
-            }
-        }
-
         public int Port
         {
             get { return (int)GetValue(PortProperty); }
             set { SetValue(PortProperty, value); }
         }
 
-        internal void SettingsUpdated()
+        internal override void SettingsUpdated()
         {
             IpAddress = Parent.SettingContainer.Settings.ConnectionSettings.IpAddress;
             Port = Parent.SettingContainer.Settings.ConnectionSettings.Port;
         }
 
-        internal void UpdateLinkUpBindings()
+        internal override void UpdateLinkUpBindings()
         {
         }
 

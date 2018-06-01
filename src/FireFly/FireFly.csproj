@@ -115,6 +115,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Command\RelayCommand.cs" />
+    <Compile Include="CustomControls\TakeSnapshotsControl.xaml.cs">
+      <DependentUpon>TakeSnapshotsControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Settings\ConnectionSettings.cs" />
     <Compile Include="Settings\SettingContainer.cs" />
     <Compile Include="Settings\Settings.cs" />
@@ -122,8 +126,10 @@
     <Compile Include="CustomControls\PlotControl.xaml.cs">
       <DependentUpon>PlotControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\CalibrationViewModel.cs" />
     <Compile Include="ViewModels\CameraViewModel.cs" />
     <Compile Include="ViewModels\DataPlotViewModel.cs" />
+    <Compile Include="ViewModels\AbstractViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\SettingViewModel.cs" />
     <Compile Include="Views\CalibrationView.xaml.cs">
@@ -148,6 +154,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="CustomControls\TakeSnapshotsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Style\CustomAccents.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -228,6 +238,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="launch_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries\VisualIntertialCalibration\VisualIntertialCalibration.csproj">
+      <Project>{c8e87f3d-c3a4-4871-8416-2f0f737a7405}</Project>
+      <Name>VisualIntertialCalibration</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\EMGU.CV.3.4.1.2976\build\EMGU.CV.targets" Condition="Exists('..\packages\EMGU.CV.3.4.1.2976\build\EMGU.CV.targets')" />

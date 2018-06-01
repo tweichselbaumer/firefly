@@ -5,6 +5,12 @@ VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireFly", "FireFly\FireFly.csproj", "{7AA6B2B5-E882-4DCB-AFFC-29AC165762CE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{9AA6A212-B8A2-4C3C-906A-8BE1EA1803AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualIntertialCalibration", "Libraries\VisualIntertialCalibration\VisualIntertialCalibration.csproj", "{C8E87F3D-C3A4-4871-8416-2F0F737A7405}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{4E0AEC5B-519D-4657-A4E1-8ABA1B8C9B7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +21,17 @@ Global
 		{7AA6B2B5-E882-4DCB-AFFC-29AC165762CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7AA6B2B5-E882-4DCB-AFFC-29AC165762CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7AA6B2B5-E882-4DCB-AFFC-29AC165762CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8E87F3D-C3A4-4871-8416-2F0F737A7405}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8E87F3D-C3A4-4871-8416-2F0F737A7405}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8E87F3D-C3A4-4871-8416-2F0F737A7405}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8E87F3D-C3A4-4871-8416-2F0F737A7405}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7AA6B2B5-E882-4DCB-AFFC-29AC165762CE} = {4E0AEC5B-519D-4657-A4E1-8ABA1B8C9B7F}
+		{C8E87F3D-C3A4-4871-8416-2F0F737A7405} = {9AA6A212-B8A2-4C3C-906A-8BE1EA1803AE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {339C833C-A5F1-4DE7-BF6C-8F22437C3EBD}

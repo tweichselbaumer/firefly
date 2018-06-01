@@ -190,7 +190,7 @@
                     </Controls:HamburgerMenuIconItem>
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Tune}" Label="Calibration">
                         <Controls:HamburgerMenuIconItem.Tag>
-                            <Views:CalibrationView  />
+                            <Views:CalibrationView  DataContext="{Binding Source={StaticResource Data}, Path=CalibrationViewModel}"/>
                         </Controls:HamburgerMenuIconItem.Tag>
                     </Controls:HamburgerMenuIconItem>
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Video3d}" Label="Visualisation">
@@ -248,7 +248,7 @@
                         <ScrollViewer Grid.Row="1"
                                           Focusable="False"
                                           HorizontalScrollBarVisibility="Disabled"
-                                          VerticalScrollBarVisibility="Auto">
+                                          VerticalScrollBarVisibility="Disabled">
                             <ContentControl Content="{Binding Tag}" Focusable="False" />
                         </ScrollViewer>
                     </Grid>

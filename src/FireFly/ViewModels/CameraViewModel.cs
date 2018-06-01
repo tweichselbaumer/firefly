@@ -7,7 +7,7 @@ using System.Windows.Media.Imaging;
 
 namespace FireFly.ViewModels
 {
-    public class CameraViewModel : DependencyObject
+    public class CameraViewModel : AbstractViewModel
     {
         public static readonly DependencyProperty EnabledProperty =
             DependencyProperty.Register("Enabled", typeof(bool), typeof(CameraViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
@@ -19,13 +19,11 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("Quality", typeof(int), typeof(CameraViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
 
         private LinkUpEventLabel _EventLabel;
-        private MainViewModel _Parent;
 
         private LinkUpPropertyLabel<byte> _QualityLabel;
 
-        public CameraViewModel(MainViewModel parent)
+        public CameraViewModel(MainViewModel parent) : base(parent)
         {
-            _Parent = parent;
         }
 
         public bool Enabled
@@ -38,14 +36,6 @@ namespace FireFly.ViewModels
         {
             get { return (BitmapSource)GetValue(ImageSouceProperty); }
             set { SetValue(ImageSouceProperty, value); }
-        }
-
-        public MainViewModel Parent
-        {
-            get
-            {
-                return _Parent;
-            }
         }
 
         public int Quality
@@ -71,13 +61,13 @@ namespace FireFly.ViewModels
             }
         }
 
-        internal void SettingsUpdated()
+        internal override void SettingsUpdated()
         {
             Quality = Parent.SettingContainer.Settings.StreamingSettings.Quality;
             Enabled = Parent.SettingContainer.Settings.StreamingSettings.Enabled;
         }
 
-        internal void UpdateLinkUpBindings()
+        internal override void UpdateLinkUpBindings()
         {
             if (Parent.Node != null)
             {
