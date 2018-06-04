@@ -1,0 +1,73 @@
+﻿<UserControl x:Class="FireFly.CustomControls.IntrinsicSnapshotsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:FireFly.CustomControls"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" TextWrapping="Wrap" TextAlignment="Justify">
+                1) Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam<LineBreak/>
+                2) Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam<LineBreak/>
+                3) Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam<LineBreak/>
+        </TextBlock>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Column="0" Grid.Row="0">
+                <Viewbox>
+                    <Border BorderThickness="1" BorderBrush="Black">
+                        <Image Width="640" Height="480" Source="{Binding Path=Parent.CameraViewModel.Image.ImageSource}" />
+                    </Border>
+                </Viewbox>
+                <Button Width="200" Content="take snapshot" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=TakeSnapshotCommand}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2" Grid.Row="0">
+                <Viewbox>
+                    <Border BorderThickness="1" BorderBrush="Black">
+                        <Image Width="640" Height="480" Source="{Binding ElementName=ListBoxImages, Path=SelectedItem.ProgressedImage.ImageSource}" />
+                    </Border>
+                </Viewbox>
+                <Button Width="200" Content="calibrate" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=CalibrateCommand}"/>
+            </StackPanel>
+            <ListBox x:Name="ListBoxImages" Grid.Column="4" SelectedItem="{Binding Mode=OneWay}" ItemsSource="{Binding Path=Images}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Viewbox Width="128">
+                                <Border BorderThickness="1" BorderBrush="Black">
+                                    <Image Width="128" Height="96" Source="{Binding Path=ProgressedImage.ImageSource}"/>
+                                </Border>
+                            </Viewbox>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="6"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+        </Grid>
+    </Grid>
+</UserControl>

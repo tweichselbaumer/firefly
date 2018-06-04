@@ -34,16 +34,12 @@
             </TabItem>
             <TabItem Header="Intrinisc">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" TextWrapping="Wrap" TextAlignment="Justify">
-                1) Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam<LineBreak/>
-                2) Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam<LineBreak/>
-                3) Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam<LineBreak/>
-                    </TextBlock>
-                    <CustomControls:TakeSnapshotsControl Grid.Row="1" DataContext="{Binding}"/>
+                    <Grid Visibility="{Binding Path=IntrinsicCalibrationViewModel.TakeSnapshotControlVisibility}">
+                        <CustomControls:IntrinsicSnapshotsControl DataContext="{Binding Path=IntrinsicCalibrationViewModel}"/>
+                    </Grid>
+                    <Grid Visibility="{Binding Path=IntrinsicCalibrationViewModel.ResultControlVisibility}">
+                        <CustomControls:IntrinsicResultControl DataContext="{Binding Path=IntrinsicCalibrationViewModel}" />
+                    </Grid>
                 </Grid>
             </TabItem>
             <TabItem Header="Extrinsic">

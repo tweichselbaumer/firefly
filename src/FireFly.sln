@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VisualIntertialCalibration"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{4E0AEC5B-519D-4657-A4E1-8ABA1B8C9B7F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Libraries\Utilities\Utilities.csproj", "{DD9822C1-00BA-46AF-85E0-2889EF295918}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{C8E87F3D-C3A4-4871-8416-2F0F737A7405}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8E87F3D-C3A4-4871-8416-2F0F737A7405}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8E87F3D-C3A4-4871-8416-2F0F737A7405}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD9822C1-00BA-46AF-85E0-2889EF295918}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD9822C1-00BA-46AF-85E0-2889EF295918}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD9822C1-00BA-46AF-85E0-2889EF295918}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD9822C1-00BA-46AF-85E0-2889EF295918}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +38,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{7AA6B2B5-E882-4DCB-AFFC-29AC165762CE} = {4E0AEC5B-519D-4657-A4E1-8ABA1B8C9B7F}
 		{C8E87F3D-C3A4-4871-8416-2F0F737A7405} = {9AA6A212-B8A2-4C3C-906A-8BE1EA1803AE}
+		{DD9822C1-00BA-46AF-85E0-2889EF295918} = {9AA6A212-B8A2-4C3C-906A-8BE1EA1803AE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {339C833C-A5F1-4DE7-BF6C-8F22437C3EBD}

@@ -24,7 +24,7 @@
 
         <Viewbox Grid.Column="1" Grid.Row="1">
             <Border  BorderThickness="1" BorderBrush="Black">
-                <Image Width="640" Height="480" Source="{Binding Path=ImageSource}" />
+                <Image Width="640" Height="480" Source="{Binding Path=Image.ImageSource}" />
             </Border>
         </Viewbox>
 

@@ -116,9 +116,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Command\RelayCommand.cs" />
-    <Compile Include="CustomControls\TakeSnapshotsControl.xaml.cs">
-      <DependentUpon>TakeSnapshotsControl.xaml</DependentUpon>
+    <Compile Include="CustomControls\IntrinsicResultControl.xaml.cs">
+      <DependentUpon>IntrinsicResultControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\IntrinsicSnapshotsControl.xaml.cs">
+      <DependentUpon>IntrinsicSnapshotsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Models\ChArUcoImageContainer.cs" />
+    <Compile Include="Models\CvImageContainer.cs" />
     <Compile Include="Settings\ConnectionSettings.cs" />
     <Compile Include="Settings\SettingContainer.cs" />
     <Compile Include="Settings\Settings.cs" />
@@ -130,6 +135,7 @@
     <Compile Include="ViewModels\CameraViewModel.cs" />
     <Compile Include="ViewModels\DataPlotViewModel.cs" />
     <Compile Include="ViewModels\AbstractViewModel.cs" />
+    <Compile Include="ViewModels\IntrinsicCalibrationViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\SettingViewModel.cs" />
     <Compile Include="Views\CalibrationView.xaml.cs">
@@ -154,7 +160,11 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="CustomControls\TakeSnapshotsControl.xaml">
+    <Page Include="CustomControls\IntrinsicResultControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\IntrinsicSnapshotsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -240,6 +250,10 @@
     <Resource Include="launch_icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Libraries\Utilities\Utilities.csproj">
+      <Project>{dd9822c1-00ba-46af-85e0-2889ef295918}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Libraries\VisualIntertialCalibration\VisualIntertialCalibration.csproj">
       <Project>{c8e87f3d-c3a4-4871-8416-2f0f737a7405}</Project>
       <Name>VisualIntertialCalibration</Name>

@@ -1,4 +1,6 @@
 ﻿using Emgu.CV;
+using FireFly.Models;
+using FireFly.Utilities;
 using LinkUp.Node;
 using System;
 using System.Runtime.InteropServices;
@@ -12,8 +14,8 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty EnabledProperty =
             DependencyProperty.Register("Enabled", typeof(bool), typeof(CameraViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
 
-        public static readonly DependencyProperty ImageSouceProperty =
-            DependencyProperty.Register("ImageSource", typeof(BitmapSource), typeof(CameraViewModel), new PropertyMetadata(null));
+        public static readonly DependencyProperty ImageProperty =
+            DependencyProperty.Register("Image", typeof(CvImageContainer), typeof(CameraViewModel), new PropertyMetadata(null));
 
         public static readonly DependencyProperty QualityProperty =
             DependencyProperty.Register("Quality", typeof(int), typeof(CameraViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
@@ -32,10 +34,10 @@ namespace FireFly.ViewModels
             set { SetValue(EnabledProperty, value); }
         }
 
-        public BitmapSource ImageSource
+        public CvImageContainer Image
         {
-            get { return (BitmapSource)GetValue(ImageSouceProperty); }
-            set { SetValue(ImageSouceProperty, value); }
+            get { return (CvImageContainer)GetValue(ImageProperty); }
+            set { SetValue(ImageProperty, value); }
         }
 
         public int Quality
@@ -44,22 +46,7 @@ namespace FireFly.ViewModels
             set { SetValue(QualityProperty, value); }
         }
 
-        public static BitmapSource ToBitmapSource(IImage image)
-        {
-            using (System.Drawing.Bitmap source = image.Bitmap)
-            {
-                IntPtr ptr = source.GetHbitmap();
 
-                BitmapSource bs = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                    ptr,
-                    IntPtr.Zero,
-                    Int32Rect.Empty,
-                    System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
-
-                DeleteObject(ptr);
-                return bs;
-            }
-        }
 
         internal override void SettingsUpdated()
         {
@@ -82,8 +69,7 @@ namespace FireFly.ViewModels
             }
         }
 
-        [DllImport("gdi32")]
-        private static extern int DeleteObject(IntPtr o);
+
 
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -133,7 +119,8 @@ namespace FireFly.ViewModels
             CvInvoke.Imdecode(data, Emgu.CV.CvEnum.ImreadModes.Grayscale, mat);
             Parent.SyncContext.Post(o =>
             {
-                ImageSource = ToBitmapSource(mat);
+                Image = new CvImageContainer();
+                Image.CvImage = mat;
             }
             , null);
         }
