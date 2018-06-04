@@ -124,7 +124,9 @@
     </Compile>
     <Compile Include="Models\ChArUcoImageContainer.cs" />
     <Compile Include="Models\CvImageContainer.cs" />
+    <Compile Include="Settings\CalibrationSettings.cs" />
     <Compile Include="Settings\ConnectionSettings.cs" />
+    <Compile Include="Settings\IntrinsicCalibrationSettings.cs" />
     <Compile Include="Settings\SettingContainer.cs" />
     <Compile Include="Settings\Settings.cs" />
     <Compile Include="Settings\StreamingSettings.cs" />
@@ -244,6 +246,7 @@
     <Resource Include="License-LGPL.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Converter\" />
     <Folder Include="Themes\" />
   </ItemGroup>
   <ItemGroup>

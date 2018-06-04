@@ -6,6 +6,8 @@
 
         private StreamingSettings _StreamingSettings = new StreamingSettings();
 
+        private CalibrationSettings _CalibrationSettings = new CalibrationSettings();
+
         public ConnectionSettings ConnectionSettings
         {
             get
@@ -29,6 +31,19 @@
             set
             {
                 _StreamingSettings = value;
+            }
+        }
+
+        public CalibrationSettings CalibrationSettings
+        {
+            get
+            {
+                return _CalibrationSettings;
+            }
+
+            set
+            {
+                _CalibrationSettings = value;
             }
         }
     }

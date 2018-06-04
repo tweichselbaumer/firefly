@@ -17,11 +17,23 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty ImagesProperty =
                    DependencyProperty.Register("Images", typeof(ObservableCollection<ChArUcoImageContainer>), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(new ObservableCollection<ChArUcoImageContainer>()));
 
+        public static readonly DependencyProperty MarkerLengthProperty =
+            DependencyProperty.Register("MarkerLength", typeof(float), typeof(IntrinsicCalibrationViewModel), new FrameworkPropertyMetadata(0.0f, new PropertyChangedCallback(OnPropertyChanged)));
+
         public static readonly DependencyProperty ResultControlVisibilityProperty =
-          DependencyProperty.Register("ResultControlVisibility", typeof(Visibility), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(Visibility.Visible));
+                  DependencyProperty.Register("ResultControlVisibility", typeof(Visibility), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(Visibility.Visible));
+
+        public static readonly DependencyProperty SquareLengthProperty =
+            DependencyProperty.Register("SquareLength", typeof(float), typeof(IntrinsicCalibrationViewModel), new FrameworkPropertyMetadata(0.0f, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty SquaresXProperty =
+            DependencyProperty.Register("SquaresX", typeof(int), typeof(IntrinsicCalibrationViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty SquaresYProperty =
+            DependencyProperty.Register("SquaresY", typeof(int), typeof(IntrinsicCalibrationViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty TakeSnapshotControlVisibilityProperty =
-            DependencyProperty.Register("TakeSnapshotControlVisibility", typeof(Visibility), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(Visibility.Collapsed));
+                                    DependencyProperty.Register("TakeSnapshotControlVisibility", typeof(Visibility), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(Visibility.Collapsed));
 
         public IntrinsicCalibrationViewModel(MainViewModel parent) : base(parent)
         {
@@ -51,10 +63,34 @@ namespace FireFly.ViewModels
             set { SetValue(ImagesProperty, value); }
         }
 
+        public float MarkerLength
+        {
+            get { return (float)GetValue(MarkerLengthProperty); }
+            set { SetValue(MarkerLengthProperty, value); }
+        }
+
         public Visibility ResultControlVisibility
         {
             get { return (Visibility)GetValue(ResultControlVisibilityProperty); }
             set { SetValue(ResultControlVisibilityProperty, value); }
+        }
+
+        public float SquareLength
+        {
+            get { return (float)GetValue(SquareLengthProperty); }
+            set { SetValue(SquareLengthProperty, value); }
+        }
+
+        public int SquaresX
+        {
+            get { return (int)GetValue(SquaresXProperty); }
+            set { SetValue(SquaresXProperty, value); }
+        }
+
+        public int SquaresY
+        {
+            get { return (int)GetValue(SquaresYProperty); }
+            set { SetValue(SquaresYProperty, value); }
         }
 
         public RelayCommand<object> StartCalibrationCommand
@@ -89,10 +125,49 @@ namespace FireFly.ViewModels
 
         internal override void SettingsUpdated()
         {
+            SquaresX = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresX;
+            SquaresY = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresY;
+            MarkerLength = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.MarkerLength;
+            SquareLength = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquareLength;
         }
 
         internal override void UpdateLinkUpBindings()
         {
+        }
+
+        private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            IntrinsicCalibrationViewModel icvm = (d as IntrinsicCalibrationViewModel);
+            bool changed = false;
+            switch (e.Property.Name)
+            {
+                case "SquaresX":
+                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresX != icvm.SquaresX;
+                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresX = icvm.SquaresX;
+                    break;
+
+                case "SquaresY":
+                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresY != icvm.SquaresY;
+                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresY = icvm.SquaresY;
+                    break;
+
+                case "SquareLength":
+                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquareLength != icvm.SquareLength;
+                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquareLength = icvm.SquareLength;
+                    break;
+
+                case "MarkerLength":
+                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.MarkerLength != icvm.MarkerLength;
+                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.MarkerLength = icvm.MarkerLength;
+                    break;
+
+                default:
+                    break;
+            }
+            if (changed)
+            {
+                icvm.Parent.SettingsUpdated(false);
+            }
         }
 
         private Task DoCalibrate(object o)
