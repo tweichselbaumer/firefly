@@ -2,8 +2,11 @@
 using Emgu.CV.Util;
 using FireFly.Command;
 using FireFly.Models;
+using FireFly.Utilities;
 using FireFly.VI.Calibration;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -15,13 +18,13 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("ChAruCoBoard", typeof(CvImageContainer), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(null));
 
         public static readonly DependencyProperty ImagesProperty =
-                   DependencyProperty.Register("Images", typeof(ObservableCollection<ChArUcoImageContainer>), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(new ObservableCollection<ChArUcoImageContainer>()));
+            DependencyProperty.Register("Images", typeof(ObservableCollection<ChArUcoImageContainer>), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(new ObservableCollection<ChArUcoImageContainer>()));
 
         public static readonly DependencyProperty MarkerLengthProperty =
             DependencyProperty.Register("MarkerLength", typeof(float), typeof(IntrinsicCalibrationViewModel), new FrameworkPropertyMetadata(0.0f, new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty ResultControlVisibilityProperty =
-                  DependencyProperty.Register("ResultControlVisibility", typeof(Visibility), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(Visibility.Visible));
+            DependencyProperty.Register("ResultControlVisibility", typeof(Visibility), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(Visibility.Visible));
 
         public static readonly DependencyProperty SquareLengthProperty =
             DependencyProperty.Register("SquareLength", typeof(float), typeof(IntrinsicCalibrationViewModel), new FrameworkPropertyMetadata(0.0f, new PropertyChangedCallback(OnPropertyChanged)));
@@ -33,7 +36,13 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("SquaresY", typeof(int), typeof(IntrinsicCalibrationViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty TakeSnapshotControlVisibilityProperty =
-                                    DependencyProperty.Register("TakeSnapshotControlVisibility", typeof(Visibility), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(Visibility.Collapsed));
+            DependencyProperty.Register("TakeSnapshotControlVisibility", typeof(Visibility), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(Visibility.Collapsed));
+
+        private double _Cx;
+        private double _Cy;
+        private List<double> _DistCoeffs = new List<double>();
+        private double _Fx;
+        private double _Fy;
 
         public IntrinsicCalibrationViewModel(MainViewModel parent) : base(parent)
         {
@@ -129,6 +138,50 @@ namespace FireFly.ViewModels
             SquaresY = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresY;
             MarkerLength = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.MarkerLength;
             SquareLength = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquareLength;
+
+            bool change = false;
+            change |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx != _Fx;
+            change |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy != _Fy;
+            change |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx != _Cx;
+            change |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy != _Cy;
+
+            var firstNotSecond = _DistCoeffs.Except(Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs).ToList();
+            var secondNotFirst = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Except(_DistCoeffs).ToList();
+
+            change |= firstNotSecond.Any() || secondNotFirst.Any();
+
+            if (change)
+            {
+                _Fx = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx;
+                _Fy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy;
+                _Cx = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx;
+                _Cy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy;
+                _DistCoeffs = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.ToList();
+
+                Mat board = ChArUcoDetector.DrawBoard(7, 5, 0.04f, 0.02f, new System.Drawing.Size(640, 480));
+                Mat boardDist = board.Clone();
+
+                Mat cameraMatrix = new Mat(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
+                Mat distCoeffs = new Mat(1, _DistCoeffs.Count, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
+
+                cameraMatrix.SetValue(0, 0, _Fx);
+                cameraMatrix.SetValue(1, 1, _Fy);
+                cameraMatrix.SetValue(0, 2, _Cy);
+                cameraMatrix.SetValue(1, 2, _Cy);
+                cameraMatrix.SetValue(2, 2, 1.0f);
+
+                for (int i = 0; i < distCoeffs.Cols; i++)
+                {
+                    distCoeffs.SetValue(0, i, _DistCoeffs[i]);
+                }
+
+                CvInvoke.Undistort(board, boardDist, cameraMatrix, distCoeffs);
+                Parent.SyncContext.Post(c =>
+                {
+                    ChAruCoBoard = new CvImageContainer();
+                    ChAruCoBoard.CvImage = boardDist;
+                }, null);
+            }
         }
 
         internal override void UpdateLinkUpBindings()
@@ -184,26 +237,39 @@ namespace FireFly.ViewModels
 
                     foreach (ChArUcoImageContainer image in Images)
                     {
-                        allIds.Push(image.MarkerIds);
-                        allCorners.Push(image.MarkerCorners);
-                        markerCounterPerFrame.Push(new int[] { image.MarkerCorners.Size });
+                        if (image.MarkerCorners.Size > 0)
+                        {
+                            allIds.Push(image.MarkerIds);
+                            allCorners.Push(image.MarkerCorners);
+                            markerCounterPerFrame.Push(new int[] { image.MarkerCorners.Size });
+                        }
                     }
 
-                    //TODO: settings
+                    if (markerCounterPerFrame.Size > 0)
+                    {
+                        (Mat cameraMatrix, Mat distCoeffs) result = ChArUcoDetector.Calibrate(SquaresX, SquaresY, SquareLength, MarkerLength, Parent.CameraViewModel.Image.CvImage.Size, allIds, allCorners, markerCounterPerFrame);
+                        Images.Clear();
 
-                    (Mat cameraMatrix, Mat distCoeffs) result = ChArUcoDetector.Calibrate(5, 7, 0.04f, 0.02f, Parent.CameraViewModel.Image.CvImage.Size, allIds, allCorners, markerCounterPerFrame);
-                    Images.Clear();
+                        Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx = result.cameraMatrix.GetValue(0, 0);
+                        Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy = result.cameraMatrix.GetValue(1, 1);
+                        Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx = result.cameraMatrix.GetValue(0, 2);
+                        Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy = result.cameraMatrix.GetValue(1, 2);
 
-                    ChAruCoBoard = new CvImageContainer();
-                    Mat board = ChArUcoDetector.DrawBoard(5, 7, 0.04f, 0.02f, Parent.CameraViewModel.Image.CvImage.Size);
-                    Mat boardDist = board.Clone();
+                        Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Clear();
+                        for (int i = 0; i < result.distCoeffs.Cols; i++)
+                        {
+                            Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Add(result.distCoeffs.GetValue(0, i));
+                        }
 
-                    CvInvoke.Undistort(board, boardDist, result.cameraMatrix, result.distCoeffs);
+                        Parent.SettingsUpdated(false);
 
-                    ChAruCoBoard.CvImage = boardDist;
-
-                    TakeSnapshotControlVisibility = Visibility.Collapsed;
-                    ResultControlVisibility = Visibility.Visible;
+                        TakeSnapshotControlVisibility = Visibility.Collapsed;
+                        ResultControlVisibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        Parent.DialogCoordinator.ShowMessageAsync(Parent, "Error", "Not enough valide input frames available!");
+                    }
                 }, null);
             });
         }

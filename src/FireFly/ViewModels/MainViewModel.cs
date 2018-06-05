@@ -1,6 +1,7 @@
 ﻿using FireFly.Settings;
 using LinkUp.Node;
 using LinkUp.Raw;
+using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Net;
 using System.Threading;
@@ -23,7 +24,7 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("DataPlotViewModel", typeof(DataPlotViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
         public static readonly DependencyProperty NodeNameProperty =
-                            DependencyProperty.Register("NodeName", typeof(string), typeof(MainViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
+            DependencyProperty.Register("NodeName", typeof(string), typeof(MainViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty NodeProperty =
             DependencyProperty.Register("Node", typeof(LinkUpNode), typeof(MainViewModel), new PropertyMetadata(null));
@@ -34,7 +35,7 @@ namespace FireFly.ViewModels
         private readonly SynchronizationContext _SyncContext;
 
         private LinkUpConnector _Connector;
-
+        private IDialogCoordinator _DialogCoordinator;
         private SettingContainer _SettingContainer = new SettingContainer();
 
         public MainViewModel()
@@ -48,6 +49,8 @@ namespace FireFly.ViewModels
             SettingViewModel = new SettingViewModel(this);
             DataPlotViewModel = new DataPlotViewModel(this);
             CalibrationViewModel = new CalibrationViewModel(this);
+
+            _DialogCoordinator = MahApps.Metro.Controls.Dialogs.DialogCoordinator.Instance;
 
             SettingsUpdated(false);
         }
@@ -82,6 +85,14 @@ namespace FireFly.ViewModels
         {
             get { return (DataPlotViewModel)GetValue(DataPlotViewModelProperty); }
             set { SetValue(DataPlotViewModelProperty, value); }
+        }
+
+        public IDialogCoordinator DialogCoordinator
+        {
+            get
+            {
+                return _DialogCoordinator;
+            }
         }
 
         public LinkUpNode Node

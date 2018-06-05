@@ -6,10 +6,12 @@
                       xmlns:Views="clr-namespace:FireFly.Views"
                       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:ViewModles="clr-namespace:FireFly.ViewModels"
+                      xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
                       xmlns:materialDesignConverters="clr-namespace:MaterialDesignThemes.Wpf.Converters;assembly=MaterialDesignThemes.Wpf"
                       Title="FireFly"
                       Height="720"
-                      Width="1280">
+                      Width="1280"
+                      Dialog:DialogParticipation.Register="{Binding}">
     <Window.Resources>
         <ResourceDictionary>
             <DataTemplate x:Key="MenuItemTemplate" DataType="{x:Type Controls:HamburgerMenuIconItem}">
@@ -152,8 +154,14 @@
             <ViewModles:MainViewModel x:Key="Data" NodeName="firefly" />
         </ResourceDictionary>
     </Window.Resources>
-
-    <Grid DataContext="{Binding Source={StaticResource Data}, Path=.}">
+    <Window.DataContext>
+        <Binding Path=".">
+            <Binding.Source>
+                <StaticResource ResourceKey="Data" />
+            </Binding.Source>
+        </Binding>
+    </Window.DataContext>
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -190,7 +198,7 @@
                     </Controls:HamburgerMenuIconItem>
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Tune}" Label="Calibration">
                         <Controls:HamburgerMenuIconItem.Tag>
-                            <Views:CalibrationView  DataContext="{Binding Source={StaticResource Data}, Path=CalibrationViewModel}"/>
+                            <Views:CalibrationView  DataContext="{Binding Source={StaticResource Data}, Path=CalibrationViewModel}" />
                         </Controls:HamburgerMenuIconItem.Tag>
                     </Controls:HamburgerMenuIconItem>
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Video3d}" Label="Visualisation">

@@ -9,3 +9,8 @@
 /src/.vs
 .vs
 .vs
+/src/Libraries/Utilities/bin
+obj
+bin
+bin
+obj

@@ -1,11 +1,83 @@
-﻿namespace FireFly.Settings
+﻿using System.Collections.Generic;
+
+namespace FireFly.Settings
 {
     public class IntrinsicCalibrationSettings
     {
+        private double _Cx;
+        private double _Cy;
+        private List<double> _DistCoeffs = new List<double>();
+        private double _Fx;
+        private double _Fy;
         private float _MarkerLength;
         private float _SquareLength;
         private int _SquaresX;
         private int _SquaresY;
+
+        public double Cx
+        {
+            get
+            {
+                return _Cx;
+            }
+
+            set
+            {
+                _Cx = value;
+            }
+        }
+
+        public double Cy
+        {
+            get
+            {
+                return _Cy;
+            }
+
+            set
+            {
+                _Cy = value;
+            }
+        }
+
+        public List<double> DistCoeffs
+        {
+            get
+            {
+                return _DistCoeffs;
+            }
+
+            set
+            {
+                _DistCoeffs = value;
+            }
+        }
+
+        public double Fx
+        {
+            get
+            {
+                return _Fx;
+            }
+
+            set
+            {
+                _Fx = value;
+            }
+        }
+
+        public double Fy
+        {
+            get
+            {
+                return _Fy;
+            }
+
+            set
+            {
+                _Fy = value;
+            }
+        }
 
         public float MarkerLength
         {
