@@ -6,6 +6,7 @@
                       xmlns:Views="clr-namespace:FireFly.Views"
                       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:ViewModles="clr-namespace:FireFly.ViewModels"
+                      xmlns:Converter="clr-namespace:FireFly.Converter"
                       xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
                       xmlns:materialDesignConverters="clr-namespace:MaterialDesignThemes.Wpf.Converters;assembly=MaterialDesignThemes.Wpf"
                       Title="FireFly"
@@ -152,6 +153,7 @@
                 <Setter Property="ShowSelectionIndicator" Value="True" />
             </Style>
             <ViewModles:MainViewModel x:Key="Data" NodeName="firefly" />
+            <Converter:BytesPerSecondConverter x:Key="BytesPerSecondConverter" />
         </ResourceDictionary>
     </Window.Resources>
     <Window.DataContext>
@@ -265,6 +267,9 @@
         </Controls:HamburgerMenu>
         <StatusBar Grid.Row="1">
             <StatusBarItem Content="{Binding Path=ConnectivityState, Mode=OneWay}" />
+            <Separator Style="{StaticResource MetroStatusBarSeparator}" />
+            <StatusBarItem Content="{Binding Path=BytesSentPerSec, Mode=OneWay,Converter={StaticResource BytesPerSecondConverter}}" />
+            <StatusBarItem Content="{Binding Path=BytesReceivedPerSec, Mode=OneWay,Converter={StaticResource BytesPerSecondConverter}}" />
         </StatusBar>
     </Grid>
 </Controls:MetroWindow>

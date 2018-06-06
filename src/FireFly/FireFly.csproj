@@ -116,6 +116,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Command\RelayCommand.cs" />
+    <Compile Include="Converter\BytesPerSecondConverter.cs" />
     <Compile Include="CustomControls\IntrinsicResultControl.xaml.cs">
       <DependentUpon>IntrinsicResultControl.xaml</DependentUpon>
     </Compile>
@@ -246,7 +247,6 @@
     <Resource Include="License-LGPL.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Converter\" />
     <Folder Include="Themes\" />
   </ItemGroup>
   <ItemGroup>

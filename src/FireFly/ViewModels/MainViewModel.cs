@@ -11,8 +11,14 @@ namespace FireFly.ViewModels
 {
     public class MainViewModel : DependencyObject
     {
+        public static readonly DependencyProperty BytesReceivedPerSecProperty =
+            DependencyProperty.Register("BytesReceivedPerSec", typeof(double), typeof(MainViewModel), new PropertyMetadata(0.0));
+
+        public static readonly DependencyProperty BytesSentPerSecProperty =
+            DependencyProperty.Register("BytesSentPerSec", typeof(double), typeof(MainViewModel), new PropertyMetadata(0.0));
+
         public static readonly DependencyProperty CalibrationViewModelProperty =
-            DependencyProperty.Register("CalibrationViewModel", typeof(CalibrationViewModel), typeof(MainViewModel), new PropertyMetadata(null));
+                            DependencyProperty.Register("CalibrationViewModel", typeof(CalibrationViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
         public static readonly DependencyProperty CameraViewModelProperty =
                     DependencyProperty.Register("CameraViewModel", typeof(CameraViewModel), typeof(MainViewModel), new PropertyMetadata(null));
@@ -35,7 +41,9 @@ namespace FireFly.ViewModels
         private readonly SynchronizationContext _SyncContext;
 
         private LinkUpConnector _Connector;
+
         private IDialogCoordinator _DialogCoordinator;
+
         private SettingContainer _SettingContainer = new SettingContainer();
 
         public MainViewModel()
@@ -53,6 +61,18 @@ namespace FireFly.ViewModels
             _DialogCoordinator = MahApps.Metro.Controls.Dialogs.DialogCoordinator.Instance;
 
             SettingsUpdated(false);
+        }
+
+        public double BytesReceivedPerSec
+        {
+            get { return (double)GetValue(BytesReceivedPerSecProperty); }
+            set { SetValue(BytesReceivedPerSecProperty, value); }
+        }
+
+        public double BytesSentPerSec
+        {
+            get { return (double)GetValue(BytesSentPerSecProperty); }
+            set { SetValue(BytesSentPerSecProperty, value); }
         }
 
         public CalibrationViewModel CalibrationViewModel
@@ -147,6 +167,7 @@ namespace FireFly.ViewModels
 
                     _Connector = new LinkUpTcpClientConnector(IPAddress.Parse(SettingViewModel.IpAddress), SettingViewModel.Port);
                     _Connector.ConnectivityChanged += Connector_ConnectivityChanged;
+                    _Connector.MetricUpdate += Connector_MetricUpdate;
 
                     Node = new LinkUpNode();
                     Node.Name = NodeName;
@@ -156,6 +177,16 @@ namespace FireFly.ViewModels
 
                 _SettingContainer.Save();
             }
+        }
+
+        private void Connector_MetricUpdate(LinkUpConnector connector, double bytesSentPerSecond, double bytesReceivedPerSecond)
+        {
+            _SyncContext.Post(o =>
+            {
+                BytesSentPerSec = bytesSentPerSecond;
+                BytesReceivedPerSec = bytesReceivedPerSecond;
+            }
+            , null);
         }
 
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -172,6 +203,7 @@ namespace FireFly.ViewModels
                     mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse("127.0.0.1"), 3000);
                 }
                 mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
+                mwvm.Connector.MetricUpdate += mwvm.Connector_MetricUpdate;
             }
 
             mwvm.Node = new LinkUpNode();
