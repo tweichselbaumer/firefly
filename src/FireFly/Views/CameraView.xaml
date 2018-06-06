@@ -22,11 +22,19 @@
             <RowDefinition Height="10" />
         </Grid.RowDefinitions>
 
-        <Viewbox Grid.Column="1" Grid.Row="1">
+        <Grid Grid.Column="1" Grid.Row="1">
+        <Viewbox>
             <Border  BorderThickness="1" BorderBrush="Black">
                 <Image Width="640" Height="480" Source="{Binding Path=Image.ImageSource}" />
             </Border>
         </Viewbox>
+            <Grid Panel.ZIndex="1000" Opacity="0.8" Margin="10">
+                <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Label  Content="FPS" Style="{DynamicResource GeneralLabelStyle}" Foreground="White" FontWeight="Bold"/>
+                    <Label  Content="{Binding Path=FPS}" Style="{DynamicResource GeneralLabelStyle}" Foreground="White" FontWeight="Bold"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
 
         <DockPanel Grid.Column="3" Grid.Row="1" VerticalAlignment="Stretch">
             <StackPanel DockPanel.Dock="Top">

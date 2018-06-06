@@ -3,9 +3,7 @@ using FireFly.Models;
 using FireFly.Utilities;
 using LinkUp.Node;
 using System;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Media.Imaging;
 
 namespace FireFly.ViewModels
 {
@@ -14,24 +12,40 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty EnabledProperty =
             DependencyProperty.Register("Enabled", typeof(bool), typeof(CameraViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
 
+        public static readonly DependencyProperty FPSProperty =
+            DependencyProperty.Register("FPS", typeof(int), typeof(CameraViewModel), new PropertyMetadata(0));
+
         public static readonly DependencyProperty ImageProperty =
-            DependencyProperty.Register("Image", typeof(CvImageContainer), typeof(CameraViewModel), new PropertyMetadata(null));
+                    DependencyProperty.Register("Image", typeof(CvImageContainer), typeof(CameraViewModel), new PropertyMetadata(null));
 
         public static readonly DependencyProperty QualityProperty =
             DependencyProperty.Register("Quality", typeof(int), typeof(CameraViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
 
         private LinkUpEventLabel _EventLabel;
 
+        private FPSCounter _FPSCounter = new FPSCounter();
+
         private LinkUpPropertyLabel<byte> _QualityLabel;
+
+        private System.Timers.Timer _Timer;
 
         public CameraViewModel(MainViewModel parent) : base(parent)
         {
+            _Timer = new System.Timers.Timer(1000);
+            _Timer.Elapsed += _Timer_Elapsed;
+            _Timer.Start();
         }
 
         public bool Enabled
         {
             get { return (bool)GetValue(EnabledProperty); }
             set { SetValue(EnabledProperty, value); }
+        }
+
+        public int FPS
+        {
+            get { return (int)GetValue(FPSProperty); }
+            set { SetValue(FPSProperty, value); }
         }
 
         public CvImageContainer Image
@@ -45,8 +59,6 @@ namespace FireFly.ViewModels
             get { return (int)GetValue(QualityProperty); }
             set { SetValue(QualityProperty, value); }
         }
-
-
 
         internal override void SettingsUpdated()
         {
@@ -68,8 +80,6 @@ namespace FireFly.ViewModels
                 _QualityLabel = Parent.Node.GetLabelByName<LinkUpPropertyLabel<byte>>("firefly/test/jpeg_quality");
             }
         }
-
-
 
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -113,10 +123,19 @@ namespace FireFly.ViewModels
             }
         }
 
+        private void _Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Parent.SyncContext.Post(o =>
+            {
+                FPS = (int)_FPSCounter.FramesPerSecond;
+            }, null);
+        }
+
         private void EventLabel_Fired(LinkUpEventLabel label, byte[] data)
         {
             Mat mat = new Mat();
             CvInvoke.Imdecode(data, Emgu.CV.CvEnum.ImreadModes.Grayscale, mat);
+            _FPSCounter.CountFrame();
             Parent.SyncContext.Post(o =>
             {
                 Image = new CvImageContainer();
