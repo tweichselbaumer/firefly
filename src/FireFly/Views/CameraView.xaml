@@ -24,12 +24,12 @@
 
         <Grid Grid.Column="1" Grid.Row="1">
         <Viewbox>
-            <Border  BorderThickness="1" BorderBrush="Black">
+            <Border BorderThickness="1" BorderBrush="Black">
                 <Image Width="640" Height="480" Source="{Binding Path=Image.ImageSource}" />
             </Border>
-        </Viewbox>
-            <Grid Panel.ZIndex="1000" Opacity="0.8" Margin="10">
-                <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Right" Orientation="Horizontal">
+        </Viewbox >
+            <Grid Panel.ZIndex="1000" Opacity="0.8" Margin="0 0 1 12">
+                <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Right" Orientation="Horizontal" Background="Black" Opacity="0.8">
                     <Label  Content="FPS" Style="{DynamicResource GeneralLabelStyle}" Foreground="White" FontWeight="Bold"/>
                     <Label  Content="{Binding Path=FPS}" Style="{DynamicResource GeneralLabelStyle}" Foreground="White" FontWeight="Bold"/>
                 </StackPanel>
