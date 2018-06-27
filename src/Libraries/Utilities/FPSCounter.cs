@@ -25,7 +25,7 @@ namespace FireFly.Utilities
                 double result;
                 lock (_List)
                 {
-                    result = (_List.Sum() + current) / (_List.Count + 1);
+                    result = (_List.Sum()) / (_List.Count);
                 }
                 return result;
             }
