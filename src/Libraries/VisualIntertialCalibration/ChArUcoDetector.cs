@@ -43,7 +43,7 @@ namespace FireFly.VI.Calibration
             Mat cameraMatrix = new Mat();
             Mat distCoeffs = new Mat();
 
-            ArucoInvoke.CalibrateCameraAruco(allCorners, allIds, markerCounterPerFrame, CreateBoard(squaresX, squaresY, squareLength, markerLength), imageSize, cameraMatrix, distCoeffs, null, null, CalibType.Default, new MCvTermCriteria(30, double.Epsilon));
+            ArucoInvoke.CalibrateCameraAruco(allCorners, allIds, markerCounterPerFrame, CreateBoard(squaresX, squaresY, squareLength, markerLength), imageSize, cameraMatrix, distCoeffs, null, null, CalibType.RationalModel, new MCvTermCriteria(30, double.Epsilon));
 
             return (cameraMatrix, distCoeffs);
         }

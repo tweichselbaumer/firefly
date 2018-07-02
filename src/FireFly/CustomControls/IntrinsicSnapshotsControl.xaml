@@ -31,7 +31,7 @@
             <StackPanel Grid.Column="0" Grid.Row="0">
                 <Viewbox>
                     <Border BorderThickness="1" BorderBrush="Black">
-                        <Image Width="640" Height="480" Source="{Binding Path=Parent.CameraViewModel.Image.ImageSource}" />
+                        <Image Width="512" Height="512" Source="{Binding Path=Parent.CameraViewModel.Image.ImageSource}" />
                     </Border>
                 </Viewbox>
                 <Button Width="200" Content="take snapshot" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=TakeSnapshotCommand}"/>
@@ -39,7 +39,7 @@
             <StackPanel Grid.Column="2" Grid.Row="0">
                 <Viewbox>
                     <Border BorderThickness="1" BorderBrush="Black">
-                        <Image Width="640" Height="480" Source="{Binding ElementName=ListBoxImages, Path=SelectedItem.ProgressedImage.ImageSource}" />
+                        <Image Width="512" Height="512" Source="{Binding ElementName=ListBoxImages, Path=SelectedItem.ProgressedImage.ImageSource}" />
                     </Border>
                 </Viewbox>
                 <Button Width="200" Content="calibrate" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=CalibrateCommand}"/>

@@ -1,4 +1,5 @@
-﻿using MahApps.Metro.Controls;
+﻿using FireFly.ViewModels;
+using MahApps.Metro.Controls;
 
 namespace FireFly.Windows
 {
@@ -7,9 +8,10 @@ namespace FireFly.Windows
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
-        public MainWindow()
+        public MainWindow(string filename)
         {
             InitializeComponent();
+            ((MainViewModel)DataContext).ConfigFileName = filename;
         }
 
         private void HamburgerMenuControl_OnItemClick(object sender, ItemClickEventArgs e)

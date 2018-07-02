@@ -4,6 +4,7 @@ using FireFly.Command;
 using FireFly.Models;
 using FireFly.Utilities;
 using FireFly.VI.Calibration;
+using MahApps.Metro.Controls.Dialogs;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -158,7 +159,7 @@ namespace FireFly.ViewModels
                 _Cy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy;
                 _DistCoeffs = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.ToList();
 
-                Mat board = ChArUcoDetector.DrawBoard(7, 5, 0.04f, 0.02f, new System.Drawing.Size(640, 480));
+                Mat board = ChArUcoDetector.DrawBoard(5, 5, 0.04f, 0.02f, new System.Drawing.Size(512, 512));
                 Mat boardDist = board.Clone();
 
                 Mat cameraMatrix = new Mat(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
@@ -225,29 +226,57 @@ namespace FireFly.ViewModels
 
         private Task DoCalibrate(object o)
         {
-            return Task.Factory.StartNew(() =>
+            return Task.Factory.StartNew(async () =>
             {
-                Parent.SyncContext.Post(c =>
+
+                ChArUcoImageContainer cauic = new ChArUcoImageContainer();
+
+                VectorOfInt allIds = new VectorOfInt();
+                VectorOfVectorOfPointF allCorners = new VectorOfVectorOfPointF();
+                VectorOfInt markerCounterPerFrame = new VectorOfInt();
+                int squaresX = 0;
+                int squaresY = 0;
+                float squareLength = 0f;
+                float markerLength = 0f;
+                System.Drawing.Size size = new System.Drawing.Size();
+
+
+                Parent.SyncContext.Send(async c =>
                 {
-                    ChArUcoImageContainer cauic = new ChArUcoImageContainer();
-
-                    VectorOfInt allIds = new VectorOfInt();
-                    VectorOfVectorOfPointF allCorners = new VectorOfVectorOfPointF();
-                    VectorOfInt markerCounterPerFrame = new VectorOfInt();
-
+                    squaresX = SquaresX;
+                    squaresY = SquaresY;
+                    squareLength = SquareLength;
+                    markerLength = MarkerLength;
+                    size = Parent.CameraViewModel.Image.CvImage.Size;
                     foreach (ChArUcoImageContainer image in Images)
                     {
-                        if (image.MarkerCorners.Size > 0)
+                        if (image.MarkerCorners != null && image.MarkerCorners.Size > 0)
                         {
                             allIds.Push(image.MarkerIds);
                             allCorners.Push(image.MarkerCorners);
                             markerCounterPerFrame.Push(new int[] { image.MarkerCorners.Size });
                         }
                     }
+                }, null);
 
-                    if (markerCounterPerFrame.Size > 0)
+                if (markerCounterPerFrame.Size > 0)
+                {
+                    MetroDialogSettings settings = new MetroDialogSettings()
                     {
-                        (Mat cameraMatrix, Mat distCoeffs) result = ChArUcoDetector.Calibrate(SquaresX, SquaresY, SquareLength, MarkerLength, Parent.CameraViewModel.Image.CvImage.Size, allIds, allCorners, markerCounterPerFrame);
+                        AnimateShow = false,
+                        AnimateHide = false
+                    };
+
+                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Doing calibraion now!", settings: settings);
+                    controller.SetIndeterminate();
+                    controller.SetCancelable(false);
+
+                    (Mat cameraMatrix, Mat distCoeffs) result = ChArUcoDetector.Calibrate(squaresX, squaresY, squareLength, markerLength, size, allIds, allCorners, markerCounterPerFrame);
+
+                    await controller.CloseAsync();
+
+                    Parent.SyncContext.Post(async c =>
+                    {
                         Images.Clear();
 
                         Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx = result.cameraMatrix.GetValue(0, 0);
@@ -256,21 +285,21 @@ namespace FireFly.ViewModels
                         Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy = result.cameraMatrix.GetValue(1, 2);
 
                         Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Clear();
-                        for (int i = 0; i < result.distCoeffs.Cols; i++)
+                        for (int i = 0; i < result.distCoeffs.Cols && i < 8; i++)
                         {
                             Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Add(result.distCoeffs.GetValue(0, i));
                         }
 
-                        Parent.SettingsUpdated(false);
-
                         TakeSnapshotControlVisibility = Visibility.Collapsed;
                         ResultControlVisibility = Visibility.Visible;
-                    }
-                    else
-                    {
-                        Parent.DialogCoordinator.ShowMessageAsync(Parent, "Error", "Not enough valide input frames available!");
-                    }
-                }, null);
+
+                        Parent.SettingsUpdated(false);
+                    }, null);
+                }
+                else
+                {
+                    await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Error", "Not enough valide input frames available!");
+                }
             });
         }
 

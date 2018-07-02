@@ -1,9 +1,12 @@
-﻿using System;
+﻿using CommandLine;
+using CommandLine.Text;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,17 +18,39 @@ namespace FireFly
     /// </summary>
     public partial class App : Application
     {
+        private const int ATTACH_PARENT_PROCESS = -1;
+
+        [DllImport("kernel32", SetLastError = true)]
+        private static extern bool AttachConsole(int dwProcessId);
+        [DllImport("kernel32.dll")]
+        private static extern bool FreeConsole();
+
         private const int MINIMUM_SPLASH_TIME = 2500;
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            Windows.SplashScreen splash = new Windows.SplashScreen();
+            AttachConsole(ATTACH_PARENT_PROCESS);
+
+            Windows.MainWindow home = null;
+            Windows.SplashScreen splash;
+            Stopwatch timer;
+
+            splash = new Windows.SplashScreen();
             splash.Show();
 
-            Stopwatch timer = new Stopwatch();
+            timer = new Stopwatch();
             timer.Start();
 
-            Windows.MainWindow home = new Windows.MainWindow();
+            Func<Options, int> setOptions = opts =>
+            {
+                home = new Windows.MainWindow(opts.ConfigFileName);
+                return 0;
+            };
+
+            Parser parser = new Parser(config => config.HelpWriter = Console.Out);
+
+            parser.ParseArguments<Options>(e.Args).MapResult((Options opts) => setOptions(opts), errs => 1);
+
             timer.Stop();
 
             int remainingTimeToShowSplash = MINIMUM_SPLASH_TIME - (int)timer.ElapsedMilliseconds;
@@ -33,7 +58,11 @@ namespace FireFly
                 Thread.Sleep(remainingTimeToShowSplash);
 
             splash.Close();
-            home.Show();
+
+            if (home != null)
+            {
+                home.Show();
+            }
         }
     }
 }

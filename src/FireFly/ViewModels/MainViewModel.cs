@@ -23,8 +23,11 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty CameraViewModelProperty =
                     DependencyProperty.Register("CameraViewModel", typeof(CameraViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty ConfigFileNameProperty =
+            DependencyProperty.Register("ConfigFileName", typeof(string), typeof(MainViewModel), new FrameworkPropertyMetadata("config.json", new PropertyChangedCallback(OnPropertyChanged)));
+
         public static readonly DependencyProperty ConnectivityStateProperty =
-                    DependencyProperty.Register("ConnectivityState", typeof(LinkUpConnectivityState), typeof(MainViewModel), new PropertyMetadata(LinkUpConnectivityState.Disconnected));
+                            DependencyProperty.Register("ConnectivityState", typeof(LinkUpConnectivityState), typeof(MainViewModel), new PropertyMetadata(LinkUpConnectivityState.Disconnected));
 
         public static readonly DependencyProperty DataPlotViewModelProperty =
             DependencyProperty.Register("DataPlotViewModel", typeof(DataPlotViewModel), typeof(MainViewModel), new PropertyMetadata(null));
@@ -48,7 +51,7 @@ namespace FireFly.ViewModels
 
         public MainViewModel()
         {
-            SettingContainer.SettingFileName = "config.json";
+            SettingContainer.SettingFileName = ConfigFileName;
             SettingContainer.Load();
 
             _SyncContext = SynchronizationContext.Current;
@@ -85,6 +88,12 @@ namespace FireFly.ViewModels
         {
             get { return (CameraViewModel)GetValue(CameraViewModelProperty); }
             set { SetValue(CameraViewModelProperty, value); }
+        }
+
+        public string ConfigFileName
+        {
+            get { return (string)GetValue(ConfigFileNameProperty); }
+            set { SetValue(ConfigFileNameProperty, value); }
         }
 
         public LinkUpConnectivityState ConnectivityState
@@ -179,37 +188,37 @@ namespace FireFly.ViewModels
             }
         }
 
-        private void Connector_MetricUpdate(LinkUpConnector connector, double bytesSentPerSecond, double bytesReceivedPerSecond)
-        {
-            _SyncContext.Post(o =>
-            {
-                BytesSentPerSec = bytesSentPerSecond;
-                BytesReceivedPerSec = bytesReceivedPerSecond;
-            }
-            , null);
-        }
-
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             MainViewModel mwvm = (d as MainViewModel);
-            if (mwvm.Connector == null)
+            switch (e.Property.Name)
             {
-                try
-                {
-                    mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse(mwvm.SettingViewModel.IpAddress), mwvm.SettingViewModel.Port);
-                }
-                catch (Exception)
-                {
-                    mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse("127.0.0.1"), 3000);
-                }
-                mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
-                mwvm.Connector.MetricUpdate += mwvm.Connector_MetricUpdate;
-            }
+                case "ConfigFileName":
+                    mwvm.SettingContainer.SettingFileName = mwvm.ConfigFileName;
+                    mwvm.SettingContainer.Load();
+                    mwvm.SettingsUpdated(true);
+                    break;
+                default:
+                    if (mwvm.Connector == null)
+                    {
+                        try
+                        {
+                            mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse(mwvm.SettingViewModel.IpAddress), mwvm.SettingViewModel.Port);
+                        }
+                        catch (Exception)
+                        {
 
-            mwvm.Node = new LinkUpNode();
-            mwvm.Node.Name = mwvm.NodeName;
-            mwvm.Node.AddSubNode(mwvm.Connector);
-            mwvm.UpdateLinkUpBindings();
+                        }
+                        mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
+                        mwvm.Connector.MetricUpdate += mwvm.Connector_MetricUpdate;
+                    }
+
+                    mwvm.Node = new LinkUpNode();
+                    mwvm.Node.Name = mwvm.NodeName;
+                    mwvm.Node.AddSubNode(mwvm.Connector);
+                    mwvm.UpdateLinkUpBindings();
+                    break;
+            }
         }
 
         private void Connector_ConnectivityChanged(LinkUpConnector connector, LinkUpConnectivityState connectivity)
@@ -217,6 +226,16 @@ namespace FireFly.ViewModels
             _SyncContext.Post(o =>
             {
                 ConnectivityState = connectivity;
+            }
+            , null);
+        }
+
+        private void Connector_MetricUpdate(LinkUpConnector connector, double bytesSentPerSecond, double bytesReceivedPerSecond)
+        {
+            _SyncContext.Post(o =>
+            {
+                BytesSentPerSec = bytesSentPerSecond;
+                BytesReceivedPerSec = bytesReceivedPerSecond;
             }
             , null);
         }

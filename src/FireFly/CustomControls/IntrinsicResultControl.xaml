@@ -20,7 +20,7 @@
 
         <Viewbox Grid.Row="0" Grid.Column="0">
             <Border BorderThickness="1" BorderBrush="Black">
-                <Image Width="640" Height="480" Source="{Binding Path=ChAruCoBoard.ImageSource}"/>
+                <Image Width="512" Height="512" Source="{Binding Path=ChAruCoBoard.ImageSource}"/>
             </Border>
         </Viewbox>
 
