@@ -16,7 +16,7 @@
         <Label Grid.Row="0" Content="Test Plot1" Style="{DynamicResource GeneralLabelStyle}" />
         <oxy:Plot Grid.Row="2">
             <oxy:Plot.Series>
-                <oxy:LineSeries ItemsSource="{Binding Points}"/>
+                <oxy:LineSeries ItemsSource="{Binding}"/>
             </oxy:Plot.Series>
         </oxy:Plot>
     </Grid>

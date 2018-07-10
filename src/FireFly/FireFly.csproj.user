@@ -11,6 +11,6 @@
     <VerifyUploadedFiles>false</VerifyUploadedFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>-c config.local.json</StartArguments>
+    <StartArguments>-c config.json</StartArguments>
   </PropertyGroup>
 </Project>

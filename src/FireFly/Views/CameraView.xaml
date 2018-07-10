@@ -49,7 +49,7 @@
                 <Slider Width="200"
                 AutoToolTipPlacement="TopLeft"
                 LargeChange="10"
-                Maximum="100"
+                Maximum="9"
                 Minimum="0"
                 Orientation="Horizontal"
                 SmallChange="1"
