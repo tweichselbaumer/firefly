@@ -160,6 +160,7 @@
     </Compile>
     <Compile Include="Models\ChArUcoImageContainer.cs" />
     <Compile Include="Models\CvImageContainer.cs" />
+    <Compile Include="Models\LineSeriesContainer.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Settings\CalibrationSettings.cs" />
     <Compile Include="Settings\ConnectionSettings.cs" />

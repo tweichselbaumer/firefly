@@ -46,9 +46,9 @@
                         <RowDefinition Height="10" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <CustomControls:PlotControl Grid.Row="0" DataContext="{Binding Path=GyroXPoints}"/>
-                    <CustomControls:PlotControl Grid.Row="2" />
-                    <CustomControls:PlotControl Grid.Row="4" />
+                    <CustomControls:PlotControl Grid.Row="0" DataContext="{Binding Path=GyroX}"/>
+                    <CustomControls:PlotControl Grid.Row="2" DataContext="{Binding Path=GyroY}"/>
+                    <CustomControls:PlotControl Grid.Row="4" DataContext="{Binding Path=GyroZ}"/>
                 </Grid>
             </TabItem>
 
@@ -61,9 +61,9 @@
                         <RowDefinition Height="10" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <CustomControls:PlotControl Grid.Row="0" />
-                    <CustomControls:PlotControl Grid.Row="2" />
-                    <CustomControls:PlotControl Grid.Row="4" />
+                    <CustomControls:PlotControl Grid.Row="0" DataContext="{Binding Path=AccX}"/>
+                    <CustomControls:PlotControl Grid.Row="2" DataContext="{Binding Path=AccY}"/>
+                    <CustomControls:PlotControl Grid.Row="4" DataContext="{Binding Path=AccZ}"/>
                 </Grid>
             </TabItem>
 

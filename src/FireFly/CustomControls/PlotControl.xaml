@@ -13,10 +13,14 @@
             <RowDefinition Height="10" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Label Grid.Row="0" Content="Test Plot1" Style="{DynamicResource GeneralLabelStyle}" />
+        <Label Grid.Row="0" Content="{Binding Path=Title}" Style="{DynamicResource GeneralLabelStyle}" />
         <oxy:Plot Grid.Row="2">
+            <oxy:Plot.Axes>
+                <oxy:LinearAxis Position="Left" TickStyle="Inside" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Minimum="{Binding Path=MinimumY}" Maximum="{Binding Path=MaximumY}" MajorStep="{Binding Path=MajorStepY}" MinorStep="{Binding Path=MinorStepY}"/>
+                <oxy:LinearAxis Position="Bottom" TickStyle="Inside" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Minimum="0" Maximum="10" />
+            </oxy:Plot.Axes>
             <oxy:Plot.Series>
-                <oxy:LineSeries ItemsSource="{Binding}"/>
+                <oxy:LineSeries ItemsSource="{Binding Path=Points}" StrokeThickness="1"/>
             </oxy:Plot.Series>
         </oxy:Plot>
     </Grid>
