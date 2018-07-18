@@ -169,9 +169,10 @@ namespace FireFly.ViewModels
 
                 if (connectionSettingsChanged)
                 {
-                    if (_Connector != null)
+                    if (Node != null)
                     {
-                        _Connector.Dispose();
+                        Node.Dispose();
+                        Node = null;
                     }
 
                     _Connector = new LinkUpTcpClientConnector(IPAddress.Parse(SettingViewModel.IpAddress), SettingViewModel.Port);
@@ -199,19 +200,23 @@ namespace FireFly.ViewModels
                     mwvm.SettingsUpdated(true);
                     break;
                 default:
-                    if (mwvm.Connector == null)
-                    {
-                        try
-                        {
-                            mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse(mwvm.SettingViewModel.IpAddress), mwvm.SettingViewModel.Port);
-                        }
-                        catch (Exception)
-                        {
 
-                        }
-                        mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
-                        mwvm.Connector.MetricUpdate += mwvm.Connector_MetricUpdate;
+                    if (mwvm.Node != null)
+                    {
+                        mwvm.Node.Dispose();
                     }
+
+                    try
+                    {
+                        mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse(mwvm.SettingViewModel.IpAddress), mwvm.SettingViewModel.Port);
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+                    mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
+                    mwvm.Connector.MetricUpdate += mwvm.Connector_MetricUpdate;
+
 
                     mwvm.Node = new LinkUpNode();
                     mwvm.Node.Name = mwvm.NodeName;

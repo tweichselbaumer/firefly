@@ -45,7 +45,14 @@
 
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
 
-                <Label  Content="Quality" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Undistort" Style="{DynamicResource GeneralLabelStyle}" />
+                <Controls:ToggleSwitch
+                IsChecked="{Binding Path=Undistort}" Margin="15,0,0,0"
+                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
+
+                <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
+
+                <!--<Label  Content="Quality" Style="{DynamicResource GeneralLabelStyle}" />
                 <Slider Width="200"
                 AutoToolTipPlacement="TopLeft"
                 LargeChange="10"
@@ -54,7 +61,9 @@
                 Orientation="Horizontal"
                 SmallChange="1"
                 Style="{DynamicResource MahApps.Metro.Styles.Slider.Win10}"
-                Value="{Binding Path=Quality}" />
+                Value="{Binding Path=Quality}" />-->
+                
+                
             </StackPanel>
             <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
                 <!--<Button Width="200" Content="calibrate" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" />

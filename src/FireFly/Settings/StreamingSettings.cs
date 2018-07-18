@@ -4,7 +4,9 @@
     {
         private int _Quality;
 
-        private bool _Enabled;
+        private bool _CameraRawStreamEnabled;
+
+        private bool _ImuRawStreamEnabled;
 
         public int Quality
         {
@@ -19,16 +21,29 @@
             }
         }
 
-        public bool Enabled
+        public bool CameraRawStreamEnabled
         {
             get
             {
-                return _Enabled;
+                return _CameraRawStreamEnabled;
             }
 
             set
             {
-                _Enabled = value;
+                _CameraRawStreamEnabled = value;
+            }
+        }
+
+        public bool ImuRawStreamEnabled
+        {
+            get
+            {
+                return _ImuRawStreamEnabled;
+            }
+
+            set
+            {
+                _ImuRawStreamEnabled = value;
             }
         }
     }

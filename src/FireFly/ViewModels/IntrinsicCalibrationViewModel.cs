@@ -267,7 +267,7 @@ namespace FireFly.ViewModels
                         AnimateHide = false
                     };
 
-                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Doing calibraion now!", settings: settings);
+                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Calculating calibration parameter now!", settings: settings);
                     controller.SetIndeterminate();
                     controller.SetCancelable(false);
 

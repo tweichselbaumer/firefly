@@ -4,14 +4,15 @@ using OxyPlot;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 
 namespace FireFly.Models
 {
     public class LineSeriesContainer : DependencyObject
     {
+        public static readonly DependencyProperty AxisTitleYProperty =
+            DependencyProperty.Register("AxisTitleY", typeof(string), typeof(LineSeriesContainer), new PropertyMetadata(""));
+
         public static readonly DependencyProperty MajorStepYProperty =
             DependencyProperty.Register("MajorStepY", typeof(double), typeof(LineSeriesContainer), new PropertyMetadata(10.0));
 
@@ -30,20 +31,30 @@ namespace FireFly.Models
         public static readonly DependencyProperty TitleProperty =
             DependencyProperty.Register("Title", typeof(string), typeof(LineSeriesContainer), new PropertyMetadata(""));
 
-        private long _AddedPoints = 0;
-        private double _MaxY = 0.0;
-        private double _MinY = 0.0;
-        private DataPlotViewModel _Parent;
-
         private BlockingCollection<DataPoint> _BlockingCollection = new BlockingCollection<DataPoint>();
+
+        private double _MaxY = 0.0;
+
+        private double _MinY = 0.0;
+
+        private DataPlotViewModel _Parent;
 
         private double _TimeOffset = 0;
 
-        public LineSeriesContainer(DataPlotViewModel parent, string title)
+
+
+        public LineSeriesContainer(DataPlotViewModel parent, string title, string axisTitleY)
         {
             Parent = parent;
             Title = title;
             Points = new RangeObservableCollection<DataPoint>();
+            AxisTitleY = axisTitleY;
+        }
+
+        public string AxisTitleY
+        {
+            get { return (string)GetValue(AxisTitleYProperty); }
+            set { SetValue(AxisTitleYProperty, value); }
         }
 
         public double MajorStepY
@@ -97,14 +108,13 @@ namespace FireFly.Models
 
         public void AddDataPoint(double time, double value)
         {
-            if (_AddedPoints % 2000 == 0)
+            if (_TimeOffset + 10 < time)
             {
                 _TimeOffset = time;
             }
 
             time -= _TimeOffset;
             _BlockingCollection.Add(new DataPoint(time, value));
-            _AddedPoints++;
         }
 
         public void DrawPoints()
@@ -112,7 +122,6 @@ namespace FireFly.Models
             int count = _BlockingCollection.Count;
             bool clear = false;
             List<DataPoint> points = new List<DataPoint>();
-
 
             for (int i = 0; i < count; i++)
             {
@@ -136,26 +145,29 @@ namespace FireFly.Models
                 }
             }
 
-            Parent.Parent.SyncContext.Post(o =>
+            if (clear || points.Count > 0)
             {
-                if (clear)
-                    Points.Clear();
-                Points.AddRange(points);
-                if (Points.Count > 0)
+                Parent.Parent.SyncContext.Post(o =>
                 {
-                    double max = Math.Max(Math.Abs(_MinY), Math.Abs(_MaxY));
-                    int pow = (int)Math.Ceiling(Math.Log(max) / Math.Log(2));
-
-                    double newMaxY = Math.Pow(2, pow);
-                    if (MaximumY != newMaxY)
+                    if (clear)
+                        Points.Clear();
+                    Points.AddRange(points);
+                    if (Points.Count > 0)
                     {
-                        MaximumY = newMaxY;
-                        MinimumY = -newMaxY;
-                        MajorStepY = newMaxY / 2;
-                        MinorStepY = newMaxY / (2 * 5);
+                        double max = Math.Max(Math.Abs(_MinY), Math.Abs(_MaxY)) * 1.05;
+                        int pow = (int)Math.Ceiling(Math.Log(max) / Math.Log(2));
+
+                        double newMaxY = Math.Max(Math.Pow(2, pow), 0.25);
+                        if (MaximumY != newMaxY)
+                        {
+                            MaximumY = newMaxY;
+                            MinimumY = -newMaxY;
+                            MajorStepY = newMaxY / 2;
+                            MinorStepY = newMaxY / (2 * 5);
+                        }
                     }
-                }
-            }, null);
+                }, null);
+            }
         }
     }
 }
