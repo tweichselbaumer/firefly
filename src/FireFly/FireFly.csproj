@@ -151,6 +151,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Command\RelayCommand.cs" />
+    <Compile Include="Converter\BoolToVisibilityConverter.cs" />
     <Compile Include="Converter\BytesPerSecondConverter.cs" />
     <Compile Include="CustomControls\IntrinsicResultControl.xaml.cs">
       <DependentUpon>IntrinsicResultControl.xaml</DependentUpon>
@@ -162,6 +163,12 @@
     <Compile Include="Models\CvImageContainer.cs" />
     <Compile Include="Models\LineSeriesContainer.cs" />
     <Compile Include="Options.cs" />
+    <Compile Include="Proxy\AbstractProxyEventData.cs" />
+    <Compile Include="Proxy\CameraEventData.cs" />
+    <Compile Include="Proxy\ImuEventData.cs" />
+    <Compile Include="Proxy\IOProxy.cs" />
+    <Compile Include="Proxy\IProxyEventSubscriber.cs" />
+    <Compile Include="Proxy\ProxyEventType.cs" />
     <Compile Include="Settings\CalibrationSettings.cs" />
     <Compile Include="Settings\ConnectionSettings.cs" />
     <Compile Include="Settings\IntrinsicCalibrationSettings.cs" />
@@ -177,6 +184,7 @@
     <Compile Include="ViewModels\AbstractViewModel.cs" />
     <Compile Include="ViewModels\IntrinsicCalibrationViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\RecordViewModel.cs" />
     <Compile Include="ViewModels\SettingViewModel.cs" />
     <Compile Include="Views\CalibrationView.xaml.cs">
       <DependentUpon>CalibrationView.xaml</DependentUpon>
@@ -186,6 +194,9 @@
     </Compile>
     <Compile Include="Views\DataPlotView.xaml.cs">
       <DependentUpon>DataPlotView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RecordView.xaml.cs">
+      <DependentUpon>RecordView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingView.xaml.cs">
       <DependentUpon>SettingView.xaml</DependentUpon>
@@ -225,6 +236,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DataPlotView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RecordView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -290,6 +305,10 @@
     <Resource Include="launch_icon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Libraries\DataStorage\DataStorage.csproj">
+      <Project>{9d48f561-0dc5-4981-8747-6c41402689f1}</Project>
+      <Name>DataStorage</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Libraries\Utilities\Utilities.csproj">
       <Project>{dd9822c1-00ba-46af-85e0-2889ef295918}</Project>
       <Name>Utilities</Name>

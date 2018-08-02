@@ -20,7 +20,5 @@ namespace FireFly.ViewModels
         }
 
         internal abstract void SettingsUpdated();
-
-        internal abstract void UpdateLinkUpBindings();
     }
 }

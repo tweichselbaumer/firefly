@@ -1,5 +1,6 @@
 ﻿using Emgu.CV;
 using Emgu.CV.CvEnum;
+using Emgu.CV.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,13 @@ namespace FireFly.Utilities
             var element = CreateElement(depthType);
             element[0] = value;
             return element;
+        }
+
+        public static byte[] ToPNGBinary(this Mat mat, int compression)
+        {
+            VectorOfByte buf = new VectorOfByte();
+            CvInvoke.Imencode(".png", mat, buf, new KeyValuePair<ImwriteFlags, int>(ImwriteFlags.PngCompression, compression));
+            return buf.ToArray();
         }
 
         private static dynamic CreateElement(DepthType depthType)

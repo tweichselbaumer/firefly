@@ -32,10 +32,6 @@ namespace FireFly.ViewModels
             Port = Parent.SettingContainer.Settings.ConnectionSettings.Port;
         }
 
-        internal override void UpdateLinkUpBindings()
-        {
-        }
-
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             SettingViewModel svm = (d as SettingViewModel);

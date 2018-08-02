@@ -22,10 +22,5 @@ namespace FireFly.ViewModels
         {
             IntrinsicCalibrationViewModel.SettingsUpdated();
         }
-
-        internal override void UpdateLinkUpBindings()
-        {
-            IntrinsicCalibrationViewModel.UpdateLinkUpBindings();
-        }
     }
 }

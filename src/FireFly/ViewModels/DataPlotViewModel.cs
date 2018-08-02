@@ -1,12 +1,13 @@
 ﻿using FireFly.Models;
-using LinkUp.Node;
+using FireFly.Proxy;
 using System;
+using System.Collections.Generic;
 using System.Timers;
 using System.Windows;
 
 namespace FireFly.ViewModels
 {
-    public class DataPlotViewModel : AbstractViewModel
+    public class DataPlotViewModel : AbstractViewModel, IProxyEventSubscriber
     {
         public static readonly DependencyProperty EnabledProperty =
             DependencyProperty.Register("Enabled", typeof(bool), typeof(DataPlotViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
@@ -14,7 +15,6 @@ namespace FireFly.ViewModels
         private LineSeriesContainer _AccX;
         private LineSeriesContainer _AccY;
         private LineSeriesContainer _AccZ;
-        private LinkUpEventLabel _EventLabel;
         private LineSeriesContainer _GyroX;
         private LineSeriesContainer _GyroY;
         private LineSeriesContainer _GyroZ;
@@ -29,7 +29,7 @@ namespace FireFly.ViewModels
             AccY = new LineSeriesContainer(this, "Y", "[m/s²]");
             AccZ = new LineSeriesContainer(this, "Z", "[m/s²]");
 
-            _Timer = new Timer(50);
+            _Timer = new Timer(500);
             _Timer.Elapsed += _Timer_Elapsed;
             _Timer.Start();
         }
@@ -118,22 +118,23 @@ namespace FireFly.ViewModels
             }
         }
 
+        public void Fired(IOProxy proxy, List<AbstractProxyEventData> eventData)
+        {
+            if (eventData.Count == 1 && eventData[0] is ImuEventData)
+            {
+                ImuEventData data = eventData[0] as ImuEventData;
+                GyroX.AddDataPoint(data.Time, data.GyroX);
+                GyroY.AddDataPoint(data.Time, data.GyroY);
+                GyroZ.AddDataPoint(data.Time, data.GyroZ);
+                AccX.AddDataPoint(data.Time, data.AccelX);
+                AccY.AddDataPoint(data.Time, data.AccelY);
+                AccZ.AddDataPoint(data.Time, data.AccelZ);
+            }
+        }
+
         internal override void SettingsUpdated()
         {
             Enabled = Parent.SettingContainer.Settings.StreamingSettings.ImuRawStreamEnabled;
-        }
-
-        internal override void UpdateLinkUpBindings()
-        {
-            if (Parent.Node != null)
-            {
-                _EventLabel = Parent.Node.GetLabelByName<LinkUpEventLabel>("firefly/test/imu_event");
-                if (Enabled)
-                    _EventLabel.Subscribe();
-                else
-                    _EventLabel.Unsubscribe();
-                _EventLabel.Fired += EventLabel_Fired;
-            }
         }
 
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -147,13 +148,10 @@ namespace FireFly.ViewModels
                     dpvm.Parent.SettingContainer.Settings.StreamingSettings.ImuRawStreamEnabled = dpvm.Enabled;
                     try
                     {
-                        if (changed)
-                        {
-                            if (dpvm.Enabled)
-                                dpvm._EventLabel.Subscribe();
-                            else
-                                dpvm._EventLabel.Unsubscribe();
-                        }
+                        if (dpvm.Enabled)
+                            dpvm.Parent.IOProxy.Subscribe(dpvm, ProxyEventType.ImuEvent);
+                        else
+                            dpvm.Parent.IOProxy.Unsubscribe(dpvm, ProxyEventType.ImuEvent);
                     }
                     catch (Exception) { }
                     break;
@@ -165,37 +163,6 @@ namespace FireFly.ViewModels
             {
                 dpvm.Parent.SettingsUpdated(false);
             }
-        }
-
-        private void EventLabel_Fired(LinkUpEventLabel label, byte[] data)
-        {
-            double gyro_scale = 16.4;
-            double acc_scale = 2048 / 9.80665;
-            double temp_offset = 21;
-            double temp_scale = 333.8;
-
-            double time = ((double)BitConverter.ToUInt32(data, 0)) / 1000;
-
-            double gyroX = ((double)BitConverter.ToInt16(data, 8)) / gyro_scale;
-            double gyroY = ((double)BitConverter.ToInt16(data, 10)) / gyro_scale;
-            double gyroZ = ((double)BitConverter.ToInt16(data, 12)) / gyro_scale;
-
-            double accX = ((double)BitConverter.ToInt16(data, 14)) / acc_scale;
-            double accY = ((double)BitConverter.ToInt16(data, 16)) / acc_scale;
-            double accZ = ((double)BitConverter.ToInt16(data, 18)) / acc_scale;
-
-            double temperatur = ((double)BitConverter.ToInt16(data, 20)) / temp_scale + temp_offset;
-
-            bool camera = BitConverter.ToBoolean(data, 22);
-
-
-            GyroX.AddDataPoint(time, gyroX);
-            GyroY.AddDataPoint(time, gyroY);
-            GyroZ.AddDataPoint(time, gyroZ);
-            AccX.AddDataPoint(time, accX);
-            AccY.AddDataPoint(time, accY);
-            AccZ.AddDataPoint(time, accZ);
-
         }
 
         private void _Timer_Elapsed(object sender, ElapsedEventArgs e)

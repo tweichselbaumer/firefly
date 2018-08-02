@@ -154,6 +154,7 @@
             </Style>
             <ViewModles:MainViewModel x:Key="Data" NodeName="firefly" />
             <Converter:BytesPerSecondConverter x:Key="BytesPerSecondConverter" />
+            <Converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         </ResourceDictionary>
     </Window.Resources>
     <Window.DataContext>
@@ -215,10 +216,15 @@
                     </Controls:HamburgerMenuIconItem>
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=RecordRec}" Label="Record">
                         <Controls:HamburgerMenuIconItem.Tag>
-                            <Grid></Grid>
+                            <Views:RecordView  DataContext="{Binding Source={StaticResource Data}, Path=RecordViewModel}" />
                         </Controls:HamburgerMenuIconItem.Tag>
                     </Controls:HamburgerMenuIconItem>
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Replay}" Label="Replay">
+                        <Controls:HamburgerMenuIconItem.Tag>
+                            <Grid></Grid>
+                        </Controls:HamburgerMenuIconItem.Tag>
+                    </Controls:HamburgerMenuIconItem>
+                    <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Export}" Label="Export">
                         <Controls:HamburgerMenuIconItem.Tag>
                             <Grid></Grid>
                         </Controls:HamburgerMenuIconItem.Tag>
@@ -270,6 +276,13 @@
             <Separator Style="{StaticResource MetroStatusBarSeparator}" />
             <StatusBarItem Content="{Binding Path=BytesSentPerSec, Mode=OneWay,Converter={StaticResource BytesPerSecondConverter}}" />
             <StatusBarItem Content="{Binding Path=BytesReceivedPerSec, Mode=OneWay,Converter={StaticResource BytesPerSecondConverter}}" />
+            <StatusBarItem HorizontalAlignment="Right" Margin="0" Padding="0">
+                <StackPanel Orientation="Horizontal" Visibility="{Binding Source={StaticResource Data}, Path=RecordViewModel.IsRecording,Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StatusBarItem Content="Recording" />
+                    <Separator Style="{StaticResource MetroStatusBarSeparator}" />
+                    <StatusBarItem  Content="{Binding Source={StaticResource Data}, Path=RecordViewModel.RecordingTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}"/>
+                </StackPanel>
+            </StatusBarItem>
         </StatusBar>
     </Grid>
 </Controls:MetroWindow>

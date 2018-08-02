@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="FireFly.Views.RecordView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:Converter="clr-namespace:FireFly.Converter"
+             xmlns:local="clr-namespace:FireFly.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="10" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Column="1" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0">
+                <Label  Content="Name" Style="{DynamicResource GeneralLabelStyle}" />
+                <TextBox Style="{DynamicResource GeneralTextBoxStyle}" />
+                <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Location" Style="{DynamicResource GeneralLabelStyle}" />
+                <ComboBox>
+                    <ComboBoxItem IsSelected="True">Default</ComboBoxItem>
+                </ComboBox>
+                <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Notes" Style="{DynamicResource GeneralLabelStyle}" />
+                <TextBox MaxLines="10" MinLines="10" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" />
+            </StackPanel>
+            <StackPanel Grid.Row="2">
+                <Button  Width="200" Content="start" Style="{DynamicResource AccentedSquareButtonStyle}" Visibility="{Binding Path=IsRecording, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=inverse}" Margin="0 5 0 5" Command="{Binding Path=StartCommand}" />
+                <Button  Width="200" Content="stop" Style="{DynamicResource AccentedSquareButtonStyle}" Visibility="{Binding Path=IsRecording, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0 5 0 5" Command="{Binding Path=StopCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <DockPanel Grid.Column="3" Grid.Row="1" VerticalAlignment="Stretch">
+            <StackPanel DockPanel.Dock="Top">
+                <Label  Content="Camera" Style="{DynamicResource GeneralLabelStyle}" />
+                <Controls:ToggleSwitch
+                IsChecked="{Binding Path=Enabled}" Margin="15,0,0,0"
+                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
+
+                <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
+
+                <Label  Content="Imu" Style="{DynamicResource GeneralLabelStyle}" />
+                <Controls:ToggleSwitch
+                IsChecked="{Binding Path=Undistort}" Margin="15,0,0,0"
+                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
+
+                <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
+
+                <!--<Label  Content="Quality" Style="{DynamicResource GeneralLabelStyle}" />
+                <Slider Width="200"
+                AutoToolTipPlacement="TopLeft"
+                LargeChange="10"
+                Maximum="9"
+                Minimum="0"
+                Orientation="Horizontal"
+                SmallChange="1"
+                Style="{DynamicResource MahApps.Metro.Styles.Slider.Win10}"
+                Value="{Binding Path=Quality}" />-->
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+                <!--<Button Width="200" Content="record" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" />-->
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</UserControl>

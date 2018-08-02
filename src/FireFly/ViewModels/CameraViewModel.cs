@@ -1,5 +1,6 @@
 ﻿using Emgu.CV;
 using FireFly.Models;
+using FireFly.Proxy;
 using FireFly.Utilities;
 using LinkUp.Node;
 using System;
@@ -9,7 +10,7 @@ using System.Windows;
 
 namespace FireFly.ViewModels
 {
-    public class CameraViewModel : AbstractViewModel
+    public class CameraViewModel : AbstractViewModel, IProxyEventSubscriber
     {
         public static readonly DependencyProperty EnabledProperty =
             DependencyProperty.Register("Enabled", typeof(bool), typeof(CameraViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
@@ -20,35 +21,22 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty ImageProperty =
             DependencyProperty.Register("Image", typeof(CvImageContainer), typeof(CameraViewModel), new PropertyMetadata(null));
 
-        public static readonly DependencyProperty QualityProperty =
-            DependencyProperty.Register("Quality", typeof(int), typeof(CameraViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
-
-
-
-        public bool Undistort
-        {
-            get { return (bool)GetValue(UndistortProperty); }
-            set { SetValue(UndistortProperty, value); }
-        }
-
         public static readonly DependencyProperty UndistortProperty =
             DependencyProperty.Register("Undistort", typeof(bool), typeof(CameraViewModel), new PropertyMetadata(false));
 
+        private double _Cx;
 
+        private double _Cy;
 
-        private LinkUpEventLabel _EventLabel;
+        private List<double> _DistCoeffs = new List<double>();
 
         private FPSCounter _FPSCounter = new FPSCounter();
 
-        private LinkUpPropertyLabel<byte> _QualityLabel;
+        private double _Fx;
+
+        private double _Fy;
 
         private System.Timers.Timer _Timer;
-
-        private double _Cx;
-        private double _Cy;
-        private List<double> _DistCoeffs = new List<double>();
-        private double _Fx;
-        private double _Fy;
 
         public CameraViewModel(MainViewModel parent) : base(parent)
         {
@@ -75,15 +63,14 @@ namespace FireFly.ViewModels
             set { SetValue(ImageProperty, value); }
         }
 
-        public int Quality
+        public bool Undistort
         {
-            get { return (int)GetValue(QualityProperty); }
-            set { SetValue(QualityProperty, value); }
+            get { return (bool)GetValue(UndistortProperty); }
+            set { SetValue(UndistortProperty, value); }
         }
 
         internal override void SettingsUpdated()
         {
-            Quality = Parent.SettingContainer.Settings.StreamingSettings.Quality;
             Enabled = Parent.SettingContainer.Settings.StreamingSettings.CameraRawStreamEnabled;
 
             _Fx = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx;
@@ -93,50 +80,21 @@ namespace FireFly.ViewModels
             _DistCoeffs = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.ToList();
         }
 
-        internal override void UpdateLinkUpBindings()
-        {
-            if (Parent.Node != null)
-            {
-                _EventLabel = Parent.Node.GetLabelByName<LinkUpEventLabel>("firefly/test/label_event");
-                if (Enabled)
-                    _EventLabel.Subscribe();
-                else
-                    _EventLabel.Unsubscribe();
-                _EventLabel.Fired += EventLabel_Fired;
-
-                _QualityLabel = Parent.Node.GetLabelByName<LinkUpPropertyLabel<byte>>("firefly/test/jpeg_quality");
-            }
-        }
-
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             CameraViewModel cvm = (d as CameraViewModel);
             bool changed = false;
             switch (e.Property.Name)
             {
-                case "Quality":
-                    changed = cvm.Parent.SettingContainer.Settings.StreamingSettings.Quality != cvm.Quality;
-                    cvm.Parent.SettingContainer.Settings.StreamingSettings.Quality = cvm.Quality;
-                    try
-                    {
-                        if (changed)
-                            cvm._QualityLabel.Value = (byte)cvm.Quality;
-                    }
-                    catch (Exception) { }
-                    break;
-
                 case "Enabled":
                     changed = cvm.Parent.SettingContainer.Settings.StreamingSettings.CameraRawStreamEnabled != cvm.Enabled;
                     cvm.Parent.SettingContainer.Settings.StreamingSettings.CameraRawStreamEnabled = cvm.Enabled;
                     try
                     {
-                        if (changed)
-                        {
-                            if (cvm.Enabled)
-                                cvm._EventLabel.Subscribe();
-                            else
-                                cvm._EventLabel.Unsubscribe();
-                        }
+                        if (cvm.Enabled)
+                            cvm.Parent.IOProxy.Subscribe(cvm, ProxyEventType.CameraEvent);
+                        else
+                            cvm.Parent.IOProxy.Unsubscribe(cvm, ProxyEventType.CameraEvent);
                     }
                     catch (Exception) { }
                     break;
@@ -158,38 +116,40 @@ namespace FireFly.ViewModels
             }, null);
         }
 
-        private void EventLabel_Fired(LinkUpEventLabel label, byte[] data)
+        public void Fired(IOProxy proxy, List<AbstractProxyEventData> eventData)
         {
-            Mat mat = new Mat();
-            Mat matUndist = new Mat();
-            CvInvoke.Imdecode(data, Emgu.CV.CvEnum.ImreadModes.Grayscale, mat);
-
-            Mat cameraMatrix = new Mat(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
-            Mat distCoeffs = new Mat(1, _DistCoeffs.Count, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
-
-            cameraMatrix.SetValue(0, 0, _Fx);
-            cameraMatrix.SetValue(1, 1, _Fy);
-            cameraMatrix.SetValue(0, 2, _Cy);
-            cameraMatrix.SetValue(1, 2, _Cy);
-            cameraMatrix.SetValue(2, 2, 1.0f);
-
-            for (int i = 0; i < distCoeffs.Cols; i++)
+            if (eventData.Count == 1 && eventData[0] is CameraEventData)
             {
-                distCoeffs.SetValue(0, i, _DistCoeffs[i]);
-            }
+                Mat matUndist = new Mat();
+                Mat mat = (eventData[0] as CameraEventData).Image;
 
-            CvInvoke.Undistort(mat, matUndist, cameraMatrix, distCoeffs);
+                Mat cameraMatrix = new Mat(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
+                Mat distCoeffs = new Mat(1, _DistCoeffs.Count, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
 
-            _FPSCounter.CountFrame();
-            Parent.SyncContext.Post(o =>
-            {
-                Image = new CvImageContainer();
-                if(Undistort)
-                    Image.CvImage = matUndist;
-                else
-                    Image.CvImage = mat;
+                cameraMatrix.SetValue(0, 0, _Fx);
+                cameraMatrix.SetValue(1, 1, _Fy);
+                cameraMatrix.SetValue(0, 2, _Cy);
+                cameraMatrix.SetValue(1, 2, _Cy);
+                cameraMatrix.SetValue(2, 2, 1.0f);
+
+                for (int i = 0; i < distCoeffs.Cols; i++)
+                {
+                    distCoeffs.SetValue(0, i, _DistCoeffs[i]);
+                }
+
+                CvInvoke.Undistort(mat, matUndist, cameraMatrix, distCoeffs);
+
+                _FPSCounter.CountFrame();
+                Parent.SyncContext.Post(o =>
+                {
+                    Image = new CvImageContainer();
+                    if (Undistort)
+                        Image.CvImage = matUndist;
+                    else
+                        Image.CvImage = mat;
+                }
+                , null);
             }
-            , null);
         }
     }
 }

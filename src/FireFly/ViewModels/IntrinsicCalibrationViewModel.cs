@@ -185,10 +185,6 @@ namespace FireFly.ViewModels
             }
         }
 
-        internal override void UpdateLinkUpBindings()
-        {
-        }
-
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             IntrinsicCalibrationViewModel icvm = (d as IntrinsicCalibrationViewModel);

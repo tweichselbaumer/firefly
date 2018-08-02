@@ -1,4 +1,5 @@
-﻿using FireFly.Settings;
+﻿using FireFly.Proxy;
+using FireFly.Settings;
 using LinkUp.Node;
 using LinkUp.Raw;
 using MahApps.Metro.Controls.Dialogs;
@@ -18,16 +19,16 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("BytesSentPerSec", typeof(double), typeof(MainViewModel), new PropertyMetadata(0.0));
 
         public static readonly DependencyProperty CalibrationViewModelProperty =
-                            DependencyProperty.Register("CalibrationViewModel", typeof(CalibrationViewModel), typeof(MainViewModel), new PropertyMetadata(null));
+            DependencyProperty.Register("CalibrationViewModel", typeof(CalibrationViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
         public static readonly DependencyProperty CameraViewModelProperty =
-                    DependencyProperty.Register("CameraViewModel", typeof(CameraViewModel), typeof(MainViewModel), new PropertyMetadata(null));
+            DependencyProperty.Register("CameraViewModel", typeof(CameraViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
         public static readonly DependencyProperty ConfigFileNameProperty =
             DependencyProperty.Register("ConfigFileName", typeof(string), typeof(MainViewModel), new FrameworkPropertyMetadata("config.json", new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty ConnectivityStateProperty =
-                            DependencyProperty.Register("ConnectivityState", typeof(LinkUpConnectivityState), typeof(MainViewModel), new PropertyMetadata(LinkUpConnectivityState.Disconnected));
+            DependencyProperty.Register("ConnectivityState", typeof(LinkUpConnectivityState), typeof(MainViewModel), new PropertyMetadata(LinkUpConnectivityState.Disconnected));
 
         public static readonly DependencyProperty DataPlotViewModelProperty =
             DependencyProperty.Register("DataPlotViewModel", typeof(DataPlotViewModel), typeof(MainViewModel), new PropertyMetadata(null));
@@ -38,14 +39,19 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty NodeProperty =
             DependencyProperty.Register("Node", typeof(LinkUpNode), typeof(MainViewModel), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty RecordViewModelProperty =
+            DependencyProperty.Register("RecordViewModel", typeof(RecordViewModel), typeof(MainViewModel), new PropertyMetadata(null));
+
         public static readonly DependencyProperty SettingViewModelProperty =
-            DependencyProperty.Register("SettingViewModel", typeof(SettingViewModel), typeof(MainViewModel), new PropertyMetadata(null));
+                    DependencyProperty.Register("SettingViewModel", typeof(SettingViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
         private readonly SynchronizationContext _SyncContext;
 
         private LinkUpConnector _Connector;
 
         private IDialogCoordinator _DialogCoordinator;
+
+        private IOProxy _IOProxy = new IOProxy();
 
         private SettingContainer _SettingContainer = new SettingContainer();
 
@@ -60,6 +66,7 @@ namespace FireFly.ViewModels
             SettingViewModel = new SettingViewModel(this);
             DataPlotViewModel = new DataPlotViewModel(this);
             CalibrationViewModel = new CalibrationViewModel(this);
+            RecordViewModel = new RecordViewModel(this);
 
             _DialogCoordinator = MahApps.Metro.Controls.Dialogs.DialogCoordinator.Instance;
 
@@ -124,6 +131,14 @@ namespace FireFly.ViewModels
             }
         }
 
+        public IOProxy IOProxy
+        {
+            get
+            {
+                return _IOProxy;
+            }
+        }
+
         public LinkUpNode Node
         {
             get { return (LinkUpNode)GetValue(NodeProperty); }
@@ -134,6 +149,12 @@ namespace FireFly.ViewModels
         {
             get { return (string)GetValue(NodeNameProperty); }
             set { SetValue(NodeNameProperty, value); }
+        }
+
+        public RecordViewModel RecordViewModel
+        {
+            get { return (RecordViewModel)GetValue(RecordViewModelProperty); }
+            set { SetValue(RecordViewModelProperty, value); }
         }
 
         public SettingContainer SettingContainer
@@ -166,6 +187,7 @@ namespace FireFly.ViewModels
                 SettingViewModel.SettingsUpdated();
                 DataPlotViewModel.SettingsUpdated();
                 CalibrationViewModel.SettingsUpdated();
+                RecordViewModel.SettingsUpdated();
 
                 if (connectionSettingsChanged)
                 {
@@ -182,7 +204,8 @@ namespace FireFly.ViewModels
                     Node = new LinkUpNode();
                     Node.Name = NodeName;
                     Node.AddSubNode(Connector);
-                    UpdateLinkUpBindings();
+                    IOProxy.Node = Node;
+                    IOProxy.UpdateLinkUpBindings();
                 }
 
                 _SettingContainer.Save();
@@ -199,6 +222,7 @@ namespace FireFly.ViewModels
                     mwvm.SettingContainer.Load();
                     mwvm.SettingsUpdated(true);
                     break;
+
                 default:
 
                     if (mwvm.Node != null)
@@ -212,16 +236,15 @@ namespace FireFly.ViewModels
                     }
                     catch (Exception)
                     {
-
                     }
                     mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
                     mwvm.Connector.MetricUpdate += mwvm.Connector_MetricUpdate;
 
-
                     mwvm.Node = new LinkUpNode();
                     mwvm.Node.Name = mwvm.NodeName;
                     mwvm.Node.AddSubNode(mwvm.Connector);
-                    mwvm.UpdateLinkUpBindings();
+                    mwvm.IOProxy.Node = mwvm.Node;
+                    mwvm.IOProxy.UpdateLinkUpBindings();
                     break;
             }
         }
@@ -243,14 +266,6 @@ namespace FireFly.ViewModels
                 BytesReceivedPerSec = bytesReceivedPerSecond;
             }
             , null);
-        }
-
-        private void UpdateLinkUpBindings()
-        {
-            CameraViewModel.UpdateLinkUpBindings();
-            SettingViewModel.UpdateLinkUpBindings();
-            DataPlotViewModel.UpdateLinkUpBindings();
-            CalibrationViewModel.UpdateLinkUpBindings();
         }
     }
 }
