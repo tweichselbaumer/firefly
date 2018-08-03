@@ -14,16 +14,15 @@ namespace FireFly.ViewModels
 {
     public class RecordViewModel : AbstractViewModel, IProxyEventSubscriber
     {
-        private DataWritter _DataWritter;
-
         public static readonly DependencyProperty IsRecordingProperty =
             DependencyProperty.Register("IsRecording", typeof(bool), typeof(RecordViewModel), new PropertyMetadata(false));
 
         public static readonly DependencyProperty RecordingTimeProperty =
             DependencyProperty.Register("RecordingTime", typeof(TimeSpan), typeof(RecordViewModel), new PropertyMetadata(null));
 
-        private Timer _Timer;
+        private DataWritter _DataWritter;
         private Stopwatch _StopWatch;
+        private Timer _Timer;
 
         public RecordViewModel(MainViewModel parent) : base(parent)
         {
@@ -69,6 +68,24 @@ namespace FireFly.ViewModels
             }
         }
 
+        public void Fired(IOProxy proxy, List<AbstractProxyEventData> eventData)
+        {
+            if (_DataWritter != null)
+            {
+                ImuEventData imuEventData = (ImuEventData)eventData.FirstOrDefault(c => c is ImuEventData);
+                CameraEventData cameraEventData = (CameraEventData)eventData.FirstOrDefault(c => c is CameraEventData);
+
+                if (imuEventData != null)
+                {
+                    _DataWritter.AddImu(0, imuEventData.TimeNanoSeconds, imuEventData.GyroX / 180 * Math.PI, imuEventData.GyroY / 180 * Math.PI, imuEventData.GyroZ / 180 * Math.PI, imuEventData.AccelX, imuEventData.AccelY, imuEventData.AccelZ);
+                }
+                if (cameraEventData != null)
+                {
+                    _DataWritter.AddImage(0, imuEventData.TimeNanoSeconds, cameraEventData.Image.ToPNGBinary(3));
+                }
+            }
+        }
+
         internal override void SettingsUpdated()
         {
         }
@@ -108,29 +125,6 @@ namespace FireFly.ViewModels
                     IsRecording = false;
                 }, null);
             });
-        }
-
-        public void Fired(IOProxy proxy, List<AbstractProxyEventData> eventData)
-        {
-            if (_DataWritter != null)
-            {
-                ImuEventData imuEventData = (ImuEventData)eventData.FirstOrDefault(c => c is ImuEventData);
-                CameraEventData cameraEventData = (CameraEventData)eventData.FirstOrDefault(c => c is CameraEventData);
-
-                if (imuEventData != null)
-                {
-
-                    _DataWritter.AddImu(0, imuEventData.TimeNanoSeconds, imuEventData.GyroX / 180 * Math.PI, imuEventData.GyroY / 180 * Math.PI, imuEventData.GyroZ / 180 * Math.PI, imuEventData.AccelX, imuEventData.AccelY, imuEventData.AccelZ);
-
-                }
-                if (cameraEventData != null)
-                {
-                    Task.Factory.StartNew(() =>
-                    {
-                        _DataWritter.AddImage(0, imuEventData.TimeNanoSeconds, cameraEventData.Image.ToPNGBinary(3));
-                    });
-                }
-            }
         }
     }
 }

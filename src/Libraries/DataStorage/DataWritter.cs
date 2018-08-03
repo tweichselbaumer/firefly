@@ -4,37 +4,19 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FireFly.Data.Storage
 {
     public class DataWritter
     {
-        private FileStream _ZipFile;
-        private ZipArchive _ZipArchive;
         private string _FileName;
+        private Dictionary<int, StreamWriter> _ImuStreams = new Dictionary<int, StreamWriter>();
+        private ZipArchive _ZipArchive;
+        private FileStream _ZipFile;
 
         public DataWritter(string filename)
         {
             _FileName = filename;
-        }
-
-        public void Open()
-        {
-            _ZipFile = new FileStream(_FileName, FileMode.OpenOrCreate);
-            _ZipArchive = new ZipArchive(_ZipFile, ZipArchiveMode.Update);
-        }
-
-        public void Close()
-        {
-            _ZipArchive.Dispose();
-            _ZipFile.Dispose();
-        }
-
-        public void UpdateNotes(string notes)
-        {
-
         }
 
         public void AddImage(int camIndex, long timestamp_ns, byte[] data)
@@ -45,32 +27,65 @@ namespace FireFly.Data.Storage
             Stream stream = imageEntry.Open();
             stream.Write(data, 0, data.Length);
             stream.Dispose();
-            _ZipFile.Flush();
         }
 
         public void AddImu(int imuIndex, long timespampNanoSeconds, double omega_x, double omega_y, double omega_z, double alpha_x, double alpha_y, double alpha_z)
         {
-            string imuFileName = string.Format(@"imu{0}.csv", imuIndex);
-            bool newEntry = false;
-            ZipArchiveEntry imuEntry = _ZipArchive.GetEntry(imuFileName);
-            if (imuEntry == null)
+            lock (_ImuStreams)
             {
-                imuEntry = _ZipArchive.CreateEntry(imuFileName);
-                newEntry = true;
-            }
-            Stream stream = imuEntry.Open();
-            using (StreamWriter writer = new StreamWriter(stream))
-            {
-                long endPoint = stream.Length;
-                stream.Seek(endPoint, SeekOrigin.Begin);
-                if (newEntry)
+                StreamWriter writer;
+                if (!_ImuStreams.Any(c => c.Key == imuIndex))
                 {
+                    MemoryStream stream = new MemoryStream();
+                    writer = new StreamWriter(stream);
                     writer.WriteLine("timestamp,omega_x,omega_y,omega_z,alpha_x,alpha_y,alpha_z");
+                    _ImuStreams.Add(imuIndex, writer);
+                }
+                else
+                {
+                    writer = _ImuStreams[imuIndex];
                 }
                 writer.WriteLine(String.Format(CultureInfo.InvariantCulture, "{0},{1},{2},{3},{4},{5},{6}", timespampNanoSeconds, omega_x, omega_y, omega_z, alpha_x, alpha_y, alpha_z));
+                writer.Flush();
             }
-            stream.Dispose();
-            _ZipFile.Flush();
+        }
+
+        public void Close()
+        {
+            lock (_ImuStreams)
+            {
+                foreach (KeyValuePair<int, StreamWriter> kvp in _ImuStreams)
+                {
+                    string imuFileName = string.Format(@"imu{0}.csv", kvp.Key);
+                    ZipArchiveEntry imuEntry = _ZipArchive.CreateEntry(imuFileName);
+                    MemoryStream memoryStream = (MemoryStream)kvp.Value.BaseStream;
+                    Stream stream = imuEntry.Open();
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    using (StreamWriter writer = new StreamWriter(stream))
+                    {
+                        using (StreamReader reader = new StreamReader(memoryStream))
+                        {
+                            writer.Write(reader.ReadToEnd());
+                        }
+                    }
+                }
+                _ZipArchive.Dispose();
+                _ZipFile.Dispose();
+            }
+        }
+
+        public void Open()
+        {
+            lock (_ImuStreams)
+            {
+                _ZipFile = new FileStream(_FileName, FileMode.OpenOrCreate);
+                _ZipArchive = new ZipArchive(_ZipFile, ZipArchiveMode.Create);
+                _ImuStreams.Clear();
+            }
+        }
+
+        public void UpdateNotes(string notes)
+        {
         }
     }
 }
