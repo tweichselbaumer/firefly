@@ -42,6 +42,9 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty RecordViewModelProperty =
             DependencyProperty.Register("RecordViewModel", typeof(RecordViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty ReplayViewModelProperty =
+            DependencyProperty.Register("ReplayViewModel", typeof(ReplayViewModel), typeof(MainViewModel), new PropertyMetadata(null));
+
         public static readonly DependencyProperty SettingViewModelProperty =
                     DependencyProperty.Register("SettingViewModel", typeof(SettingViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
@@ -67,6 +70,7 @@ namespace FireFly.ViewModels
             DataPlotViewModel = new DataPlotViewModel(this);
             CalibrationViewModel = new CalibrationViewModel(this);
             RecordViewModel = new RecordViewModel(this);
+            ReplayViewModel = new ReplayViewModel(this);
 
             _DialogCoordinator = MahApps.Metro.Controls.Dialogs.DialogCoordinator.Instance;
 
@@ -157,6 +161,12 @@ namespace FireFly.ViewModels
             set { SetValue(RecordViewModelProperty, value); }
         }
 
+        public ReplayViewModel ReplayViewModel
+        {
+            get { return (ReplayViewModel)GetValue(ReplayViewModelProperty); }
+            set { SetValue(ReplayViewModelProperty, value); }
+        }
+
         public SettingContainer SettingContainer
         {
             get
@@ -188,6 +198,7 @@ namespace FireFly.ViewModels
                 DataPlotViewModel.SettingsUpdated();
                 CalibrationViewModel.SettingsUpdated();
                 RecordViewModel.SettingsUpdated();
+                ReplayViewModel.SettingsUpdated();
 
                 if (connectionSettingsChanged)
                 {

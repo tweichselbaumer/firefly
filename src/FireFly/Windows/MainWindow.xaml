@@ -221,7 +221,7 @@
                     </Controls:HamburgerMenuIconItem>
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Replay}" Label="Replay">
                         <Controls:HamburgerMenuIconItem.Tag>
-                            <Grid></Grid>
+                            <Views:ReplayView  DataContext="{Binding Source={StaticResource Data}, Path=ReplayViewModel}" />
                         </Controls:HamburgerMenuIconItem.Tag>
                     </Controls:HamburgerMenuIconItem>
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Export}" Label="Export">
@@ -277,10 +277,17 @@
             <StatusBarItem Content="{Binding Path=BytesSentPerSec, Mode=OneWay,Converter={StaticResource BytesPerSecondConverter}}" />
             <StatusBarItem Content="{Binding Path=BytesReceivedPerSec, Mode=OneWay,Converter={StaticResource BytesPerSecondConverter}}" />
             <StatusBarItem HorizontalAlignment="Right" Margin="0" Padding="0">
-                <StackPanel Orientation="Horizontal" Visibility="{Binding Source={StaticResource Data}, Path=RecordViewModel.IsRecording,Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StatusBarItem Content="Recording" />
-                    <Separator Style="{StaticResource MetroStatusBarSeparator}" />
-                    <StatusBarItem  Content="{Binding Source={StaticResource Data}, Path=RecordViewModel.RecordingTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}"/>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding Source={StaticResource Data}, Path=RecordViewModel.IsRecording,Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StatusBarItem Content="Recording" />
+                        <Separator Style="{StaticResource MetroStatusBarSeparator}" />
+                        <StatusBarItem  Content="{Binding Source={StaticResource Data}, Path=RecordViewModel.RecordingTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding Source={StaticResource Data}, Path=ReplayViewModel.IsReplaying,Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StatusBarItem Content="Replaying" />
+                        <Separator Style="{StaticResource MetroStatusBarSeparator}" />
+                        <StatusBarItem  Content="{Binding Source={StaticResource Data}, Path=ReplayViewModel.ReplayTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}"/>
+                    </StackPanel>
                 </StackPanel>
             </StatusBarItem>
         </StatusBar>

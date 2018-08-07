@@ -121,6 +121,7 @@ namespace FireFly.ViewModels
                 {
                     Parent.IOProxy.Unsubscribe(this, ProxyEventType.CameraImuEvent);
                     _DataWritter.Close();
+
                     _StopWatch.Restart();
                     IsRecording = false;
                 }, null);

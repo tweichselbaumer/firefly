@@ -108,7 +108,7 @@ namespace FireFly.Models
 
         public void AddDataPoint(double time, double value)
         {
-            if (_TimeOffset + 10 < time)
+            if (_TimeOffset + 10 < time || _TimeOffset - 10 > time)
             {
                 _TimeOffset = time;
             }

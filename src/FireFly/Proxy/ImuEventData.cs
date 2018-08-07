@@ -112,6 +112,7 @@ namespace FireFly.Proxy
         {
             ImuEventData obj = new ImuEventData();
             obj._Time = ((double)BitConverter.ToUInt32(data, 0)) / 1000;
+            //TODO
             obj._TimeMicroSeconds = BitConverter.ToUInt32(data, 4);
 
             obj._GyroX = ((double)BitConverter.ToInt16(data, 8)) / GYRO_SCALE;
@@ -125,6 +126,28 @@ namespace FireFly.Proxy
             obj._Temperatur = ((double)BitConverter.ToInt16(data, 20)) / TEMP_SCALE + TEMP_OFFSET;
 
             obj._HasCameraImage = BitConverter.ToBoolean(data, 22);
+
+            return obj;
+        }
+
+        internal static ImuEventData Parse(long timestamp, Tuple<double, double, double, double, double, double> item, bool hasCamera)
+        {
+            ImuEventData obj = new ImuEventData();
+            obj._Time = (double)timestamp / (1000 * 1000 * 1000);
+            obj._TimeMicroSeconds = (long)(item.Item1 / 1000);
+
+            obj._GyroX = item.Item1;
+            obj._GyroY = item.Item2;
+            obj._GyroZ = item.Item3;
+
+            obj._AccelX = item.Item4;
+            obj._AccelY = item.Item5;
+            obj._AccelZ = item.Item6;
+
+            //TODO:
+            obj._Temperatur = 0;
+
+            obj._HasCameraImage = hasCamera;
 
             return obj;
         }

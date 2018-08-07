@@ -185,6 +185,7 @@
     <Compile Include="ViewModels\IntrinsicCalibrationViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\RecordViewModel.cs" />
+    <Compile Include="ViewModels\ReplayViewModel.cs" />
     <Compile Include="ViewModels\SettingViewModel.cs" />
     <Compile Include="Views\CalibrationView.xaml.cs">
       <DependentUpon>CalibrationView.xaml</DependentUpon>
@@ -197,6 +198,9 @@
     </Compile>
     <Compile Include="Views\RecordView.xaml.cs">
       <DependentUpon>RecordView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ReplayView.xaml.cs">
+      <DependentUpon>ReplayView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingView.xaml.cs">
       <DependentUpon>SettingView.xaml</DependentUpon>
@@ -240,6 +244,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\RecordView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ReplayView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
