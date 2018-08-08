@@ -88,6 +88,7 @@ namespace FireFly.ViewModels
 
         internal override void SettingsUpdated()
         {
+            base.SettingsUpdated();
         }
 
         private void _Timer_Elapsed(object sender, ElapsedEventArgs e)

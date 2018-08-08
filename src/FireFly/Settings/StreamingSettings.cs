@@ -1,6 +1,8 @@
-﻿namespace FireFly.Settings
+﻿using System.Reflection;
+
+namespace FireFly.Settings
 {
-    public class StreamingSettings
+    public class StreamingSettings : AbstractSettings
     {
         private bool _CameraRawStreamEnabled;
 
@@ -30,6 +32,11 @@
             {
                 _ImuRawStreamEnabled = value;
             }
+        }
+
+        public override void SetDefaults()
+        {
+            base.SetDefaults();
         }
     }
 }

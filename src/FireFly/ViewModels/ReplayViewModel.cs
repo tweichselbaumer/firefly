@@ -24,6 +24,12 @@ namespace FireFly.ViewModels
             set { SetValue(IsReplayingProperty, value); }
         }
 
+        public TimeSpan ReplayTime
+        {
+            get { return (TimeSpan)GetValue(ReplayTimeProperty); }
+            set { SetValue(ReplayTimeProperty, value); }
+        }
+
         public RelayCommand<object> StartCommand
         {
             get
@@ -36,14 +42,9 @@ namespace FireFly.ViewModels
             }
         }
 
-        public TimeSpan ReplayTime
-        {
-            get { return (TimeSpan)GetValue(ReplayTimeProperty); }
-            set { SetValue(ReplayTimeProperty, value); }
-        }
-
         internal override void SettingsUpdated()
         {
+            base.SettingsUpdated();
         }
 
         private Task DoStart(object o)

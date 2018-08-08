@@ -1,6 +1,8 @@
-﻿namespace FireFly.Settings
+﻿using System.Reflection;
+
+namespace FireFly.Settings
 {
-    public class ConnectionSettings
+    public class ConnectionSettings : AbstractSettings
     {
         private string _IpAddress;
 
@@ -30,6 +32,14 @@
             {
                 _Port = value;
             }
+        }
+
+        public override void SetDefaults()
+        {
+            base.SetDefaults();
+
+            Port = 3000;
+            IpAddress = "0.0.0.0";
         }
     }
 }

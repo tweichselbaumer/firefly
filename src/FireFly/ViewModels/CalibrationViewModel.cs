@@ -20,6 +20,7 @@ namespace FireFly.ViewModels
 
         internal override void SettingsUpdated()
         {
+            base.SettingsUpdated();
             IntrinsicCalibrationViewModel.SettingsUpdated();
         }
     }

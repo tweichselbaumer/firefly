@@ -47,6 +47,54 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
+            <TabItem Header="Locations">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                    </Grid.ColumnDefinitions>
+                    <ListBox Grid.Row="1" Grid.Column="1" HorizontalContentAlignment="Stretch" SelectionMode="Extended" ItemsSource="{Binding Path=FileLocations}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.Resources>
+                                        <Style x:Key="AccentCircleButtonStyle" BasedOn="{StaticResource MahApps.Metro.Styles.MetroCircleButtonStyle}" TargetType="{x:Type ButtonBase}">
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentColorBrush}" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentColorBrush}" />
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Foreground" Value="{DynamicResource GrayBrush7}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Resources>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="3*" />
+                                        <ColumnDefinition Width="auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="16"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Path}" FontSize="16" FontStyle="Italic" />
+                                    <Button Grid.Column="2" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.DeleteFileLocationCommand}" CommandParameter="{Binding Path=.}">
+                                        <iconPacks:PackIconModern Width="12" Height="12" Kind="Delete"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Button Grid.Row="3" Grid.Column="1" Width="200" Content="new" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=NewFileLocationCommand}"/>
+                </Grid>
+            </TabItem>
         </Controls:MetroAnimatedSingleRowTabControl>
     </Grid>
 </UserControl>

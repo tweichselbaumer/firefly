@@ -2,7 +2,6 @@
 using FireFly.Models;
 using FireFly.Proxy;
 using FireFly.Utilities;
-using LinkUp.Node;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,53 +68,6 @@ namespace FireFly.ViewModels
             set { SetValue(UndistortProperty, value); }
         }
 
-        internal override void SettingsUpdated()
-        {
-            Enabled = Parent.SettingContainer.Settings.StreamingSettings.CameraRawStreamEnabled;
-
-            _Fx = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx;
-            _Fy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy;
-            _Cx = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx;
-            _Cy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy;
-            _DistCoeffs = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.ToList();
-        }
-
-        private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            CameraViewModel cvm = (d as CameraViewModel);
-            bool changed = false;
-            switch (e.Property.Name)
-            {
-                case "Enabled":
-                    changed = cvm.Parent.SettingContainer.Settings.StreamingSettings.CameraRawStreamEnabled != cvm.Enabled;
-                    cvm.Parent.SettingContainer.Settings.StreamingSettings.CameraRawStreamEnabled = cvm.Enabled;
-                    try
-                    {
-                        if (cvm.Enabled)
-                            cvm.Parent.IOProxy.Subscribe(cvm, ProxyEventType.CameraEvent);
-                        else
-                            cvm.Parent.IOProxy.Unsubscribe(cvm, ProxyEventType.CameraEvent);
-                    }
-                    catch (Exception) { }
-                    break;
-
-                default:
-                    break;
-            }
-            if (changed)
-            {
-                cvm.Parent.SettingsUpdated(false);
-            }
-        }
-
-        private void _Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            Parent.SyncContext.Post(o =>
-            {
-                FPS = (int)_FPSCounter.FramesPerSecond;
-            }, null);
-        }
-
         public void Fired(IOProxy proxy, List<AbstractProxyEventData> eventData)
         {
             if (eventData.Count == 1 && eventData[0] is CameraEventData)
@@ -150,6 +102,55 @@ namespace FireFly.ViewModels
                 }
                 , null);
             }
+        }
+
+        internal override void SettingsUpdated()
+        {
+            base.SettingsUpdated();
+
+            Enabled = Parent.SettingContainer.Settings.StreamingSettings.CameraRawStreamEnabled;
+
+            _Fx = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx;
+            _Fy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy;
+            _Cx = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx;
+            _Cy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy;
+            _DistCoeffs = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.ToList();
+        }
+
+        private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            CameraViewModel cvm = (d as CameraViewModel);
+            bool changed = false;
+            switch (e.Property.Name)
+            {
+                case "Enabled":
+                    changed = cvm.Parent.SettingContainer.Settings.StreamingSettings.CameraRawStreamEnabled != cvm.Enabled;
+                    cvm.Parent.SettingContainer.Settings.StreamingSettings.CameraRawStreamEnabled = cvm.Enabled;
+                    try
+                    {
+                        if (cvm.Enabled)
+                            cvm.Parent.IOProxy.Subscribe(cvm, ProxyEventType.CameraEvent);
+                        else
+                            cvm.Parent.IOProxy.Unsubscribe(cvm, ProxyEventType.CameraEvent);
+                    }
+                    catch (Exception) { }
+                    break;
+
+                default:
+                    break;
+            }
+            if (changed)
+            {
+                cvm.Parent.UpdateSettings(false);
+            }
+        }
+
+        private void _Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Parent.SyncContext.Post(o =>
+            {
+                FPS = (int)_FPSCounter.FramesPerSecond;
+            }, null);
         }
     }
 }

@@ -41,8 +41,6 @@ namespace FireFly.Models
 
         private double _TimeOffset = 0;
 
-
-
         public LineSeriesContainer(DataPlotViewModel parent, string title, string axisTitleY)
         {
             Parent = parent;

@@ -135,23 +135,25 @@ namespace FireFly.ViewModels
 
         internal override void SettingsUpdated()
         {
+            base.SettingsUpdated();
+
             SquaresX = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresX;
             SquaresY = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresY;
             MarkerLength = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.MarkerLength;
             SquareLength = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquareLength;
 
-            bool change = false;
-            change |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx != _Fx;
-            change |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy != _Fy;
-            change |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx != _Cx;
-            change |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy != _Cy;
+            bool changed = false;
+            changed |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx != _Fx;
+            changed |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy != _Fy;
+            changed |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx != _Cx;
+            changed |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy != _Cy;
 
             var firstNotSecond = _DistCoeffs.Except(Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs).ToList();
             var secondNotFirst = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Except(_DistCoeffs).ToList();
 
-            change |= firstNotSecond.Any() || secondNotFirst.Any();
+            changed |= firstNotSecond.Any() || secondNotFirst.Any();
 
-            if (change)
+            if (changed)
             {
                 _Fx = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx;
                 _Fy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy;
@@ -216,7 +218,7 @@ namespace FireFly.ViewModels
             }
             if (changed)
             {
-                icvm.Parent.SettingsUpdated(false);
+                icvm.Parent.UpdateSettings(false);
             }
         }
 
@@ -224,7 +226,6 @@ namespace FireFly.ViewModels
         {
             return Task.Factory.StartNew(async () =>
             {
-
                 ChArUcoImageContainer cauic = new ChArUcoImageContainer();
 
                 VectorOfInt allIds = new VectorOfInt();
@@ -235,7 +236,6 @@ namespace FireFly.ViewModels
                 float squareLength = 0f;
                 float markerLength = 0f;
                 System.Drawing.Size size = new System.Drawing.Size();
-
 
                 Parent.SyncContext.Send(async c =>
                 {
@@ -289,7 +289,7 @@ namespace FireFly.ViewModels
                         TakeSnapshotControlVisibility = Visibility.Collapsed;
                         ResultControlVisibility = Visibility.Visible;
 
-                        Parent.SettingsUpdated(false);
+                        Parent.UpdateSettings(false);
                     }, null);
                 }
                 else

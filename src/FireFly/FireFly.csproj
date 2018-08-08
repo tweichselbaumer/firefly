@@ -159,6 +159,10 @@
     <Compile Include="CustomControls\IntrinsicSnapshotsControl.xaml.cs">
       <DependentUpon>IntrinsicSnapshotsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomDialogs\NewFileLocationDialog.xaml.cs">
+      <DependentUpon>NewFileLocationDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomDialogs\NewFileLocationDialogModel.cs" />
     <Compile Include="Models\ChArUcoImageContainer.cs" />
     <Compile Include="Models\CvImageContainer.cs" />
     <Compile Include="Models\LineSeriesContainer.cs" />
@@ -169,8 +173,10 @@
     <Compile Include="Proxy\IOProxy.cs" />
     <Compile Include="Proxy\IProxyEventSubscriber.cs" />
     <Compile Include="Proxy\ProxyEventType.cs" />
+    <Compile Include="Settings\AbstractSettings.cs" />
     <Compile Include="Settings\CalibrationSettings.cs" />
     <Compile Include="Settings\ConnectionSettings.cs" />
+    <Compile Include="Settings\GeneralSettings.cs" />
     <Compile Include="Settings\IntrinsicCalibrationSettings.cs" />
     <Compile Include="Settings\SettingContainer.cs" />
     <Compile Include="Settings\Settings.cs" />
@@ -178,6 +184,7 @@
     <Compile Include="CustomControls\PlotControl.xaml.cs">
       <DependentUpon>PlotControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\AbstractBaseViewModel.cs" />
     <Compile Include="ViewModels\CalibrationViewModel.cs" />
     <Compile Include="ViewModels\CameraViewModel.cs" />
     <Compile Include="ViewModels\DataPlotViewModel.cs" />
@@ -220,6 +227,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\IntrinsicSnapshotsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomDialogs\NewFileLocationDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

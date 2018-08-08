@@ -10,7 +10,7 @@ using System.Windows;
 
 namespace FireFly.ViewModels
 {
-    public class MainViewModel : DependencyObject
+    public class MainViewModel : AbstractBaseViewModel
     {
         public static readonly DependencyProperty BytesReceivedPerSecProperty =
             DependencyProperty.Register("BytesReceivedPerSec", typeof(double), typeof(MainViewModel), new PropertyMetadata(0.0));
@@ -46,7 +46,7 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("ReplayViewModel", typeof(ReplayViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
         public static readonly DependencyProperty SettingViewModelProperty =
-                    DependencyProperty.Register("SettingViewModel", typeof(SettingViewModel), typeof(MainViewModel), new PropertyMetadata(null));
+            DependencyProperty.Register("SettingViewModel", typeof(SettingViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
         private readonly SynchronizationContext _SyncContext;
 
@@ -60,8 +60,8 @@ namespace FireFly.ViewModels
 
         public MainViewModel()
         {
-            SettingContainer.SettingFileName = ConfigFileName;
-            SettingContainer.Load();
+            //SettingContainer.SettingFileName = ConfigFileName;
+            //SettingContainer.Load();
 
             _SyncContext = SynchronizationContext.Current;
 
@@ -74,7 +74,7 @@ namespace FireFly.ViewModels
 
             _DialogCoordinator = MahApps.Metro.Controls.Dialogs.DialogCoordinator.Instance;
 
-            SettingsUpdated(false);
+            //UpdateSettings(false);
         }
 
         public double BytesReceivedPerSec
@@ -189,38 +189,35 @@ namespace FireFly.ViewModels
             }
         }
 
-        internal void SettingsUpdated(bool connectionSettingsChanged)
+        internal override void SettingsUpdated()
         {
-            if (SettingViewModel != null && CameraViewModel != null)
+            base.SettingsUpdated();
+        }
+
+        internal void UpdateSettings(bool connectionSettingsChanged)
+        {
+            SettingsUpdated();
+
+            if (connectionSettingsChanged)
             {
-                CameraViewModel.SettingsUpdated();
-                SettingViewModel.SettingsUpdated();
-                DataPlotViewModel.SettingsUpdated();
-                CalibrationViewModel.SettingsUpdated();
-                RecordViewModel.SettingsUpdated();
-                ReplayViewModel.SettingsUpdated();
-
-                if (connectionSettingsChanged)
+                if (Node != null)
                 {
-                    if (Node != null)
-                    {
-                        Node.Dispose();
-                        Node = null;
-                    }
-
-                    _Connector = new LinkUpTcpClientConnector(IPAddress.Parse(SettingViewModel.IpAddress), SettingViewModel.Port);
-                    _Connector.ConnectivityChanged += Connector_ConnectivityChanged;
-                    _Connector.MetricUpdate += Connector_MetricUpdate;
-
-                    Node = new LinkUpNode();
-                    Node.Name = NodeName;
-                    Node.AddSubNode(Connector);
-                    IOProxy.Node = Node;
-                    IOProxy.UpdateLinkUpBindings();
+                    Node.Dispose();
+                    Node = null;
                 }
 
-                _SettingContainer.Save();
+                _Connector = new LinkUpTcpClientConnector(IPAddress.Parse(SettingViewModel.IpAddress), SettingViewModel.Port);
+                _Connector.ConnectivityChanged += Connector_ConnectivityChanged;
+                _Connector.MetricUpdate += Connector_MetricUpdate;
+
+                Node = new LinkUpNode();
+                Node.Name = NodeName;
+                Node.AddSubNode(Connector);
+                IOProxy.Node = Node;
+                IOProxy.UpdateLinkUpBindings();
             }
+
+            _SettingContainer.Save();
         }
 
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -231,7 +228,7 @@ namespace FireFly.ViewModels
                 case "ConfigFileName":
                     mwvm.SettingContainer.SettingFileName = mwvm.ConfigFileName;
                     mwvm.SettingContainer.Load();
-                    mwvm.SettingsUpdated(true);
+                    mwvm.UpdateSettings(true);
                     break;
 
                 default:
@@ -244,18 +241,19 @@ namespace FireFly.ViewModels
                     try
                     {
                         mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse(mwvm.SettingViewModel.IpAddress), mwvm.SettingViewModel.Port);
+
+                        mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
+                        mwvm.Connector.MetricUpdate += mwvm.Connector_MetricUpdate;
+
+                        mwvm.Node = new LinkUpNode();
+                        mwvm.Node.Name = mwvm.NodeName;
+                        mwvm.Node.AddSubNode(mwvm.Connector);
+                        mwvm.IOProxy.Node = mwvm.Node;
+                        mwvm.IOProxy.UpdateLinkUpBindings();
                     }
                     catch (Exception)
                     {
                     }
-                    mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
-                    mwvm.Connector.MetricUpdate += mwvm.Connector_MetricUpdate;
-
-                    mwvm.Node = new LinkUpNode();
-                    mwvm.Node.Name = mwvm.NodeName;
-                    mwvm.Node.AddSubNode(mwvm.Connector);
-                    mwvm.IOProxy.Node = mwvm.Node;
-                    mwvm.IOProxy.UpdateLinkUpBindings();
                     break;
             }
         }

@@ -1,17 +1,26 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 
 namespace FireFly.Settings
 {
-    public class IntrinsicCalibrationSettings
+    public class IntrinsicCalibrationSettings : AbstractSettings
     {
         private double _Cx;
+
         private double _Cy;
+
         private List<double> _DistCoeffs = new List<double>();
+
         private double _Fx;
+
         private double _Fy;
+
         private float _MarkerLength;
+
         private float _SquareLength;
+
         private int _SquaresX;
+
         private int _SquaresY;
 
         public double Cx
@@ -129,6 +138,11 @@ namespace FireFly.Settings
             {
                 _SquaresY = value;
             }
+        }
+
+        public override void SetDefaults()
+        {
+            base.SetDefaults();
         }
     }
 }

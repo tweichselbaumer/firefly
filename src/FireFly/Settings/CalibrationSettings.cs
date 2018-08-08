@@ -1,6 +1,8 @@
-﻿namespace FireFly.Settings
+﻿using System.Reflection;
+
+namespace FireFly.Settings
 {
-    public class CalibrationSettings
+    public class CalibrationSettings : AbstractSettings
     {
         private IntrinsicCalibrationSettings _IntrinsicCalibrationSettings = new IntrinsicCalibrationSettings();
 
@@ -15,6 +17,11 @@
             {
                 _IntrinsicCalibrationSettings = value;
             }
+        }
+
+        public override void SetDefaults()
+        {
+            base.SetDefaults();
         }
     }
 }

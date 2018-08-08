@@ -1,8 +1,6 @@
-﻿using System.Windows;
-
-namespace FireFly.ViewModels
+﻿namespace FireFly.ViewModels
 {
-    public abstract class AbstractViewModel : DependencyObject
+    public abstract class AbstractViewModel : AbstractBaseViewModel
     {
         private MainViewModel _Parent;
 
@@ -18,7 +16,5 @@ namespace FireFly.ViewModels
                 return _Parent;
             }
         }
-
-        internal abstract void SettingsUpdated();
     }
 }

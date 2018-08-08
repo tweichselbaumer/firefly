@@ -37,8 +37,14 @@
                 <TextBox Style="{DynamicResource GeneralTextBoxStyle}" />
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
                 <Label  Content="Location" Style="{DynamicResource GeneralLabelStyle}" />
-                <ComboBox>
-                    <ComboBoxItem IsSelected="True">Default</ComboBoxItem>
+                <ComboBox ItemsSource="{Binding Path=Parent.SettingViewModel.FileLocations}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}" ToolTip="{Binding Path}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
                 </ComboBox>
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
                 <Label  Content="Notes" Style="{DynamicResource GeneralLabelStyle}" />

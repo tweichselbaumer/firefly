@@ -46,6 +46,7 @@ namespace FireFly.Settings
             catch (Exception)
             {
                 _Settings = new Settings();
+                _Settings.SetDefaults();
             }
         }
 

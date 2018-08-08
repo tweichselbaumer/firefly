@@ -134,6 +134,7 @@ namespace FireFly.ViewModels
 
         internal override void SettingsUpdated()
         {
+            base.SettingsUpdated();
             Enabled = Parent.SettingContainer.Settings.StreamingSettings.ImuRawStreamEnabled;
         }
 
@@ -161,7 +162,7 @@ namespace FireFly.ViewModels
             }
             if (changed)
             {
-                dpvm.Parent.SettingsUpdated(false);
+                dpvm.Parent.UpdateSettings(false);
             }
         }
 

@@ -1,12 +1,27 @@
-﻿namespace FireFly.Settings
+﻿using System.Reflection;
+
+namespace FireFly.Settings
 {
-    public class Settings
+    public class Settings : AbstractSettings
     {
+        private CalibrationSettings _CalibrationSettings = new CalibrationSettings();
         private ConnectionSettings _ConnectionSettings = new ConnectionSettings();
+        private GeneralSettings _GeneralSettings = new GeneralSettings();
 
         private StreamingSettings _StreamingSettings = new StreamingSettings();
 
-        private CalibrationSettings _CalibrationSettings = new CalibrationSettings();
+        public CalibrationSettings CalibrationSettings
+        {
+            get
+            {
+                return _CalibrationSettings;
+            }
+
+            set
+            {
+                _CalibrationSettings = value;
+            }
+        }
 
         public ConnectionSettings ConnectionSettings
         {
@@ -34,17 +49,22 @@
             }
         }
 
-        public CalibrationSettings CalibrationSettings
+        public GeneralSettings GeneralSettings
         {
             get
             {
-                return _CalibrationSettings;
+                return _GeneralSettings;
             }
 
             set
             {
-                _CalibrationSettings = value;
+                _GeneralSettings = value;
             }
+        }
+
+        public override void SetDefaults()
+        {
+            base.SetDefaults();
         }
     }
 }
