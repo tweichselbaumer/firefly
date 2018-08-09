@@ -78,6 +78,10 @@ namespace FireFly.Data.Storage
         {
             lock (_ImuStreams)
             {
+                if (!Directory.Exists(Path.GetDirectoryName(_FileName)))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(_FileName));
+                }
                 _ZipFile = new FileStream(_FileName, FileMode.OpenOrCreate);
                 _ZipArchive = new ZipArchive(_ZipFile, ZipArchiveMode.Create);
                 _ImuStreams.Clear();

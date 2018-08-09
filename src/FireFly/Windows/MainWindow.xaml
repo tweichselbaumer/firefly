@@ -155,6 +155,7 @@
             <ViewModles:MainViewModel x:Key="Data" NodeName="firefly" />
             <Converter:BytesPerSecondConverter x:Key="BytesPerSecondConverter" />
             <Converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <Converter:InverseBooleanConverter x:Key="InverseBooleanConverter" />
         </ResourceDictionary>
     </Window.Resources>
     <Window.DataContext>

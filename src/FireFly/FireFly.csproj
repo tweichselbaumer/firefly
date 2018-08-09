@@ -153,6 +153,7 @@
     <Compile Include="Command\RelayCommand.cs" />
     <Compile Include="Converter\BoolToVisibilityConverter.cs" />
     <Compile Include="Converter\BytesPerSecondConverter.cs" />
+    <Compile Include="Converter\InverseBooleanConverter.cs" />
     <Compile Include="CustomControls\IntrinsicResultControl.xaml.cs">
       <DependentUpon>IntrinsicResultControl.xaml</DependentUpon>
     </Compile>

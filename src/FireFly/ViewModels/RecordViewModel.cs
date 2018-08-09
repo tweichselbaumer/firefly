@@ -1,10 +1,12 @@
 ﻿using FireFly.Command;
 using FireFly.Data.Storage;
 using FireFly.Proxy;
+using FireFly.Settings;
 using FireFly.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
@@ -14,14 +16,25 @@ namespace FireFly.ViewModels
 {
     public class RecordViewModel : AbstractViewModel, IProxyEventSubscriber
     {
+        public static readonly DependencyProperty FileLocationProperty =
+            DependencyProperty.Register("FileLocation", typeof(FileLocation), typeof(RecordViewModel), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty FileNameProperty =
+            DependencyProperty.Register("FileName", typeof(string), typeof(RecordViewModel), new PropertyMetadata(""));
+
         public static readonly DependencyProperty IsRecordingProperty =
             DependencyProperty.Register("IsRecording", typeof(bool), typeof(RecordViewModel), new PropertyMetadata(false));
+
+        public static readonly DependencyProperty NotesProperty =
+            DependencyProperty.Register("Notes", typeof(string), typeof(RecordViewModel), new PropertyMetadata(""));
 
         public static readonly DependencyProperty RecordingTimeProperty =
             DependencyProperty.Register("RecordingTime", typeof(TimeSpan), typeof(RecordViewModel), new PropertyMetadata(null));
 
         private DataWritter _DataWritter;
+
         private Stopwatch _StopWatch;
+
         private Timer _Timer;
 
         public RecordViewModel(MainViewModel parent) : base(parent)
@@ -32,10 +45,28 @@ namespace FireFly.ViewModels
             _Timer.Start();
         }
 
+        public FileLocation FileLocation
+        {
+            get { return (FileLocation)GetValue(FileLocationProperty); }
+            set { SetValue(FileLocationProperty, value); }
+        }
+
+        public string FileName
+        {
+            get { return (string)GetValue(FileNameProperty); }
+            set { SetValue(FileNameProperty, value); }
+        }
+
         public bool IsRecording
         {
             get { return (bool)GetValue(IsRecordingProperty); }
             set { SetValue(IsRecordingProperty, value); }
+        }
+
+        public string Notes
+        {
+            get { return (string)GetValue(NotesProperty); }
+            set { SetValue(NotesProperty, value); }
         }
 
         public TimeSpan RecordingTime
@@ -103,13 +134,39 @@ namespace FireFly.ViewModels
         {
             return Task.Factory.StartNew(() =>
             {
-                Parent.SyncContext.Post(c =>
+                Parent.SyncContext.Post(async c =>
                 {
-                    _DataWritter = new DataWritter(string.Format("{0}.zip", DateTime.Now.ToFileTime()));
+                    if (string.IsNullOrEmpty(FileName))
+                    {
+                        var controller = await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Name is missing!", "Please set name!", MahApps.Metro.Controls.Dialogs.MessageDialogStyle.Affirmative, null);
+                        return;
+                    }
+
+                    if (FileLocation == null)
+                    {
+                        var controller = await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Location is missing!", "Please select a location!", MahApps.Metro.Controls.Dialogs.MessageDialogStyle.Affirmative, null);
+                        return;
+                    }
+
+                    string fullPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(Path.Combine(FileLocation.Path, string.Format("{0}.{1}", FileName, "ffc"))));
+                    if (File.Exists(fullPath))
+                    {
+                        var controller = await Parent.DialogCoordinator.ShowMessageAsync(Parent, "File already exists!", "Do you want to replace the existing file?", MahApps.Metro.Controls.Dialogs.MessageDialogStyle.AffirmativeAndNegative, null);
+                        if (controller == MahApps.Metro.Controls.Dialogs.MessageDialogResult.Affirmative)
+                        {
+                            File.Delete(fullPath);
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    _DataWritter = new DataWritter(fullPath);
                     _DataWritter.Open();
                     Parent.IOProxy.Subscribe(this, ProxyEventType.CameraImuEvent);
                     _StopWatch.Restart();
                     IsRecording = true;
+
                 }, null);
             });
         }

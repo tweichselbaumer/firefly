@@ -97,8 +97,9 @@ namespace FireFly.ViewModels
 
             if (changed)
             {
+                List<FileLocation> l = Parent.SettingContainer.Settings.GeneralSettings.FileLocations.ToList();
                 FileLocations.Clear();
-                FileLocations.AddRange(Parent.SettingContainer.Settings.GeneralSettings.FileLocations);
+                FileLocations.AddRange(l);
             }
         }
 

@@ -10,6 +10,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <Converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <Converter:InverseBooleanConverter x:Key="InverseBooleanConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -34,10 +35,10 @@
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0">
                 <Label  Content="Name" Style="{DynamicResource GeneralLabelStyle}" />
-                <TextBox Style="{DynamicResource GeneralTextBoxStyle}" />
+                <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=FileName}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}"/>
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
                 <Label  Content="Location" Style="{DynamicResource GeneralLabelStyle}" />
-                <ComboBox ItemsSource="{Binding Path=Parent.SettingViewModel.FileLocations}">
+                <ComboBox ItemsSource="{Binding Path=Parent.SettingViewModel.FileLocations}" SelectedItem="{Binding Path=FileLocation}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
@@ -48,7 +49,7 @@
                 </ComboBox>
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
                 <Label  Content="Notes" Style="{DynamicResource GeneralLabelStyle}" />
-                <TextBox MaxLines="10" MinLines="10" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" />
+                <TextBox MaxLines="10" MinLines="10" TextWrapping="Wrap" Text="{Binding Path=Notes}" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}"/>
             </StackPanel>
             <StackPanel Grid.Row="2">
                 <Button  Width="200" Content="start" Style="{DynamicResource AccentedSquareButtonStyle}" Visibility="{Binding Path=IsRecording, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=inverse}" Margin="0 5 0 5" Command="{Binding Path=StartCommand}" />
@@ -58,33 +59,21 @@
 
         <DockPanel Grid.Column="3" Grid.Row="1" VerticalAlignment="Stretch">
             <StackPanel DockPanel.Dock="Top">
-                <Label  Content="Camera" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Input Data" Style="{DynamicResource GeneralLabelStyle}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}"/>
                 <Controls:ToggleSwitch
-                IsChecked="{Binding Path=Enabled}" Margin="15,0,0,0"
+                IsChecked="{Binding Path}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
 
-                <Label  Content="Imu" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Output Data" Style="{DynamicResource GeneralLabelStyle}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}"/>
                 <Controls:ToggleSwitch
-                IsChecked="{Binding Path=Undistort}" Margin="15,0,0,0"
+                IsChecked="{Binding Path}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
-
-                <!--<Label  Content="Quality" Style="{DynamicResource GeneralLabelStyle}" />
-                <Slider Width="200"
-                AutoToolTipPlacement="TopLeft"
-                LargeChange="10"
-                Maximum="9"
-                Minimum="0"
-                Orientation="Horizontal"
-                SmallChange="1"
-                Style="{DynamicResource MahApps.Metro.Styles.Slider.Win10}"
-                Value="{Binding Path=Quality}" />-->
             </StackPanel>
             <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
-                <!--<Button Width="200" Content="record" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" />-->
             </StackPanel>
         </DockPanel>
     </Grid>
