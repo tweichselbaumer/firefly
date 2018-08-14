@@ -11,6 +11,7 @@ namespace FireFly.Data.Storage
     {
         private string _FileName;
         private Dictionary<int, StreamWriter> _ImuStreams = new Dictionary<int, StreamWriter>();
+        private Dictionary<int, StreamWriter> _CameraStreams = new Dictionary<int, StreamWriter>();
         private ZipArchive _ZipArchive;
         private FileStream _ZipFile;
 
@@ -19,17 +20,35 @@ namespace FireFly.Data.Storage
             _FileName = filename;
         }
 
-        public void AddImage(int camIndex, long timestamp_ns, byte[] data)
+        public void AddImage(int camIndex, long timestampNanoSeconds, byte[] data, double exposureTime)
         {
-            string imageFileName = string.Format(@"cam{0}\{1}.png", camIndex, timestamp_ns);
+            string imageFileName = string.Format(@"cam{0}\{1}.png", camIndex, timestampNanoSeconds);
 
             ZipArchiveEntry imageEntry = _ZipArchive.CreateEntry(imageFileName);
             Stream stream = imageEntry.Open();
             stream.Write(data, 0, data.Length);
             stream.Dispose();
+
+            lock (_CameraStreams)
+            {
+                StreamWriter writer;
+                if (!_CameraStreams.Any(c => c.Key == camIndex))
+                {
+                    MemoryStream memstream = new MemoryStream();
+                    writer = new StreamWriter(memstream);
+                    writer.WriteLine("timestamp,exposure_time");
+                    _CameraStreams.Add(camIndex, writer);
+                }
+                else
+                {
+                    writer = _CameraStreams[camIndex];
+                }
+                writer.WriteLine(String.Format(CultureInfo.InvariantCulture, "{0},{1}", timestampNanoSeconds, exposureTime));
+                writer.Flush();
+            }
         }
 
-        public void AddImu(int imuIndex, long timespampNanoSeconds, double omega_x, double omega_y, double omega_z, double alpha_x, double alpha_y, double alpha_z)
+        public void AddImu(int imuIndex, long timestampNanoSeconds, double omega_x, double omega_y, double omega_z, double alpha_x, double alpha_y, double alpha_z)
         {
             lock (_ImuStreams)
             {
@@ -45,7 +64,7 @@ namespace FireFly.Data.Storage
                 {
                     writer = _ImuStreams[imuIndex];
                 }
-                writer.WriteLine(String.Format(CultureInfo.InvariantCulture, "{0},{1},{2},{3},{4},{5},{6}", timespampNanoSeconds, omega_x, omega_y, omega_z, alpha_x, alpha_y, alpha_z));
+                writer.WriteLine(String.Format(CultureInfo.InvariantCulture, "{0},{1},{2},{3},{4},{5},{6}", timestampNanoSeconds, omega_x, omega_y, omega_z, alpha_x, alpha_y, alpha_z));
                 writer.Flush();
             }
         }
@@ -69,9 +88,28 @@ namespace FireFly.Data.Storage
                         }
                     }
                 }
-                _ZipArchive.Dispose();
-                _ZipFile.Dispose();
             }
+            lock (_CameraStreams)
+            {
+                foreach (KeyValuePair<int, StreamWriter> kvp in _CameraStreams)
+                {
+                    string camFileName = string.Format(@"cam{0}.csv", kvp.Key);
+                    ZipArchiveEntry camEntry = _ZipArchive.CreateEntry(camFileName);
+                    MemoryStream memoryStream = (MemoryStream)kvp.Value.BaseStream;
+                    Stream stream = camEntry.Open();
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    using (StreamWriter writer = new StreamWriter(stream))
+                    {
+                        using (StreamReader reader = new StreamReader(memoryStream))
+                        {
+                            writer.Write(reader.ReadToEnd());
+                        }
+                    }
+                }
+            }
+            _ZipArchive.Dispose();
+            _ZipFile.Dispose();
+
         }
 
         public void Open()

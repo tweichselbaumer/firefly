@@ -28,15 +28,23 @@ namespace FireFly.Proxy
             }
         }
 
-        internal static CameraEventData Parse(byte[] data, int offset)
+        internal static CameraEventData Parse(byte[] data, int offset, bool hasExposureTime, double exposureTime = 0)
         {
             CameraEventData obj = new CameraEventData();
 
-            byte[] temp = new byte[data.Length - (offset + sizeof(double))];
+            int calcOffset = offset;
+            if (hasExposureTime)
+                calcOffset += sizeof(double);
 
-            obj._ExposureTime = BitConverter.ToDouble(data, offset);
+            byte[] temp = new byte[data.Length - calcOffset];
 
-            Array.Copy(data, (offset + sizeof(double)), temp, 0, data.Length - (offset + sizeof(double)));
+            if (hasExposureTime)
+                obj._ExposureTime = BitConverter.ToDouble(data, offset);
+
+            if (exposureTime != 0)
+                obj._ExposureTime = exposureTime;
+
+            Array.Copy(data, calcOffset, temp, 0, data.Length - calcOffset);
             CvInvoke.Imdecode(temp, Emgu.CV.CvEnum.ImreadModes.Grayscale, obj._Image);
             return obj;
         }

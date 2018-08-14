@@ -112,7 +112,7 @@ namespace FireFly.ViewModels
                 }
                 if (cameraEventData != null)
                 {
-                    _DataWritter.AddImage(0, imuEventData.TimeNanoSeconds, cameraEventData.Image.ToPNGBinary(3));
+                    _DataWritter.AddImage(0, imuEventData.TimeNanoSeconds, cameraEventData.Image.ToPNGBinary(3),cameraEventData.ExposureTime);
                 }
             }
         }

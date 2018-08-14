@@ -19,6 +19,7 @@ namespace FireFly.Data.Storage
         private long _CurrentTimestamp = -1;
         private string _FileName;
         private Dictionary<long, Tuple<double, double, double, double, double, double>> _ImuCache = new Dictionary<long, Tuple<double, double, double, double, double, double>>();
+        private Dictionary<long, double> _CamCache = new Dictionary<long, double>();
         private ReaderMode _Mode;
         private Dictionary<long, ReaderMode> _Timestamps = new Dictionary<long, ReaderMode>();
         private ZipArchive _ZipArchive;
@@ -79,13 +80,16 @@ namespace FireFly.Data.Storage
 
             if (readerMode.HasFlag(ReaderMode.Camera0))
             {
+                double exposerTime = 0;
+                if (_CamCache.Any(c => c.Key == _CurrentTimestamp))
+                    exposerTime = _CamCache.FirstOrDefault(c => c.Key == _CurrentTimestamp).Value;
                 ZipArchiveEntry imageEntry = _ZipArchive.GetEntry(string.Format("cam0\\{0}.png", _CurrentTimestamp));
                 using (Stream stream = imageEntry.Open())
                 {
                     using (MemoryStream ms = new MemoryStream())
                     {
                         stream.CopyTo(ms);
-                        result.Add(new Tuple<ReaderMode, object>(ReaderMode.Camera0, ms.ToArray()));
+                        result.Add(new Tuple<ReaderMode, object>(ReaderMode.Camera0, new Tuple<double, byte[]>(exposerTime, ms.ToArray())));
                     }
                 }
             }
@@ -149,6 +153,33 @@ namespace FireFly.Data.Storage
                         else
                         {
                             _Timestamps.Add(timestamp, ReaderMode.Camera0);
+                        }
+                    }
+                }
+                ZipArchiveEntry camentry = _ZipArchive.GetEntry("cam0.csv");
+                if (camentry != null)
+                {
+                    using (StreamReader reader = new StreamReader(camentry.Open()))
+                    {
+                        string content = reader.ReadToEnd();
+                        bool skipFirst = true;
+                        foreach (string line in content.Split('\n'))
+                        {
+                            if (skipFirst)
+                            {
+                                skipFirst = false;
+                            }
+                            else
+                            {
+                                string[] values = line.Split(',');
+                                if (values.Length == 2)
+                                {
+                                    long timestamp = long.Parse(values[0], CultureInfo.InvariantCulture);
+
+                                    double exposureTime = double.Parse(values[1], CultureInfo.InvariantCulture);
+                                    _CamCache.Add(timestamp, exposureTime);
+                                }
+                            }
                         }
                     }
                 }

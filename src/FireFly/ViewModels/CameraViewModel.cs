@@ -5,6 +5,7 @@ using FireFly.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 using System.Windows;
 
 namespace FireFly.ViewModels
@@ -13,6 +14,9 @@ namespace FireFly.ViewModels
     {
         public static readonly DependencyProperty EnabledProperty =
             DependencyProperty.Register("Enabled", typeof(bool), typeof(CameraViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty ExposureSweepProperty =
+            DependencyProperty.Register("ExposureSweep", typeof(bool), typeof(CameraViewModel), new PropertyMetadata(false));
 
         public static readonly DependencyProperty ExposureTimeProperty =
             DependencyProperty.Register("ExposureTime", typeof(double), typeof(CameraViewModel), new PropertyMetadata(0.0));
@@ -41,11 +45,11 @@ namespace FireFly.ViewModels
 
         private double _Fy;
 
-        private System.Timers.Timer _Timer;
+        private Timer _Timer;
 
         public CameraViewModel(MainViewModel parent) : base(parent)
         {
-            _Timer = new System.Timers.Timer(1000);
+            _Timer = new Timer(100);
             _Timer.Elapsed += _Timer_Elapsed;
             _Timer.Start();
         }
@@ -54,6 +58,12 @@ namespace FireFly.ViewModels
         {
             get { return (bool)GetValue(EnabledProperty); }
             set { SetValue(EnabledProperty, value); }
+        }
+
+        public bool ExposureSweep
+        {
+            get { return (bool)GetValue(ExposureSweepProperty); }
+            set { SetValue(ExposureSweepProperty, value); }
         }
 
         public double ExposureTime
@@ -78,6 +88,14 @@ namespace FireFly.ViewModels
         {
             get { return (CvImageContainer)GetValue(ImageProperty); }
             set { SetValue(ImageProperty, value); }
+        }
+
+        public int MaxExposureTime
+        {
+            get
+            {
+                return 1213;
+            }
         }
 
         public bool Undistort
@@ -168,10 +186,28 @@ namespace FireFly.ViewModels
             }
         }
 
-        private void _Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private static void StartExposurSweepTimer()
+        {
+            throw new NotImplementedException();
+        }
+
+        private static void StopExposurSweepTimer()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void _Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Parent.SyncContext.Post(o =>
             {
+                if (ExposureSweep)
+                {
+                    ExposureTimeSetting++;
+                    if (ExposureTimeSetting > MaxExposureTime)
+                    {
+                        ExposureTimeSetting = 0;
+                    }
+                }
                 FPS = (int)_FPSCounter.FramesPerSecond;
             }, null);
         }

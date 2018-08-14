@@ -65,7 +65,7 @@
                     <Slider Width="120" Grid.Column="0"
                         AutoToolTipPlacement="TopLeft"
                         LargeChange="10"
-                        Maximum="1213"
+                        Maximum="{Binding Path=MaxExposureTime}"
                         Minimum="-1"
                         Orientation="Horizontal"
                         SmallChange="1"
@@ -74,7 +74,12 @@
                     <Label Grid.Column="1" Content="{Binding Path=ExposureTime, Converter={StaticResource ExposureTimeConverter}}" Style="{DynamicResource GeneralLabelStyle}" />
                 </Grid>
 
-
+                <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
+                
+                <Label  Content="Exposure Sweep" Style="{DynamicResource GeneralLabelStyle}" />
+                <Controls:ToggleSwitch
+                IsChecked="{Binding Path=ExposureSweep}" Margin="15,0,0,0"
+                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
             </StackPanel>
             <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">

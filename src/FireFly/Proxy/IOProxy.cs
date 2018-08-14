@@ -93,7 +93,7 @@ namespace FireFly.Proxy
                             }
                             if (val.Item1 == ReaderMode.Camera0)
                             {
-                                cameraEventData = CameraEventData.Parse((byte[])val.Item2, 0);
+                                cameraEventData = CameraEventData.Parse(((Tuple<double, byte[]>)val.Item2).Item2, 0, false, ((Tuple<double, byte[]>)val.Item2).Item1);
                             }
                         }
 
@@ -196,7 +196,7 @@ namespace FireFly.Proxy
             {
                 if (label == _CameraEventLabel)
                 {
-                    CameraEventData eventData = CameraEventData.Parse(data, 0);
+                    CameraEventData eventData = CameraEventData.Parse(data, 0, true);
                     foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraEvent))
                     {
                         t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
@@ -216,7 +216,7 @@ namespace FireFly.Proxy
                     CameraEventData cameraEventData = null;
 
                     if (imuEventData.HasCameraImage)
-                        cameraEventData = CameraEventData.Parse(data, 23);
+                        cameraEventData = CameraEventData.Parse(data, 23, true);
 
                     foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraImuEvent))
                     {
