@@ -240,16 +240,19 @@ namespace FireFly.ViewModels
 
                     try
                     {
-                        mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse(mwvm.SettingViewModel.IpAddress), mwvm.SettingViewModel.Port);
+                        if (!string.IsNullOrEmpty(mwvm.SettingViewModel.IpAddress))
+                        {
+                            mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse(mwvm.SettingViewModel.IpAddress), mwvm.SettingViewModel.Port);
 
-                        mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
-                        mwvm.Connector.MetricUpdate += mwvm.Connector_MetricUpdate;
+                            mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
+                            mwvm.Connector.MetricUpdate += mwvm.Connector_MetricUpdate;
 
-                        mwvm.Node = new LinkUpNode();
-                        mwvm.Node.Name = mwvm.NodeName;
-                        mwvm.Node.AddSubNode(mwvm.Connector);
-                        mwvm.IOProxy.Node = mwvm.Node;
-                        mwvm.IOProxy.UpdateLinkUpBindings();
+                            mwvm.Node = new LinkUpNode();
+                            mwvm.Node.Name = mwvm.NodeName;
+                            mwvm.Node.AddSubNode(mwvm.Connector);
+                            mwvm.IOProxy.Node = mwvm.Node;
+                            mwvm.IOProxy.UpdateLinkUpBindings();
+                        }
                     }
                     catch (Exception)
                     {

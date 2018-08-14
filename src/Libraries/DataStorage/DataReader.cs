@@ -23,6 +23,7 @@ namespace FireFly.Data.Storage
         private Dictionary<long, ReaderMode> _Timestamps = new Dictionary<long, ReaderMode>();
         private ZipArchive _ZipArchive;
         private FileStream _ZipFile;
+        private TimeSpan _Length = new TimeSpan();
 
         public DataReader(string filename, ReaderMode mode)
         {
@@ -42,7 +43,7 @@ namespace FireFly.Data.Storage
         {
             get
             {
-                return TimeSpan.FromMilliseconds((_Timestamps.Keys.Max() - _Timestamps.Keys.Min()) / (1000 * 1000));
+                return _Length;
             }
         }
 
@@ -152,6 +153,7 @@ namespace FireFly.Data.Storage
                     }
                 }
             }
+            _Length = TimeSpan.FromMilliseconds((_Timestamps.Keys.Max() - _Timestamps.Keys.Min()) / (1000 * 1000));
         }
     }
 }

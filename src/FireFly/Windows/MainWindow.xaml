@@ -225,11 +225,6 @@
                             <Views:ReplayView  DataContext="{Binding Source={StaticResource Data}, Path=ReplayViewModel}" />
                         </Controls:HamburgerMenuIconItem.Tag>
                     </Controls:HamburgerMenuIconItem>
-                    <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Export}" Label="Export">
-                        <Controls:HamburgerMenuIconItem.Tag>
-                            <Grid></Grid>
-                        </Controls:HamburgerMenuIconItem.Tag>
-                    </Controls:HamburgerMenuIconItem>
                 </Controls:HamburgerMenuItemCollection>
             </Controls:HamburgerMenu.ItemsSource>
 

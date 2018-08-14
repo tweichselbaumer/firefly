@@ -42,7 +42,7 @@
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Name}" ToolTip="{Binding Path}" />
+                                <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
                             </StackPanel>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
@@ -61,14 +61,14 @@
             <StackPanel DockPanel.Dock="Top">
                 <Label  Content="Input Data" Style="{DynamicResource GeneralLabelStyle}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}"/>
                 <Controls:ToggleSwitch
-                IsChecked="{Binding Path}" Margin="15,0,0,0"
+               Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
 
                 <Label  Content="Output Data" Style="{DynamicResource GeneralLabelStyle}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}"/>
                 <Controls:ToggleSwitch
-                IsChecked="{Binding Path}" Margin="15,0,0,0"
+                Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />

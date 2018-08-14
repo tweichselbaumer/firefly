@@ -153,6 +153,7 @@
     <Compile Include="Command\RelayCommand.cs" />
     <Compile Include="Converter\BoolToVisibilityConverter.cs" />
     <Compile Include="Converter\BytesPerSecondConverter.cs" />
+    <Compile Include="Converter\ExposureTimeConverter.cs" />
     <Compile Include="Converter\InverseBooleanConverter.cs" />
     <Compile Include="CustomControls\IntrinsicResultControl.xaml.cs">
       <DependentUpon>IntrinsicResultControl.xaml</DependentUpon>
@@ -167,6 +168,7 @@
     <Compile Include="Models\ChArUcoImageContainer.cs" />
     <Compile Include="Models\CvImageContainer.cs" />
     <Compile Include="Models\LineSeriesContainer.cs" />
+    <Compile Include="Models\ReplayFile.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Proxy\AbstractProxyEventData.cs" />
     <Compile Include="Proxy\CameraEventData.cs" />

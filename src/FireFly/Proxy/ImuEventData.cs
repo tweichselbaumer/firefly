@@ -17,7 +17,6 @@ namespace FireFly.Proxy
         private bool _HasCameraImage;
         private double _Temperatur;
         private double _Time;
-        private long _TimeMicroSeconds;
 
         public double AccelX
         {
@@ -75,14 +74,6 @@ namespace FireFly.Proxy
             }
         }
 
-        public long TimeMicroSeconds
-        {
-            get
-            {
-                return _TimeMicroSeconds;
-            }
-        }
-
         public double Temperatur
         {
             get
@@ -103,7 +94,6 @@ namespace FireFly.Proxy
         {
             get
             {
-                //TODO
                 return (long)(_Time * 1000 * 1000 * 1000);
             }
         }
@@ -111,9 +101,12 @@ namespace FireFly.Proxy
         internal static ImuEventData Parse(byte[] data, int offset)
         {
             ImuEventData obj = new ImuEventData();
-            obj._Time = ((double)BitConverter.ToUInt32(data, 0)) / 1000;
-            //TODO
-            obj._TimeMicroSeconds = BitConverter.ToUInt32(data, 4);
+            UInt32 time_ms = BitConverter.ToUInt32(data, 0);
+            UInt32 time_us = BitConverter.ToUInt32(data, 4);
+
+            int multi = (int)(time_ms / ((Math.Pow(2, 32)) / 1000));
+
+            obj._Time = (time_us + multi * Math.Pow(2, 32)) / (1000 * 1000);
 
             obj._GyroX = ((double)BitConverter.ToInt16(data, 8)) / GYRO_SCALE;
             obj._GyroY = ((double)BitConverter.ToInt16(data, 10)) / GYRO_SCALE;
@@ -134,7 +127,6 @@ namespace FireFly.Proxy
         {
             ImuEventData obj = new ImuEventData();
             obj._Time = (double)timestamp / (1000 * 1000 * 1000);
-            obj._TimeMicroSeconds = (long)(item.Item1 / 1000);
 
             obj._GyroX = item.Item1;
             obj._GyroY = item.Item2;

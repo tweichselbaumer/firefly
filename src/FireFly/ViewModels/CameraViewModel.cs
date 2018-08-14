@@ -14,6 +14,12 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty EnabledProperty =
             DependencyProperty.Register("Enabled", typeof(bool), typeof(CameraViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
 
+        public static readonly DependencyProperty ExposureTimeProperty =
+            DependencyProperty.Register("ExposureTime", typeof(double), typeof(CameraViewModel), new PropertyMetadata(0.0));
+
+        public static readonly DependencyProperty ExposureTimeSettingProperty =
+                    DependencyProperty.Register("ExposureTimeSetting", typeof(short), typeof(CameraViewModel), new FrameworkPropertyMetadata((short)-1, new PropertyChangedCallback(OnPropertyChanged)));
+
         public static readonly DependencyProperty FPSProperty =
             DependencyProperty.Register("FPS", typeof(int), typeof(CameraViewModel), new PropertyMetadata(0));
 
@@ -48,6 +54,18 @@ namespace FireFly.ViewModels
         {
             get { return (bool)GetValue(EnabledProperty); }
             set { SetValue(EnabledProperty, value); }
+        }
+
+        public double ExposureTime
+        {
+            get { return (double)GetValue(ExposureTimeProperty); }
+            set { SetValue(ExposureTimeProperty, value); }
+        }
+
+        public short ExposureTimeSetting
+        {
+            get { return (short)GetValue(ExposureTimeSettingProperty); }
+            set { SetValue(ExposureTimeSettingProperty, value); }
         }
 
         public int FPS
@@ -94,6 +112,7 @@ namespace FireFly.ViewModels
                 _FPSCounter.CountFrame();
                 Parent.SyncContext.Post(o =>
                 {
+                    ExposureTime = (eventData[0] as CameraEventData).ExposureTime;
                     Image = new CvImageContainer();
                     if (Undistort)
                         Image.CvImage = matUndist;
@@ -134,6 +153,10 @@ namespace FireFly.ViewModels
                             cvm.Parent.IOProxy.Unsubscribe(cvm, ProxyEventType.CameraEvent);
                     }
                     catch (Exception) { }
+                    break;
+
+                case "ExposureTimeSetting":
+                    cvm.Parent.IOProxy.SetExposure(cvm.ExposureTimeSetting);
                     break;
 
                 default:

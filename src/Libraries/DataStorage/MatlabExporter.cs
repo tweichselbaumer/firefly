@@ -28,6 +28,8 @@ namespace FireFly.Data.Storage
 
         public void AddFromReader(DataReader reader)
         {
+            IArray time = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["time", 0];
+
             IArray gyrox = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyrox", 0];
             IArray gyroy = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroy", 0];
             IArray gyroz = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroz", 0];
@@ -48,6 +50,7 @@ namespace FireFly.Data.Storage
                     {
                         if (imu0Index >= gyrox.Dimensions[1])
                         {
+                            time = ResizeArray<double>(time, 1, imu0Index * 2 + 1);
                             gyrox = ResizeArray<double>(gyrox, 1, imu0Index * 2 + 1);
                             gyroy = ResizeArray<double>(gyroy, 1, imu0Index * 2 + 1);
                             gyroz = ResizeArray<double>(gyroz, 1, imu0Index * 2 + 1);
@@ -55,6 +58,8 @@ namespace FireFly.Data.Storage
                             accy = ResizeArray<double>(accy, 1, imu0Index * 2 + 1);
                             accz = ResizeArray<double>(accz, 1, imu0Index * 2 + 1);
                         }
+
+                        ((IArrayOf<double>)time)[0, imu0Index] = (double)res.Item1 / (1000 * 1000 * 1000);
 
                         ((IArrayOf<double>)gyrox)[0, imu0Index] = ((Tuple<double, double, double, double, double, double>)val.Item2).Item1;
 
@@ -78,6 +83,7 @@ namespace FireFly.Data.Storage
 
             if (_MatlabFormat.HasFlag(MatlabFormat.Imu0))
             {
+                time = ResizeArray<double>(time, 1, imu0Index);
                 gyrox = ResizeArray<double>(gyrox, 1, imu0Index);
                 gyroy = ResizeArray<double>(gyroy, 1, imu0Index);
                 gyroz = ResizeArray<double>(gyroz, 1, imu0Index);
@@ -86,6 +92,7 @@ namespace FireFly.Data.Storage
                 accz = ResizeArray<double>(accz, 1, imu0Index);
             }
 
+            ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["time", 0] = time;
             ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyrox", 0] = gyrox;
             ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroy", 0] = gyroy;
             ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroz", 0] = gyroz;
@@ -125,6 +132,8 @@ namespace FireFly.Data.Storage
             if (_MatlabFormat.HasFlag(MatlabFormat.Imu0))
             {
                 _DataStruct["raw", 0] = AddFieldToStructureArray(_DataStruct["raw", 0], "imu0", 1);
+
+                (_DataStruct["raw", 0] as IStructureArray)["imu0", 0] = AddFieldToStructureArray((_DataStruct["raw", 0] as IStructureArray)["imu0", 0], "time", 1);
 
                 (_DataStruct["raw", 0] as IStructureArray)["imu0", 0] = AddFieldToStructureArray((_DataStruct["raw", 0] as IStructureArray)["imu0", 0], "gyrox", 1);
                 (_DataStruct["raw", 0] as IStructureArray)["imu0", 0] = AddFieldToStructureArray((_DataStruct["raw", 0] as IStructureArray)["imu0", 0], "gyroy", 1);

@@ -20,6 +20,7 @@ namespace FireFly.Proxy
         private LinkUpEventLabel _CameraEventLabel;
         private LinkUpEventLabel _CameraImuEventLabel;
         private LinkUpEventLabel _ImuEventLabel;
+        private LinkUpPropertyLabel<Int16> _ExposureLabel;
         private LinkUpNode _Node;
         private IOProxyMode _ProxyMode = IOProxyMode.Live;
         private List<Tuple<IProxyEventSubscriber, ProxyEventType>> _Subscriptions = new List<Tuple<IProxyEventSubscriber, ProxyEventType>>();
@@ -68,6 +69,7 @@ namespace FireFly.Proxy
         {
             _Tasks.Add(Task.Factory.StartNew(() =>
             {
+                ProxyMode = IOProxyMode.Offline;
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
                 int nextTimeUpdate = 1000;
@@ -130,6 +132,7 @@ namespace FireFly.Proxy
                     }
                 }
                 reader.Close();
+                ProxyMode = IOProxyMode.Live;
                 onClose();
             }, TaskCreationOptions.LongRunning));
         }
@@ -158,6 +161,14 @@ namespace FireFly.Proxy
             }
         }
 
+        public void SetExposure(Int16 exposure)
+        {
+            if (_ExposureLabel != null)
+            {
+                _ExposureLabel.Value = exposure;
+            }
+        }
+
         public void UpdateLinkUpBindings()
         {
             if (Node != null)
@@ -165,6 +176,8 @@ namespace FireFly.Proxy
                 _CameraEventLabel = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/camera_event");
                 _ImuEventLabel = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/imu_event");
                 _CameraImuEventLabel = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/camera_imu_event");
+
+                _ExposureLabel = Node.GetLabelByName<LinkUpPropertyLabel<Int16>>("firefly/computer_vision/camera_exposure");
 
                 _CameraEventLabel.Fired += _CameraEventLabel_Fired;
                 _ImuEventLabel.Fired += _CameraEventLabel_Fired;

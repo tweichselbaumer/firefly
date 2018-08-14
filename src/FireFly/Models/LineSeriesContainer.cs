@@ -26,7 +26,7 @@ namespace FireFly.Models
             DependencyProperty.Register("MinorStepY", typeof(double), typeof(LineSeriesContainer), new PropertyMetadata(10.0));
 
         public static readonly DependencyProperty PointsProperty =
-            DependencyProperty.Register("Points", typeof(RangeObservableCollection<DataPoint>), typeof(LineSeriesContainer), new PropertyMetadata(new RangeObservableCollection<DataPoint>()));
+            DependencyProperty.Register("Points", typeof(RangeObservableCollection<DataPoint>), typeof(LineSeriesContainer), new PropertyMetadata(null));
 
         public static readonly DependencyProperty TitleProperty =
             DependencyProperty.Register("Title", typeof(string), typeof(LineSeriesContainer), new PropertyMetadata(""));

@@ -76,9 +76,9 @@
                         <RowDefinition Height="10" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <CustomControls:PlotControl Grid.Row="0" />
+                    <!--<CustomControls:PlotControl Grid.Row="0" />
                     <CustomControls:PlotControl Grid.Row="2" />
-                    <CustomControls:PlotControl Grid.Row="4" />
+                    <CustomControls:PlotControl Grid.Row="4" />-->
                 </Grid>
             </TabItem>
         </TabControl>
