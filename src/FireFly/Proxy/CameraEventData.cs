@@ -28,6 +28,14 @@ namespace FireFly.Proxy
             }
         }
 
+        public int RawSize
+        {
+            get
+            {
+                return sizeof(double) + _Image.Cols * _Image.Rows;
+            }
+        }
+
         internal static CameraEventData Parse(byte[] data, int offset, bool hasExposureTime, double exposureTime = 0)
         {
             CameraEventData obj = new CameraEventData();

@@ -98,6 +98,39 @@ namespace FireFly.Proxy
             }
         }
 
+        public int RawSize
+        {
+            get
+            {
+                return 23;
+            }
+        }
+
+        public byte[] Raw
+        {
+            get
+            {
+                byte[] data = new byte[23];
+
+                Array.Copy(BitConverter.GetBytes((UInt32)(TimeNanoSeconds / (1000 * 1000))), 0, data, 0, sizeof(UInt32));
+                Array.Copy(BitConverter.GetBytes((UInt32)(TimeNanoSeconds / (1000))), 0, data, 4, sizeof(UInt32));
+
+                Array.Copy(BitConverter.GetBytes((UInt16)(GyroX * GYRO_SCALE)), 0, data, 8, sizeof(UInt16));
+                Array.Copy(BitConverter.GetBytes((UInt16)(GyroY * GYRO_SCALE)), 0, data, 10, sizeof(UInt16));
+                Array.Copy(BitConverter.GetBytes((UInt16)(GyroZ * GYRO_SCALE)), 0, data, 12, sizeof(UInt16));
+
+                Array.Copy(BitConverter.GetBytes((UInt16)(AccelX * ACC_SCALE)), 0, data, 14, sizeof(UInt16));
+                Array.Copy(BitConverter.GetBytes((UInt16)(AccelY * ACC_SCALE)), 0, data, 16, sizeof(UInt16));
+                Array.Copy(BitConverter.GetBytes((UInt16)(AccelZ * ACC_SCALE)), 0, data, 18, sizeof(UInt16));
+
+                Array.Copy(BitConverter.GetBytes((UInt16)((Temperatur - TEMP_OFFSET) * TEMP_SCALE)), 0, data, 20, sizeof(UInt16));
+
+                Array.Copy(BitConverter.GetBytes(HasCameraImage), 0, data, 22, sizeof(bool));
+
+                return data;
+            }
+        }
+
         internal static ImuEventData Parse(byte[] data, int offset)
         {
             ImuEventData obj = new ImuEventData();

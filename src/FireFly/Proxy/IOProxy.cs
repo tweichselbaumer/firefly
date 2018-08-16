@@ -1,6 +1,7 @@
 ﻿using FireFly.Data.Storage;
 using LinkUp.Node;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -21,6 +22,7 @@ namespace FireFly.Proxy
         private LinkUpEventLabel _CameraImuEventLabel;
         private LinkUpEventLabel _ImuEventLabel;
         private LinkUpPropertyLabel<Int16> _ExposureLabel;
+        private LinkUpFunctionLabel _ReplayDataSend;
         private LinkUpNode _Node;
         private IOProxyMode _ProxyMode = IOProxyMode.Live;
         private List<Tuple<IProxyEventSubscriber, ProxyEventType>> _Subscriptions = new List<Tuple<IProxyEventSubscriber, ProxyEventType>>();
@@ -85,16 +87,39 @@ namespace FireFly.Proxy
                     {
                         ImuEventData imuEventData = null;
                         CameraEventData cameraEventData = null;
+
+                        int rawSize = 0;
+                        byte[] rawImage = null;
+                        byte[] rawImu = null;
+                        double exposureTime = 0.0;
+
                         foreach (Tuple<ReaderMode, object> val in res.Item2)
                         {
                             if (val.Item1 == ReaderMode.Imu0)
                             {
                                 imuEventData = ImuEventData.Parse(res.Item1, (Tuple<double, double, double, double, double, double>)val.Item2, res.Item2.Any(c => c.Item1 == ReaderMode.Camera0));
+                                rawSize += imuEventData.RawSize;
+                                rawImu = imuEventData.Raw;
                             }
                             if (val.Item1 == ReaderMode.Camera0)
                             {
                                 cameraEventData = CameraEventData.Parse(((Tuple<double, byte[]>)val.Item2).Item2, 0, false, ((Tuple<double, byte[]>)val.Item2).Item1);
+                                rawSize += cameraEventData.RawSize;
+                                rawImage = ((Tuple<double, byte[]>)val.Item2).Item2;
+                                exposureTime = ((Tuple<double, byte[]>)val.Item2).Item1;
                             }
+                        }
+
+                        if (rawSize > 0)
+                        {
+                            byte[] data = new byte[rawSize];
+                            Array.Copy(rawImu, data, rawImu.Length);
+                            if (rawImage != null)
+                            {
+                                Array.Copy(BitConverter.GetBytes(exposureTime), 0, data, imuEventData.RawSize, sizeof(double));
+                                Array.Copy(rawImage, 0, data, imuEventData.RawSize + sizeof(double), rawImage.Length);
+                            }
+                            _ReplayDataSend.AsyncCall(data);
                         }
 
                         foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraImuEvent))
@@ -178,6 +203,8 @@ namespace FireFly.Proxy
                 _CameraImuEventLabel = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/camera_imu_event");
 
                 _ExposureLabel = Node.GetLabelByName<LinkUpPropertyLabel<Int16>>("firefly/computer_vision/camera_exposure");
+
+                _ReplayDataSend = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/replay_data");
 
                 _CameraEventLabel.Fired += _CameraEventLabel_Fired;
                 _ImuEventLabel.Fired += _CameraEventLabel_Fired;
