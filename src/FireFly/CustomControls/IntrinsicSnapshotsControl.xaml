@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:local="clr-namespace:FireFly.CustomControls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -35,6 +36,8 @@
                     </Border>
                 </Viewbox>
                 <Button Width="200" Content="take snapshot" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=TakeSnapshotCommand}"/>
+
+                <ToggleButton Width="200" Content="Auto" Margin="0 5 0 5" IsChecked="{Binding Path=AutoSnapshot}"/>
             </StackPanel>
             <StackPanel Grid.Column="2" Grid.Row="0">
                 <Viewbox>

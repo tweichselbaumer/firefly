@@ -12,8 +12,48 @@ namespace FireFly.Models
         public static readonly DependencyProperty ProgressedImageProperty =
             DependencyProperty.Register("ProgressedImage", typeof(CvImageContainer), typeof(ChArUcoImageContainer), new PropertyMetadata(null));
 
+        private VectorOfPointF _CharucoCorners;
+        private VectorOfInt _CharucoIds;
         private VectorOfVectorOfPointF _MarkerCorners;
         private VectorOfInt _MarkerIds;
+        private float _MarkerLength;
+        private float _SquareLength;
+        private int _SquaresX;
+        private int _SquaresY;
+
+        public ChArUcoImageContainer(int squaresX, int squaresY, float squareLength, float markerLength)
+        {
+            _SquaresX = squaresX;
+            _SquaresY = squaresY;
+            _SquareLength = squareLength;
+            _MarkerLength = markerLength;
+        }
+
+        public VectorOfPointF CharucoCorners
+        {
+            get
+            {
+                return _CharucoCorners;
+            }
+
+            set
+            {
+                _CharucoCorners = value;
+            }
+        }
+
+        public VectorOfInt CharucoIds
+        {
+            get
+            {
+                return _CharucoIds;
+            }
+
+            set
+            {
+                _CharucoIds = value;
+            }
+        }
 
         public VectorOfVectorOfPointF MarkerCorners
         {
@@ -41,6 +81,14 @@ namespace FireFly.Models
             }
         }
 
+        public float MarkerLength
+        {
+            get
+            {
+                return _MarkerLength;
+            }
+        }
+
         public CvImageContainer OriginalImage
         {
             get { return (CvImageContainer)GetValue(OriginalImageProperty); }
@@ -53,16 +101,42 @@ namespace FireFly.Models
             set { SetValue(ProgressedImageProperty, value); }
         }
 
+        public float SquareLength
+        {
+            get
+            {
+                return _SquareLength;
+            }
+        }
+
+        public int SquaresX
+        {
+            get
+            {
+                return _SquaresX;
+            }
+        }
+
+        public int SquaresY
+        {
+            get
+            {
+                return _SquaresY;
+            }
+        }
+
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is ChArUcoImageContainer)
             {
                 ChArUcoImageContainer cauic = d as ChArUcoImageContainer;
-                (VectorOfInt markerIds, VectorOfVectorOfPointF markerCorners) result = ChArUcoDetector.Detect(cauic.OriginalImage.CvImage);
+                (VectorOfInt markerIds, VectorOfVectorOfPointF markerCorners, VectorOfInt charucoIds, VectorOfPointF charucoCorners) result = ChArUcoCalibration.Detect(cauic.OriginalImage.CvImage, cauic.SquaresX, cauic.SquaresY, cauic.SquareLength, cauic.MarkerLength);
                 cauic.MarkerIds = result.markerIds;
                 cauic.MarkerCorners = result.markerCorners;
+                cauic.CharucoIds = result.charucoIds;
+                cauic.CharucoCorners = result.charucoCorners;
                 cauic.ProgressedImage = new CvImageContainer();
-                cauic.ProgressedImage.CvImage = ChArUcoDetector.Draw(cauic.OriginalImage.CvImage, result.markerIds, result.markerCorners);
+                cauic.ProgressedImage.CvImage = ChArUcoCalibration.Draw(cauic.OriginalImage.CvImage, result.markerIds, result.markerCorners, result.charucoIds, result.charucoCorners);
             }
         }
     }

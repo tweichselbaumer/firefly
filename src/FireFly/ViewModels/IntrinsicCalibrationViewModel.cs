@@ -5,16 +5,21 @@ using FireFly.Models;
 using FireFly.Utilities;
 using FireFly.VI.Calibration;
 using MahApps.Metro.Controls.Dialogs;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 
 namespace FireFly.ViewModels
 {
     public class IntrinsicCalibrationViewModel : AbstractViewModel
     {
+        public static readonly DependencyProperty AutoSnapshotProperty =
+            DependencyProperty.Register("AutoSnapshot", typeof(bool), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(false));
+
         public static readonly DependencyProperty ChAruCoBoardProperty =
             DependencyProperty.Register("ChAruCoBoard", typeof(CvImageContainer), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(null));
 
@@ -40,13 +45,28 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("TakeSnapshotControlVisibility", typeof(Visibility), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(Visibility.Collapsed));
 
         private double _Cx;
+
         private double _Cy;
+
         private List<double> _DistCoeffs = new List<double>();
+
         private double _Fx;
+
         private double _Fy;
+
+        private Timer _Timer;
 
         public IntrinsicCalibrationViewModel(MainViewModel parent) : base(parent)
         {
+            _Timer = new Timer(500);
+            _Timer.Elapsed += _Timer_Elapsed;
+            _Timer.Start();
+        }
+
+        public bool AutoSnapshot
+        {
+            get { return (bool)GetValue(AutoSnapshotProperty); }
+            set { SetValue(AutoSnapshotProperty, value); }
         }
 
         public RelayCommand<object> CalibrateCommand
@@ -161,24 +181,37 @@ namespace FireFly.ViewModels
                 _Cy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy;
                 _DistCoeffs = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.ToList();
 
-                Mat board = ChArUcoDetector.DrawBoard(5, 5, 0.04f, 0.02f, new System.Drawing.Size(512, 512));
+                Mat board = ChArUcoCalibration.DrawBoard(5, 5, 0.04f, 0.02f, new System.Drawing.Size(512, 512));
                 Mat boardDist = board.Clone();
 
                 Mat cameraMatrix = new Mat(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
-                Mat distCoeffs = new Mat(1, _DistCoeffs.Count, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
+                Mat distCoeffs = new Mat(1, Parent.CameraViewModel.FishEyeCalibration ? 4 : _DistCoeffs.Count, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
 
                 cameraMatrix.SetValue(0, 0, _Fx);
                 cameraMatrix.SetValue(1, 1, _Fy);
-                cameraMatrix.SetValue(0, 2, _Cy);
+                cameraMatrix.SetValue(0, 2, _Cx);
                 cameraMatrix.SetValue(1, 2, _Cy);
                 cameraMatrix.SetValue(2, 2, 1.0f);
 
-                for (int i = 0; i < distCoeffs.Cols; i++)
+                Mat newK = new Mat(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
+
+                for (int i = 0; i < distCoeffs.Cols && (Parent.CameraViewModel.FishEyeCalibration ? i < 4 : true); i++)
                 {
                     distCoeffs.SetValue(0, i, _DistCoeffs[i]);
                 }
 
-                CvInvoke.Undistort(board, boardDist, cameraMatrix, distCoeffs);
+                if (Parent.CameraViewModel.FishEyeCalibration)
+                {
+                    Fisheye.EstimateNewCameraMatrixForUndistorRectify(cameraMatrix, distCoeffs, new System.Drawing.Size(512, 512), Mat.Eye(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1), newK, 1, new System.Drawing.Size(512, 512), 1);
+                    Mat map1 = new Mat();
+                    Mat map2 = new Mat();
+                    Fisheye.InitUndistorRectifyMap(cameraMatrix, distCoeffs, Mat.Eye(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1), newK, new System.Drawing.Size(512, 512), Emgu.CV.CvEnum.DepthType.Cv32F, map1, map2);
+                    CvInvoke.Remap(board, boardDist, map1, map2, Emgu.CV.CvEnum.Inter.Linear, Emgu.CV.CvEnum.BorderType.Constant);
+                }
+                else
+                {
+                    CvInvoke.Undistort(board, boardDist, cameraMatrix, distCoeffs);
+                }
                 Parent.SyncContext.Post(c =>
                 {
                     ChAruCoBoard = new CvImageContainer();
@@ -222,14 +255,27 @@ namespace FireFly.ViewModels
             }
         }
 
+        private void _Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            Parent.SyncContext.Post(o =>
+            {
+                if (AutoSnapshot)
+                {
+                    ChArUcoImageContainer cauic = new ChArUcoImageContainer(SquaresX, SquaresY, SquareLength, MarkerLength);
+                    cauic.OriginalImage = Parent.CameraViewModel.Image;
+                    Images.Add(cauic);
+                }
+            }, null);
+        }
+
         private Task DoCalibrate(object o)
         {
             return Task.Factory.StartNew(async () =>
             {
-                ChArUcoImageContainer cauic = new ChArUcoImageContainer();
-
                 VectorOfInt allIds = new VectorOfInt();
                 VectorOfVectorOfPointF allCorners = new VectorOfVectorOfPointF();
+                VectorOfInt allCharucoIds = new VectorOfInt();
+                VectorOfPointF allCharucoCorners = new VectorOfPointF();
                 VectorOfInt markerCounterPerFrame = new VectorOfInt();
                 int squaresX = 0;
                 int squaresY = 0;
@@ -237,8 +283,12 @@ namespace FireFly.ViewModels
                 float markerLength = 0f;
                 System.Drawing.Size size = new System.Drawing.Size();
 
+                bool fisheye = false;
+
                 Parent.SyncContext.Send(async c =>
                 {
+                    fisheye = Parent.CameraViewModel.FishEyeCalibration;
+
                     squaresX = SquaresX;
                     squaresY = SquaresY;
                     squareLength = SquareLength;
@@ -246,10 +296,12 @@ namespace FireFly.ViewModels
                     size = Parent.CameraViewModel.Image.CvImage.Size;
                     foreach (ChArUcoImageContainer image in Images)
                     {
-                        if (image.MarkerCorners != null && image.MarkerCorners.Size > 0)
+                        if (image.MarkerCorners != null && image.CharucoCorners.Size > 4)
                         {
                             allIds.Push(image.MarkerIds);
                             allCorners.Push(image.MarkerCorners);
+                            allCharucoIds.Push(image.CharucoIds);
+                            allCharucoCorners.Push(image.CharucoCorners);
                             markerCounterPerFrame.Push(new int[] { image.MarkerCorners.Size });
                         }
                     }
@@ -267,30 +319,64 @@ namespace FireFly.ViewModels
                     controller.SetIndeterminate();
                     controller.SetCancelable(false);
 
-                    (Mat cameraMatrix, Mat distCoeffs) result = ChArUcoDetector.Calibrate(squaresX, squaresY, squareLength, markerLength, size, allIds, allCorners, markerCounterPerFrame);
+                    bool error = false;
+                    (Mat cameraMatrix, Mat distCoeffs, double rms) result = (null, null, 0.0);
+                    try
+                    {
+                        result = ChArUcoCalibration.CalibrateCharuco(squaresX, squaresY, squareLength, markerLength, size, allCharucoIds, allCharucoCorners, markerCounterPerFrame, fisheye, delegate (byte[] input)
+                        {
+                            return Parent.IOProxy.GetRemoteChessboardCorner(input);
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        error = true;
+                    }
 
                     await controller.CloseAsync();
-
-                    Parent.SyncContext.Post(async c =>
+                    if (!error)
                     {
-                        Images.Clear();
-
-                        Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx = result.cameraMatrix.GetValue(0, 0);
-                        Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy = result.cameraMatrix.GetValue(1, 1);
-                        Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx = result.cameraMatrix.GetValue(0, 2);
-                        Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy = result.cameraMatrix.GetValue(1, 2);
-
-                        Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Clear();
-                        for (int i = 0; i < result.distCoeffs.Cols && i < 8; i++)
+                        var con = await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Result", string.Format("RMS: {0}\nDo you want to save?", result.rms), MahApps.Metro.Controls.Dialogs.MessageDialogStyle.AffirmativeAndNegative, null);
+                        if (con == MessageDialogResult.Affirmative)
                         {
-                            Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Add(result.distCoeffs.GetValue(0, i));
+
+                            Parent.SyncContext.Post(async c =>
+                            {
+                                Images.Clear();
+
+                                Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx = result.cameraMatrix.GetValue(0, 0);
+                                Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy = result.cameraMatrix.GetValue(1, 1);
+                                Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx = result.cameraMatrix.GetValue(0, 2);
+                                Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy = result.cameraMatrix.GetValue(1, 2);
+
+                                Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Clear();
+
+                                if (Parent.CameraViewModel.FishEyeCalibration)
+                                {
+                                    for (int i = 0; i < result.distCoeffs.Rows && i < 8; i++)
+                                    {
+                                        Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Add(result.distCoeffs.GetValue(i, 0));
+                                    }
+                                }
+                                else
+                                {
+                                    for (int i = 0; i < result.distCoeffs.Cols && i < 8; i++)
+                                    {
+                                        Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Add(result.distCoeffs.GetValue(0, i));
+                                    }
+                                }
+
+                                TakeSnapshotControlVisibility = Visibility.Collapsed;
+                                ResultControlVisibility = Visibility.Visible;
+
+                                Parent.UpdateSettings(false);
+                            }, null);
                         }
-
-                        TakeSnapshotControlVisibility = Visibility.Collapsed;
-                        ResultControlVisibility = Visibility.Visible;
-
-                        Parent.UpdateSettings(false);
-                    }, null);
+                    }
+                    else
+                    {
+                        await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Error", "Error during calibration!");
+                    }
                 }
                 else
                 {
@@ -317,7 +403,7 @@ namespace FireFly.ViewModels
             {
                 Parent.SyncContext.Post(c =>
                 {
-                    ChArUcoImageContainer cauic = new ChArUcoImageContainer();
+                    ChArUcoImageContainer cauic = new ChArUcoImageContainer(SquaresX, SquaresY, SquareLength, MarkerLength);
                     cauic.OriginalImage = Parent.CameraViewModel.Image;
                     Images.Add(cauic);
                 }, null);

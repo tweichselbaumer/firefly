@@ -23,6 +23,7 @@ namespace FireFly.Proxy
         private LinkUpEventLabel _ImuEventLabel;
         private LinkUpPropertyLabel<Int16> _ExposureLabel;
         private LinkUpFunctionLabel _ReplayDataSend;
+        private LinkUpFunctionLabel _GetRemoteChessboardCorner;
         private LinkUpNode _Node;
         private IOProxyMode _ProxyMode = IOProxyMode.Live;
         private List<Tuple<IProxyEventSubscriber, ProxyEventType>> _Subscriptions = new List<Tuple<IProxyEventSubscriber, ProxyEventType>>();
@@ -206,6 +207,8 @@ namespace FireFly.Proxy
 
                 _ReplayDataSend = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/replay_data");
 
+                _GetRemoteChessboardCorner = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/get_chessboard_corner");
+
                 _CameraEventLabel.Fired += _CameraEventLabel_Fired;
                 _ImuEventLabel.Fired += _CameraEventLabel_Fired;
                 _CameraImuEventLabel.Fired += _CameraEventLabel_Fired;
@@ -307,6 +310,15 @@ namespace FireFly.Proxy
                 _ImuEventLabel.Unsubscribe();
                 _CameraImuEventLabel.Unsubscribe();
             }
+        }
+
+        public byte[] GetRemoteChessboardCorner(byte[] input)
+        {
+            if (_GetRemoteChessboardCorner != null)
+            {
+                return _GetRemoteChessboardCorner.Call(input);
+            }
+            return null;
         }
     }
 }
