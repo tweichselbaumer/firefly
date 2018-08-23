@@ -42,6 +42,8 @@
             <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=MarkerLength}" />
             <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
 
+            <Button Grid.Row="1" Grid.ColumnSpan="1" Width="200" Content="print board" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=PrintBoardCommand}"/>
+
         </StackPanel>
 
         <Button Grid.Row="1" Grid.ColumnSpan="1" Width="200" Content="start" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCalibrationCommand}"/>

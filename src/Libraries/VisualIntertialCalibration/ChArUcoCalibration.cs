@@ -10,56 +10,7 @@ namespace FireFly.VI.Calibration
 {
     public static class ChArUcoCalibration
     {
-        public static (Mat cameraMatrix, Mat distCoeffs, double rms) CalibrateAruco(int squaresX, int squaresY, float squareLength, float markerLength, Size imageSize, VectorOfInt allIds, VectorOfVectorOfPointF allCorners, VectorOfInt markerCounterPerFrame, bool fisheye)
-        {
-            Mat cameraMatrix = new Mat();
-            Mat distCoeffs = new Mat();
-            double rms = 0.0;
-
-            CharucoBoard board = CreateBoard(squaresX, squaresY, squareLength, markerLength);
-
-            if (!fisheye)
-            {
-                rms = ArucoInvoke.CalibrateCameraAruco(allCorners, allIds, markerCounterPerFrame, board, imageSize, cameraMatrix, distCoeffs, null, null, CalibType.Default, new MCvTermCriteria(30, double.Epsilon));
-            }
-            else
-            {
-                VectorOfMat processedObjectPoints = new VectorOfMat();
-                VectorOfMat processedImagePoints = new VectorOfMat();
-
-                int nFrames = markerCounterPerFrame.Size;
-
-                int markerCounter = 0;
-                for (int frame = 0; frame < nFrames; frame++)
-                {
-                    int nMarkersInThisFrame = markerCounterPerFrame[frame];
-                    VectorOfVectorOfPointF thisFrameCorners = new VectorOfVectorOfPointF();
-                    VectorOfInt thisFrameIds = new VectorOfInt();
-
-                    for (int j = markerCounter; j < markerCounter + nMarkersInThisFrame; j++)
-                    {
-                        thisFrameCorners.Push(allCorners[j]);
-                        thisFrameIds.Push(new int[] { allIds[j] });
-                    }
-                    markerCounter += nMarkersInThisFrame;
-
-                    Mat currentObjPoints = new Mat();
-                    Mat currentImgPoints = new Mat();
-
-                    getBoardObjectAndImagePoints(board, thisFrameCorners, thisFrameIds, currentObjPoints, currentImgPoints, new Size((int)(squaresX * 10000 * squareLength), (int)(squaresY * 10000 * squareLength)));
-
-                    if ((int)currentImgPoints.Total > 0 && (int)currentObjPoints.Total > 0)
-                    {
-                        processedImagePoints.Push(currentImgPoints);
-                        processedObjectPoints.Push(currentObjPoints);
-                    }
-                }
-
-                Fisheye.Calibrate(processedObjectPoints, processedImagePoints, imageSize, cameraMatrix, distCoeffs, new Mat(), new Mat(), Fisheye.CalibrationFlag.Default, new MCvTermCriteria(30, double.Epsilon));
-            }
-
-            return (cameraMatrix, distCoeffs, rms);
-        }
+        public static Dictionary _Dictionary = new Dictionary(Dictionary.PredefinedDictionaryName.Dict4X4_50);
 
         public static (Mat cameraMatrix, Mat distCoeffs, double rms) CalibrateCharuco(int squaresX, int squaresY, float squareLength, float markerLength, Size imageSize, VectorOfInt charucoIds, VectorOfPointF charucoCorners, VectorOfInt markerCounterPerFrame, bool fisheye, Func<byte[], byte[]> GetRemoteChessboardCorner)
         {
@@ -106,68 +57,13 @@ namespace FireFly.VI.Calibration
             return (cameraMatrix, distCoeffs, rms);
         }
 
-        private static double Validate(VectorOfVectorOfPoint3D32F processedObjectPoints, VectorOfVectorOfPointF processedImagePoints, Mat cameraMatrix, Mat distCoeffs, VectorOfPoint3D32F rvecs, VectorOfPoint3D32F tvecs, bool fisheye)
-        {
-            double error = 0;
-            int totalpoints = 0;
-            if (fisheye)
-            {
-                for (int i = 0; i < processedObjectPoints.Size; i++)
-                {
-                    VectorOfPoint3D32F objectFramePoints = processedObjectPoints[i];
-                    VectorOfPointF imageFramePoints = processedImagePoints[i];
-                    RotationVector3D tvec = new RotationVector3D(new double[] { tvecs[i].X, tvecs[i].Y, tvecs[i].Z });
-                    RotationVector3D rvec = new RotationVector3D(new double[] { rvecs[i].X, rvecs[i].Y, rvecs[i].Z });
-
-                    VectorOfPointF newImageFramePoints = new VectorOfPointF();
-
-                    Fisheye.ProjectPoints(objectFramePoints, newImageFramePoints, rvec, tvec, cameraMatrix, distCoeffs);
-
-                    for (int j = 0; j < newImageFramePoints.Size; j++)
-                    {
-                        PointF x1 = newImageFramePoints[j];
-                        PointF x2 = imageFramePoints[j];
-                        totalpoints++;
-                        error += Math.Pow(x1.X - x2.X, 2) + Math.Pow(x1.Y - x2.Y, 2);
-                    }
-                }
-
-            }
-            return Math.Sqrt(error / totalpoints);
-        }
-
-        private static MCvPoint3D32f GetChessboardCorner(int squaresX, int squaresY, float squareLength, float markerLength, int markerId, Func<byte[], byte[]> getRemoteChessboardCorner)
-        {
-            MCvPoint3D32f result = new MCvPoint3D32f();
-
-            byte[] inputData = new byte[5 * 4];
-
-            Array.Copy(BitConverter.GetBytes(squaresX), 0, inputData, 0, sizeof(int));
-            Array.Copy(BitConverter.GetBytes(squaresY), 0, inputData, 4, sizeof(int));
-            Array.Copy(BitConverter.GetBytes(squareLength), 0, inputData, 8, sizeof(float));
-            Array.Copy(BitConverter.GetBytes(markerLength), 0, inputData, 12, sizeof(float));
-            Array.Copy(BitConverter.GetBytes(markerId), 0, inputData, 16, sizeof(int));
-
-            byte[] outputData = getRemoteChessboardCorner(inputData);
-
-            result.X = BitConverter.ToSingle(outputData, 0);
-            result.Y = BitConverter.ToSingle(outputData, 4);
-            result.Z = BitConverter.ToSingle(outputData, 8);
-
-            return result;
-        }
-
         public static CharucoBoard CreateBoard(int squaresX, int squaresY, float squareLength, float markerLength)
         {
-            Dictionary dictionary = new Dictionary(Dictionary.PredefinedDictionaryName.Dict6X6_250);
-
-            return new CharucoBoard(squaresX, squaresY, squareLength, markerLength, dictionary);
+            return new CharucoBoard(squaresX, squaresY, squareLength, markerLength, _Dictionary);
         }
 
         public static (VectorOfInt markerIds, VectorOfVectorOfPointF markerCorners, VectorOfInt charucoIds, VectorOfPointF charucoCorners) Detect(Mat image, int squaresX, int squaresY, float squareLength, float markerLength)
         {
-            Dictionary dictionary = new Dictionary(Dictionary.PredefinedDictionaryName.Dict6X6_250);
-
             VectorOfInt markerIds = new VectorOfInt();
             VectorOfVectorOfPointF markerCorners = new VectorOfVectorOfPointF();
             VectorOfInt charucoIds = new VectorOfInt();
@@ -176,7 +72,7 @@ namespace FireFly.VI.Calibration
 
             DetectorParameters decParameters = DetectorParameters.GetDefault();
 
-            ArucoInvoke.DetectMarkers(image, dictionary, markerCorners, markerIds, decParameters, rejectedMarkerCorners);
+            ArucoInvoke.DetectMarkers(image, _Dictionary, markerCorners, markerIds, decParameters, rejectedMarkerCorners);
 
             ArucoInvoke.RefineDetectedMarkers(image, CreateBoard(squaresX, squaresY, squareLength, markerLength), markerCorners, markerIds, rejectedMarkerCorners, null, null, 10, 3, true, null, decParameters);
 
@@ -209,32 +105,54 @@ namespace FireFly.VI.Calibration
             return boardImage.Mat;
         }
 
-        private static void getBoardObjectAndImagePoints(CharucoBoard board, VectorOfVectorOfPointF detectedCorners, VectorOfInt detectedIds, Mat objPoints, Mat imgPoints, Size size)
+        private static MCvPoint3D32f GetChessboardCorner(int squaresX, int squaresY, float squareLength, float markerLength, int markerId, Func<byte[], byte[]> getRemoteChessboardCorner)
         {
-            //int nDetectedMarkers = detectedIds.Size;
+            MCvPoint3D32f result = new MCvPoint3D32f();
 
-            //VectorOfPoint3D32F objPnts = new VectorOfPoint3D32F();
+            byte[] inputData = new byte[5 * 4];
 
-            //VectorOfPointF imgPnts = new VectorOfPointF();
+            Array.Copy(BitConverter.GetBytes(squaresX), 0, inputData, 0, sizeof(int));
+            Array.Copy(BitConverter.GetBytes(squaresY), 0, inputData, 4, sizeof(int));
+            Array.Copy(BitConverter.GetBytes(squareLength), 0, inputData, 8, sizeof(float));
+            Array.Copy(BitConverter.GetBytes(markerLength), 0, inputData, 12, sizeof(float));
+            Array.Copy(BitConverter.GetBytes(markerId), 0, inputData, 16, sizeof(int));
 
-            //for (int i = 0; i < nDetectedMarkers; i++)
-            //{
-            //    int currentId = detectedIds[i];
-            //    for (int j = 0; j < markerIds.Size; j++)
-            //    {
-            //        if (currentId == markerIds[j])
-            //        {
-            //            for (int p = 0; p < 4; p++)
-            //            {
-            //                //objPnts.Push(new MCvPoint3D32f[] { new MCvPoint3D32f(markerCorners[j][p].X / 100000, markerCorners[j][p].Y / 100000, 0) });
-            //                imgPnts.Push(new PointF[] { detectedCorners[i][p] });
-            //            }
-            //        }
-            //    }
-            //}
+            byte[] outputData = getRemoteChessboardCorner(inputData);
 
-            //objPnts.GetInputOutputArray().CopyTo(objPoints);
-            //imgPnts.GetInputOutputArray().CopyTo(imgPoints);
+            result.X = BitConverter.ToSingle(outputData, 0);
+            result.Y = BitConverter.ToSingle(outputData, 4);
+            result.Z = BitConverter.ToSingle(outputData, 8);
+
+            return result;
+        }
+
+        private static double Validate(VectorOfVectorOfPoint3D32F processedObjectPoints, VectorOfVectorOfPointF processedImagePoints, Mat cameraMatrix, Mat distCoeffs, VectorOfPoint3D32F rvecs, VectorOfPoint3D32F tvecs, bool fisheye)
+        {
+            double error = 0;
+            int totalpoints = 0;
+            if (fisheye)
+            {
+                for (int i = 0; i < processedObjectPoints.Size; i++)
+                {
+                    VectorOfPoint3D32F objectFramePoints = processedObjectPoints[i];
+                    VectorOfPointF imageFramePoints = processedImagePoints[i];
+                    RotationVector3D tvec = new RotationVector3D(new double[] { tvecs[i].X, tvecs[i].Y, tvecs[i].Z });
+                    RotationVector3D rvec = new RotationVector3D(new double[] { rvecs[i].X, rvecs[i].Y, rvecs[i].Z });
+
+                    VectorOfPointF newImageFramePoints = new VectorOfPointF();
+
+                    Fisheye.ProjectPoints(objectFramePoints, newImageFramePoints, rvec, tvec, cameraMatrix, distCoeffs);
+
+                    for (int j = 0; j < newImageFramePoints.Size; j++)
+                    {
+                        PointF x1 = newImageFramePoints[j];
+                        PointF x2 = imageFramePoints[j];
+                        totalpoints++;
+                        error += Math.Pow(x1.X - x2.X, 2) + Math.Pow(x1.Y - x2.Y, 2);
+                    }
+                }
+            }
+            return Math.Sqrt(error / totalpoints);
         }
     }
 }

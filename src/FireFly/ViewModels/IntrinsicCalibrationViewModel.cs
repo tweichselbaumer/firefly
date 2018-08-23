@@ -8,6 +8,7 @@ using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
@@ -97,6 +98,18 @@ namespace FireFly.ViewModels
         {
             get { return (float)GetValue(MarkerLengthProperty); }
             set { SetValue(MarkerLengthProperty, value); }
+        }
+
+        public RelayCommand<object> PrintBoardCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoPrintBoard(o);
+                    });
+            }
         }
 
         public Visibility ResultControlVisibility
@@ -339,7 +352,6 @@ namespace FireFly.ViewModels
                         var con = await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Result", string.Format("RMS: {0}\nDo you want to save?", result.rms), MahApps.Metro.Controls.Dialogs.MessageDialogStyle.AffirmativeAndNegative, null);
                         if (con == MessageDialogResult.Affirmative)
                         {
-
                             Parent.SyncContext.Post(async c =>
                             {
                                 Images.Clear();
@@ -382,6 +394,27 @@ namespace FireFly.ViewModels
                 {
                     await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Error", "Not enough valide input frames available!");
                 }
+            });
+        }
+
+        private Task DoPrintBoard(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    int boarder = 100;
+                    Mat board = ChArUcoCalibration.DrawBoard(SquaresX, SquaresY, 0.04f, 0.02f, new System.Drawing.Size(3508 - 2 * boarder, 4961 - 2 * boarder));
+                    Mat boardWithBoarder = new Mat();
+
+                    CvInvoke.CopyMakeBorder(board, boardWithBoarder, boarder, boarder, boarder, boarder, Emgu.CV.CvEnum.BorderType.Constant, new Emgu.CV.Structure.MCvScalar(255, 255, 255));
+
+                    System.Windows.Forms.SaveFileDialog saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                    saveFileDialog.Filter = "Image (*.png) | *.png";
+
+                    if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                        CvInvoke.Imwrite(saveFileDialog.FileName, boardWithBoarder, new KeyValuePair<Emgu.CV.CvEnum.ImwriteFlags, int>() { });
+                }, null);
             });
         }
 
