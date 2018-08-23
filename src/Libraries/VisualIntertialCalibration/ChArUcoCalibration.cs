@@ -5,14 +5,13 @@ using Emgu.CV.Structure;
 using Emgu.CV.Util;
 using System;
 using System.Drawing;
+using static Emgu.CV.Aruco.Dictionary;
 
 namespace FireFly.VI.Calibration
 {
     public static class ChArUcoCalibration
     {
-        public static Dictionary _Dictionary = new Dictionary(Dictionary.PredefinedDictionaryName.Dict4X4_50);
-
-        public static (Mat cameraMatrix, Mat distCoeffs, double rms) CalibrateCharuco(int squaresX, int squaresY, float squareLength, float markerLength, Size imageSize, VectorOfInt charucoIds, VectorOfPointF charucoCorners, VectorOfInt markerCounterPerFrame, bool fisheye, Func<byte[], byte[]> GetRemoteChessboardCorner)
+        public static (Mat cameraMatrix, Mat distCoeffs, double rms) CalibrateCharuco(int squaresX, int squaresY, float squareLength, float markerLength, PredefinedDictionaryName dictionary, Size imageSize, VectorOfInt charucoIds, VectorOfPointF charucoCorners, VectorOfInt markerCounterPerFrame, bool fisheye, Func<byte[], byte[]> GetRemoteChessboardCorner)
         {
             Mat cameraMatrix = new Mat(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
             Mat distCoeffs = new Mat(1, 4, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
@@ -32,7 +31,7 @@ namespace FireFly.VI.Calibration
                 for (int j = 0; j < nMarkersInThisFrame; j++)
                 {
                     currentImgPoints.Push(new PointF[] { charucoCorners[k] });
-                    currentObjPoints.Push(new MCvPoint3D32f[] { GetChessboardCorner(squaresX, squaresY, squareLength, markerLength, charucoIds[k], GetRemoteChessboardCorner) });
+                    currentObjPoints.Push(new MCvPoint3D32f[] { GetChessboardCorner(squaresX, squaresY, squareLength, markerLength, charucoIds[k], dictionary, GetRemoteChessboardCorner) });
                     k++;
                 }
 
@@ -57,12 +56,12 @@ namespace FireFly.VI.Calibration
             return (cameraMatrix, distCoeffs, rms);
         }
 
-        public static CharucoBoard CreateBoard(int squaresX, int squaresY, float squareLength, float markerLength)
+        public static CharucoBoard CreateBoard(int squaresX, int squaresY, float squareLength, float markerLength, Dictionary dictionary)
         {
-            return new CharucoBoard(squaresX, squaresY, squareLength, markerLength, _Dictionary);
+            return new CharucoBoard(squaresX, squaresY, squareLength, markerLength, dictionary);
         }
 
-        public static (VectorOfInt markerIds, VectorOfVectorOfPointF markerCorners, VectorOfInt charucoIds, VectorOfPointF charucoCorners) Detect(Mat image, int squaresX, int squaresY, float squareLength, float markerLength)
+        public static (VectorOfInt markerIds, VectorOfVectorOfPointF markerCorners, VectorOfInt charucoIds, VectorOfPointF charucoCorners) Detect(Mat image, int squaresX, int squaresY, float squareLength, float markerLength, PredefinedDictionaryName dictionary)
         {
             VectorOfInt markerIds = new VectorOfInt();
             VectorOfVectorOfPointF markerCorners = new VectorOfVectorOfPointF();
@@ -72,12 +71,12 @@ namespace FireFly.VI.Calibration
 
             DetectorParameters decParameters = DetectorParameters.GetDefault();
 
-            ArucoInvoke.DetectMarkers(image, _Dictionary, markerCorners, markerIds, decParameters, rejectedMarkerCorners);
+            ArucoInvoke.DetectMarkers(image, new Dictionary(dictionary), markerCorners, markerIds, decParameters, rejectedMarkerCorners);
 
-            ArucoInvoke.RefineDetectedMarkers(image, CreateBoard(squaresX, squaresY, squareLength, markerLength), markerCorners, markerIds, rejectedMarkerCorners, null, null, 10, 3, true, null, decParameters);
+            ArucoInvoke.RefineDetectedMarkers(image, CreateBoard(squaresX, squaresY, squareLength, markerLength, new Dictionary(dictionary)), markerCorners, markerIds, rejectedMarkerCorners, null, null, 10, 3, true, null, decParameters);
 
             if (markerIds.Size > 0)
-                ArucoInvoke.InterpolateCornersCharuco(markerCorners, markerIds, image, CreateBoard(squaresX, squaresY, squareLength, markerLength), charucoCorners, charucoIds, null, null, 2);
+                ArucoInvoke.InterpolateCornersCharuco(markerCorners, markerIds, image, CreateBoard(squaresX, squaresY, squareLength, markerLength, new Dictionary(dictionary)), charucoCorners, charucoIds, null, null, 2);
 
             return (markerIds, markerCorners, charucoIds, charucoCorners);
         }
@@ -92,30 +91,31 @@ namespace FireFly.VI.Calibration
             return result;
         }
 
-        public static Mat DrawBoard(int squaresX, int squaresY, float squareLength, float markerLength, Size imageSize)
+        public static Mat DrawBoard(int squaresX, int squaresY, float squareLength, float markerLength, Size imageSize, int margin, PredefinedDictionaryName dictionary)
         {
-            return DrawBoard(CreateBoard(squaresX, squaresY, squareLength, markerLength), imageSize);
+            return DrawBoard(CreateBoard(squaresX, squaresY, squareLength, markerLength, new Dictionary(dictionary)), imageSize, margin);
         }
 
-        public static Mat DrawBoard(CharucoBoard board, Size imageSize)
+        public static Mat DrawBoard(CharucoBoard board, Size imageSize, int margin)
         {
             Image<Gray, byte> boardImage = new Image<Gray, byte>(imageSize);
-            board.Draw(imageSize, boardImage, 10, 1);
+            board.Draw(imageSize, boardImage, margin, 1);
 
             return boardImage.Mat;
         }
 
-        private static MCvPoint3D32f GetChessboardCorner(int squaresX, int squaresY, float squareLength, float markerLength, int markerId, Func<byte[], byte[]> getRemoteChessboardCorner)
+        private static MCvPoint3D32f GetChessboardCorner(int squaresX, int squaresY, float squareLength, float markerLength, int markerId, PredefinedDictionaryName dictionary, Func<byte[], byte[]> getRemoteChessboardCorner)
         {
             MCvPoint3D32f result = new MCvPoint3D32f();
 
-            byte[] inputData = new byte[5 * 4];
+            byte[] inputData = new byte[6 * 4];
 
             Array.Copy(BitConverter.GetBytes(squaresX), 0, inputData, 0, sizeof(int));
             Array.Copy(BitConverter.GetBytes(squaresY), 0, inputData, 4, sizeof(int));
             Array.Copy(BitConverter.GetBytes(squareLength), 0, inputData, 8, sizeof(float));
             Array.Copy(BitConverter.GetBytes(markerLength), 0, inputData, 12, sizeof(float));
             Array.Copy(BitConverter.GetBytes(markerId), 0, inputData, 16, sizeof(int));
+            Array.Copy(BitConverter.GetBytes((int)dictionary), 0, inputData, 20, sizeof(int));
 
             byte[] outputData = getRemoteChessboardCorner(inputData);
 

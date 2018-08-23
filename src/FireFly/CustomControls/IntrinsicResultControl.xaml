@@ -24,8 +24,11 @@
             </Border>
         </Viewbox>
 
-        <StackPanel Grid.Row="0" Grid.Column="2">
-            <!--int squaresX, int squaresY, float squareLength, float markerLength-->
+        <StackPanel Grid.Row="0" Grid.Column="2" Grid.RowSpan="2">
+            <Label  Content="Dictionary" Style="{DynamicResource GeneralLabelStyle}" />
+            <ComboBox SelectedItem="{Binding Dictionary}" ItemsSource="{Binding PredefinedDictionaryNames}"/>
+            <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
+            
             <Label  Content="Squares X" Style="{DynamicResource GeneralLabelStyle}" />
             <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=SquaresX}" />
             <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />

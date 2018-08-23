@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
+using static Emgu.CV.Aruco.Dictionary;
 
 namespace FireFly.Settings
 {
@@ -9,6 +9,7 @@ namespace FireFly.Settings
 
         private double _Cy;
 
+        private PredefinedDictionaryName _Dictionary;
         private List<double> _DistCoeffs = new List<double>();
 
         private double _Fx;
@@ -46,6 +47,19 @@ namespace FireFly.Settings
             set
             {
                 _Cy = value;
+            }
+        }
+
+        public PredefinedDictionaryName Dictionary
+        {
+            get
+            {
+                return _Dictionary;
+            }
+
+            set
+            {
+                _Dictionary = value;
             }
         }
 

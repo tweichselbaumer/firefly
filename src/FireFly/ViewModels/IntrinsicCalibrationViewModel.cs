@@ -1,6 +1,7 @@
 ﻿using Emgu.CV;
 using Emgu.CV.Util;
 using FireFly.Command;
+using FireFly.CustomDialogs;
 using FireFly.Models;
 using FireFly.Utilities;
 using FireFly.VI.Calibration;
@@ -8,11 +9,11 @@ using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
+using static Emgu.CV.Aruco.Dictionary;
 
 namespace FireFly.ViewModels
 {
@@ -24,8 +25,11 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty ChAruCoBoardProperty =
             DependencyProperty.Register("ChAruCoBoard", typeof(CvImageContainer), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty DictionaryProperty =
+            DependencyProperty.Register("Dictionary", typeof(PredefinedDictionaryName), typeof(IntrinsicCalibrationViewModel), new FrameworkPropertyMetadata(PredefinedDictionaryName.Dict4X4_50, new PropertyChangedCallback(OnPropertyChanged)));
+
         public static readonly DependencyProperty ImagesProperty =
-            DependencyProperty.Register("Images", typeof(ObservableCollection<ChArUcoImageContainer>), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(new ObservableCollection<ChArUcoImageContainer>()));
+                    DependencyProperty.Register("Images", typeof(ObservableCollection<ChArUcoImageContainer>), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(new ObservableCollection<ChArUcoImageContainer>()));
 
         public static readonly DependencyProperty MarkerLengthProperty =
             DependencyProperty.Register("MarkerLength", typeof(float), typeof(IntrinsicCalibrationViewModel), new FrameworkPropertyMetadata(0.0f, new PropertyChangedCallback(OnPropertyChanged)));
@@ -88,6 +92,12 @@ namespace FireFly.ViewModels
             set { SetValue(ChAruCoBoardProperty, value); }
         }
 
+        public PredefinedDictionaryName Dictionary
+        {
+            get { return (PredefinedDictionaryName)GetValue(DictionaryProperty); }
+            set { SetValue(DictionaryProperty, value); }
+        }
+
         public ObservableCollection<ChArUcoImageContainer> Images
         {
             get { return (ObservableCollection<ChArUcoImageContainer>)GetValue(ImagesProperty); }
@@ -98,6 +108,14 @@ namespace FireFly.ViewModels
         {
             get { return (float)GetValue(MarkerLengthProperty); }
             set { SetValue(MarkerLengthProperty, value); }
+        }
+
+        public IEnumerable<PredefinedDictionaryName> PredefinedDictionaryNames
+        {
+            get
+            {
+                return Enum.GetValues(typeof(PredefinedDictionaryName)).Cast<PredefinedDictionaryName>();
+            }
         }
 
         public RelayCommand<object> PrintBoardCommand
@@ -174,6 +192,7 @@ namespace FireFly.ViewModels
             SquaresY = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresY;
             MarkerLength = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.MarkerLength;
             SquareLength = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquareLength;
+            Dictionary = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Dictionary;
 
             bool changed = false;
             changed |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx != _Fx;
@@ -194,7 +213,7 @@ namespace FireFly.ViewModels
                 _Cy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy;
                 _DistCoeffs = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.ToList();
 
-                Mat board = ChArUcoCalibration.DrawBoard(5, 5, 0.04f, 0.02f, new System.Drawing.Size(512, 512));
+                Mat board = ChArUcoCalibration.DrawBoard(5, 5, 0.04f, 0.02f, new System.Drawing.Size(512, 512), 10, Emgu.CV.Aruco.Dictionary.PredefinedDictionaryName.Dict6X6_250);
                 Mat boardDist = board.Clone();
 
                 Mat cameraMatrix = new Mat(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
@@ -259,6 +278,11 @@ namespace FireFly.ViewModels
                     icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.MarkerLength = icvm.MarkerLength;
                     break;
 
+                case "Dictionary":
+                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Dictionary != icvm.Dictionary;
+                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Dictionary = icvm.Dictionary;
+                    break;
+
                 default:
                     break;
             }
@@ -274,7 +298,7 @@ namespace FireFly.ViewModels
             {
                 if (AutoSnapshot)
                 {
-                    ChArUcoImageContainer cauic = new ChArUcoImageContainer(SquaresX, SquaresY, SquareLength, MarkerLength);
+                    ChArUcoImageContainer cauic = new ChArUcoImageContainer(SquaresX, SquaresY, SquareLength, MarkerLength, Dictionary);
                     cauic.OriginalImage = Parent.CameraViewModel.Image;
                     Images.Add(cauic);
                 }
@@ -294,6 +318,7 @@ namespace FireFly.ViewModels
                 int squaresY = 0;
                 float squareLength = 0f;
                 float markerLength = 0f;
+                PredefinedDictionaryName dictionary = PredefinedDictionaryName.Dict4X4_50;
                 System.Drawing.Size size = new System.Drawing.Size();
 
                 bool fisheye = false;
@@ -307,6 +332,7 @@ namespace FireFly.ViewModels
                     squareLength = SquareLength;
                     markerLength = MarkerLength;
                     size = Parent.CameraViewModel.Image.CvImage.Size;
+                    dictionary = Dictionary;
                     foreach (ChArUcoImageContainer image in Images)
                     {
                         if (image.MarkerCorners != null && image.CharucoCorners.Size > 4)
@@ -336,7 +362,7 @@ namespace FireFly.ViewModels
                     (Mat cameraMatrix, Mat distCoeffs, double rms) result = (null, null, 0.0);
                     try
                     {
-                        result = ChArUcoCalibration.CalibrateCharuco(squaresX, squaresY, squareLength, markerLength, size, allCharucoIds, allCharucoCorners, markerCounterPerFrame, fisheye, delegate (byte[] input)
+                        result = ChArUcoCalibration.CalibrateCharuco(squaresX, squaresY, squareLength, markerLength, dictionary, size, allCharucoIds, allCharucoCorners, markerCounterPerFrame, fisheye, delegate (byte[] input)
                         {
                             return Parent.IOProxy.GetRemoteChessboardCorner(input);
                         });
@@ -403,17 +429,24 @@ namespace FireFly.ViewModels
             {
                 Parent.SyncContext.Post(c =>
                 {
-                    int boarder = 100;
-                    Mat board = ChArUcoCalibration.DrawBoard(SquaresX, SquaresY, 0.04f, 0.02f, new System.Drawing.Size(3508 - 2 * boarder, 4961 - 2 * boarder));
-                    Mat boardWithBoarder = new Mat();
+                    CustomDialog customDialog = new CustomDialog() { Title = "Board Properties" };
 
-                    CvInvoke.CopyMakeBorder(board, boardWithBoarder, boarder, boarder, boarder, boarder, Emgu.CV.CvEnum.BorderType.Constant, new Emgu.CV.Structure.MCvScalar(255, 255, 255));
+                    var dataContext = new PrintCharucoBoardDialogModel(obj =>
+                    {
+                        Parent.SyncContext.Post(d =>
+                        {
+                            Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
 
-                    System.Windows.Forms.SaveFileDialog saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-                    saveFileDialog.Filter = "Image (*.png) | *.png";
+                            System.Windows.Forms.SaveFileDialog saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                            saveFileDialog.Filter = "Image (*.png) | *.png";
 
-                    if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                        CvInvoke.Imwrite(saveFileDialog.FileName, boardWithBoarder, new KeyValuePair<Emgu.CV.CvEnum.ImwriteFlags, int>() { });
+                            if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                                CvInvoke.Imwrite(saveFileDialog.FileName, obj.Image.CvImage, new KeyValuePair<Emgu.CV.CvEnum.ImwriteFlags, int>() { });
+                        }, null);
+                    });
+                    customDialog.Content = new PrintCharucoBoardDialog { DataContext = dataContext };
+
+                    Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
                 }, null);
             });
         }
@@ -436,7 +469,7 @@ namespace FireFly.ViewModels
             {
                 Parent.SyncContext.Post(c =>
                 {
-                    ChArUcoImageContainer cauic = new ChArUcoImageContainer(SquaresX, SquaresY, SquareLength, MarkerLength);
+                    ChArUcoImageContainer cauic = new ChArUcoImageContainer(SquaresX, SquaresY, SquareLength, MarkerLength, Dictionary);
                     cauic.OriginalImage = Parent.CameraViewModel.Image;
                     Images.Add(cauic);
                 }, null);

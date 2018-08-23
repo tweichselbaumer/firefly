@@ -1,6 +1,8 @@
-﻿using Emgu.CV.Util;
+﻿using Emgu.CV.Aruco;
+using Emgu.CV.Util;
 using FireFly.VI.Calibration;
 using System.Windows;
+using static Emgu.CV.Aruco.Dictionary;
 
 namespace FireFly.Models
 {
@@ -20,13 +22,15 @@ namespace FireFly.Models
         private float _SquareLength;
         private int _SquaresX;
         private int _SquaresY;
+        private PredefinedDictionaryName _Dictionary;
 
-        public ChArUcoImageContainer(int squaresX, int squaresY, float squareLength, float markerLength)
+        public ChArUcoImageContainer(int squaresX, int squaresY, float squareLength, float markerLength, PredefinedDictionaryName dictionary)
         {
             _SquaresX = squaresX;
             _SquaresY = squaresY;
             _SquareLength = squareLength;
             _MarkerLength = markerLength;
+            _Dictionary = dictionary;
         }
 
         public VectorOfPointF CharucoCorners
@@ -125,12 +129,25 @@ namespace FireFly.Models
             }
         }
 
+        public PredefinedDictionaryName Dictionary
+        {
+            get
+            {
+                return _Dictionary;
+            }
+
+            set
+            {
+                _Dictionary = value;
+            }
+        }
+
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is ChArUcoImageContainer)
             {
                 ChArUcoImageContainer cauic = d as ChArUcoImageContainer;
-                (VectorOfInt markerIds, VectorOfVectorOfPointF markerCorners, VectorOfInt charucoIds, VectorOfPointF charucoCorners) result = ChArUcoCalibration.Detect(cauic.OriginalImage.CvImage, cauic.SquaresX, cauic.SquaresY, cauic.SquareLength, cauic.MarkerLength);
+                (VectorOfInt markerIds, VectorOfVectorOfPointF markerCorners, VectorOfInt charucoIds, VectorOfPointF charucoCorners) result = ChArUcoCalibration.Detect(cauic.OriginalImage.CvImage, cauic.SquaresX, cauic.SquaresY, cauic.SquareLength, cauic.MarkerLength, cauic.Dictionary);
                 cauic.MarkerIds = result.markerIds;
                 cauic.MarkerCorners = result.markerCorners;
                 cauic.CharucoIds = result.charucoIds;

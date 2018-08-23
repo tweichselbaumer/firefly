@@ -165,7 +165,11 @@
     <Compile Include="CustomDialogs\NewFileLocationDialog.xaml.cs">
       <DependentUpon>NewFileLocationDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomDialogs\PrintCharucoBoardDialogModel.cs" />
     <Compile Include="CustomDialogs\NewFileLocationDialogModel.cs" />
+    <Compile Include="CustomDialogs\PrintCharucoBoardDialog.xaml.cs">
+      <DependentUpon>PrintCharucoBoardDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Models\ChArUcoImageContainer.cs" />
     <Compile Include="Models\CvImageContainer.cs" />
     <Compile Include="Models\LineSeriesContainer.cs" />
@@ -235,6 +239,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomDialogs\NewFileLocationDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomDialogs\PrintCharucoBoardDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
