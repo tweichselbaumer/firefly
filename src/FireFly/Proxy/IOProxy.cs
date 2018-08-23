@@ -68,7 +68,7 @@ namespace FireFly.Proxy
             //TODO: wait for tasks
         }
 
-        public void ReplayOffline(DataReader reader, Action<TimeSpan> updateTime, Action onClose)
+        public void ReplayOffline(DataReader reader, Action<TimeSpan> updateTime, Action onClose, Func<bool> isPaused, Func<bool> isStopped)
         {
             _Tasks.Add(Task.Factory.StartNew(() =>
             {
@@ -80,6 +80,14 @@ namespace FireFly.Proxy
                 int currentTime = 0;
                 while (reader.HasNext())
                 {
+                    while (isPaused())
+                    {
+                        Thread.Sleep(500);
+                    }
+                    if (isStopped())
+                    {
+                        break;
+                    }
                     Tuple<long, List<Tuple<ReaderMode, object>>> res = reader.Next();
                     if (startTime == -1)
                         startTime = res.Item1;

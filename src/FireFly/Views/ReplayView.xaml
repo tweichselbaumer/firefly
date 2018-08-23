@@ -11,6 +11,7 @@
     <UserControl.Resources>
         <Converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <Converter:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <Converter:MultiValueReplayBoolConverter x:Key="MultiValueReplayBoolConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid>
@@ -25,7 +26,7 @@
                 <ColumnDefinition Width="10" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="10" />
-       
+
             </Grid.ColumnDefinitions>
             <TreeView Grid.Column="1" Grid.Row="1" ItemsSource="{Binding FilesForReplay}" Style="{StaticResource VirtualisedMetroTreeView}">
                 <TreeView.ItemContainerStyle>
@@ -56,12 +57,41 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="auto" />
                                         <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{Binding Path=Name}" FontSize="16" />
-                                    <Button Grid.Column="1" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.StartCommand}" CommandParameter="{Binding Path=.}" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.IsReplaying, Converter={StaticResource InverseBooleanConverter}}">
-                                        <iconPacks:PackIconEntypo Width="10" Height="10" Kind="ControllerPlay" />
+                                    <Button Grid.Column="1" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.StartCommand}" CommandParameter="{Binding Path=.}">
+                                        <Button.IsEnabled>
+                                            <MultiBinding Converter="{StaticResource MultiValueReplayBoolConverter}" ConverterParameter="play">
+                                                <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type UserControl}}"  Path="DataContext.IsReplaying" />
+                                                <Binding Path="IsPlaying" />
+                                                <Binding Path="IsPaused" />
+                                            </MultiBinding>
+                                        </Button.IsEnabled>
+                                        <iconPacks:PackIconEntypo Width="10" Height="10" Margin="2" Kind="ControllerPlay" />
                                     </Button>
-                                    <Button Grid.Column="2" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.ExportCommand}" CommandParameter="{Binding Path=.}" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.IsReplaying, Converter={StaticResource InverseBooleanConverter}}">
+                                    <Button Grid.Column="2" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.PauseCommand}" CommandParameter="{Binding Path=.}">
+                                        <Button.IsEnabled>
+                                            <MultiBinding Converter="{StaticResource MultiValueReplayBoolConverter}" ConverterParameter="paus">
+                                                <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type UserControl}}"  Path="DataContext.IsReplaying" />
+                                                <Binding Path="IsPlaying" />
+                                                <Binding Path="IsPaused" />
+                                            </MultiBinding>
+                                        </Button.IsEnabled>
+                                        <iconPacks:PackIconEntypo Width="8" Height="8" Margin="2" Kind="ControllerPaus" />
+                                    </Button>
+                                    <Button Grid.Column="3" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.StopCommand}" CommandParameter="{Binding Path=.}">
+                                        <Button.IsEnabled>
+                                            <MultiBinding Converter="{StaticResource MultiValueReplayBoolConverter}" ConverterParameter="stop">
+                                                <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type UserControl}}"  Path="DataContext.IsReplaying" />
+                                                <Binding Path="IsPlaying" />
+                                                <Binding Path="IsPaused" />
+                                            </MultiBinding>
+                                        </Button.IsEnabled>
+                                        <iconPacks:PackIconEntypo Width="8" Height="8" Margin="2" Kind="ControllerStop" />
+                                    </Button>
+                                    <Button Grid.Column="4" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.ExportCommand}" CommandParameter="{Binding Path=.}" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.IsReplaying, Converter={StaticResource InverseBooleanConverter}}">
                                         <iconPacks:Material Width="10" Height="10" Kind="Export" />
                                     </Button>
                                 </Grid>

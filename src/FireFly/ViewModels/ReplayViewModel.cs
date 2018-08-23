@@ -82,6 +82,56 @@ namespace FireFly.ViewModels
             }
         }
 
+        public RelayCommand<object> PauseCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoPause(o);
+                    });
+            }
+        }
+
+        private Task DoPause(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                ReplayFile file = o as ReplayFile;
+                Parent.SyncContext.Post(c =>
+                {
+                    file.IsPaused = true;
+                }, null);
+            });
+        }
+
+        public RelayCommand<object> StopCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoStop(o);
+                    });
+            }
+        }
+
+        private Task DoStop(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                ReplayFile file = o as ReplayFile;
+                Parent.SyncContext.Post(c =>
+                {
+                    file.IsPaused = false;
+                    file.IsPlaying = false;
+                    IsReplaying = false;
+                }, null);
+            });
+        }
+
         internal override void SettingsUpdated()
         {
             base.SettingsUpdated();
@@ -144,26 +194,61 @@ namespace FireFly.ViewModels
                 string fullPath = null;
                 Parent.SyncContext.Send(c =>
                 {
-                    IsReplaying = true;
-                    fullPath = file.FullPath;
+                    if (!IsReplaying)
+                    {
+                        IsReplaying = true;
+                        fullPath = file.FullPath;
+                        file.IsPlaying = true;
+                    }
+                    else
+                    {
+                        file.IsPlaying = true;
+                        file.IsPaused = false;
+                    }
                 }, null);
 
-                reader = new DataReader(fullPath, ReaderMode.Imu0 | ReaderMode.Camera0);
-                reader.Open();
+                if (!string.IsNullOrEmpty(fullPath))
+                {
+                    reader = new DataReader(fullPath, ReaderMode.Imu0 | ReaderMode.Camera0);
+                    reader.Open();
 
-                Parent.IOProxy.ReplayOffline(reader, new Action<TimeSpan>((t) =>
-                {
-                    Parent.SyncContext.Post(c =>
-                   {
-                       ReplayTime = t;
-                   }, null);
-                }), new Action(() =>
-                {
-                    Parent.SyncContext.Post(c =>
+                    Parent.IOProxy.ReplayOffline(reader, new Action<TimeSpan>((t) =>
                     {
-                        IsReplaying = false;
-                    }, null);
-                }));
+                        Parent.SyncContext.Post(c =>
+                       {
+                           ReplayTime = t;
+                       }, null);
+                    }), new Action(() =>
+                    {
+                        Parent.SyncContext.Post(c =>
+                        {
+                            IsReplaying = false;
+                            file.IsPlaying = false;
+                            file.IsPaused = false;
+                        }, null);
+                    }), delegate ()
+                    {
+                        bool isPaused = false;
+
+                        Parent.SyncContext.Send(c =>
+                        {
+                            isPaused = file.IsPaused;
+                        }, null);
+
+                        return isPaused;
+                    },
+                    delegate ()
+                    {
+                        bool isStopped = false;
+
+                        Parent.SyncContext.Send(c =>
+                        {
+                            isStopped = !IsReplaying;
+                        }, null);
+
+                        return isStopped;
+                    });
+                }
             });
         }
 

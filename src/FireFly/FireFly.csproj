@@ -155,6 +155,7 @@
     <Compile Include="Converter\BytesPerSecondConverter.cs" />
     <Compile Include="Converter\ExposureTimeConverter.cs" />
     <Compile Include="Converter\InverseBooleanConverter.cs" />
+    <Compile Include="Converter\MultiValueReplayBoolConverter.cs" />
     <Compile Include="CustomControls\IntrinsicResultControl.xaml.cs">
       <DependentUpon>IntrinsicResultControl.xaml</DependentUpon>
     </Compile>
