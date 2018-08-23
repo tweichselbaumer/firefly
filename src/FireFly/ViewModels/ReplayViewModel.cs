@@ -23,6 +23,8 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty ReplayTimeProperty =
             DependencyProperty.Register("ReplayTime", typeof(TimeSpan), typeof(ReplayViewModel), new PropertyMetadata(null));
 
+        private bool _IsStopping = false;
+
         public ReplayViewModel(MainViewModel parent) : base(parent)
         {
             FilesForReplay = new RangeObservableCollection<Tuple<FileLocation, List<ReplayFile>>>();
@@ -118,6 +120,19 @@ namespace FireFly.ViewModels
             }
         }
 
+        public bool IsStopping
+        {
+            get
+            {
+                return _IsStopping;
+            }
+
+            set
+            {
+                _IsStopping = value;
+            }
+        }
+
         private Task DoStop(object o)
         {
             return Task.Factory.StartNew(() =>
@@ -126,8 +141,7 @@ namespace FireFly.ViewModels
                 Parent.SyncContext.Post(c =>
                 {
                     file.IsPaused = false;
-                    file.IsPlaying = false;
-                    IsReplaying = false;
+                    IsStopping = true;
                 }, null);
             });
         }
@@ -225,6 +239,7 @@ namespace FireFly.ViewModels
                             IsReplaying = false;
                             file.IsPlaying = false;
                             file.IsPaused = false;
+                            IsStopping = false;
                         }, null);
                     }), delegate ()
                     {
@@ -239,14 +254,7 @@ namespace FireFly.ViewModels
                     },
                     delegate ()
                     {
-                        bool isStopped = false;
-
-                        Parent.SyncContext.Send(c =>
-                        {
-                            isStopped = !IsReplaying;
-                        }, null);
-
-                        return isStopped;
+                        return IsStopping;
                     });
                 }
             });
@@ -254,19 +262,22 @@ namespace FireFly.ViewModels
 
         private void Refresh()
         {
-            FilesForReplay.Clear();
-            if (Parent.SettingContainer.Settings.GeneralSettings.FileLocations != null && Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Count > 0)
+            if (!IsReplaying)
             {
-                foreach (FileLocation loc in Parent.SettingContainer.Settings.GeneralSettings.FileLocations)
+                FilesForReplay.Clear();
+                if (Parent.SettingContainer.Settings.GeneralSettings.FileLocations != null && Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Count > 0)
                 {
-                    Tuple<FileLocation, List<ReplayFile>> tuple = new Tuple<FileLocation, List<ReplayFile>>(loc, new List<ReplayFile>());
-                    FilesForReplay.Add(tuple);
-                    string fullPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(loc.Path));
-                    if (Directory.Exists(fullPath))
+                    foreach (FileLocation loc in Parent.SettingContainer.Settings.GeneralSettings.FileLocations)
                     {
-                        foreach (string file in Directory.GetFiles(fullPath, "*.ffc"))
+                        Tuple<FileLocation, List<ReplayFile>> tuple = new Tuple<FileLocation, List<ReplayFile>>(loc, new List<ReplayFile>());
+                        FilesForReplay.Add(tuple);
+                        string fullPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(loc.Path));
+                        if (Directory.Exists(fullPath))
                         {
-                            tuple.Item2.Add(new ReplayFile() { Name = Path.GetFileNameWithoutExtension(file), FullPath = file });
+                            foreach (string file in Directory.GetFiles(fullPath, "*.ffc"))
+                            {
+                                tuple.Item2.Add(new ReplayFile() { Name = Path.GetFileNameWithoutExtension(file), FullPath = file });
+                            }
                         }
                     }
                 }

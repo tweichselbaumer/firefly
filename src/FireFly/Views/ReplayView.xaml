@@ -32,6 +32,8 @@
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource {x:Type TreeViewItem}}">
                         <Setter Property="IsExpanded" Value="True"/>
+                        <Setter Property="IsManipulationEnabled" Value="False"/>
+                        <Setter Property="Focusable" Value="False"/>
                     </Style>
                 </TreeView.ItemContainerStyle>
                 <TreeView.ItemTemplate>
@@ -100,7 +102,7 @@
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>
-            <Button Grid.Row="3" Grid.Column="1" Width="200" Content="refresh" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=RefreshCommand}" />
+            <Button Grid.Row="3" Grid.Column="1" Width="200" Content="refresh" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=RefreshCommand}" IsEnabled="{Binding Path=IsReplaying, Converter={StaticResource InverseBooleanConverter}}"/>
         </Grid>
     </Grid>
 </UserControl>
