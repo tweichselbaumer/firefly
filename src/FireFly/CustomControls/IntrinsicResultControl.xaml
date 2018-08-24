@@ -26,7 +26,7 @@
 
         <StackPanel Grid.Row="0" Grid.Column="2" Grid.RowSpan="2">
             <Label  Content="Dictionary" Style="{DynamicResource GeneralLabelStyle}" />
-            <ComboBox SelectedItem="{Binding Dictionary}" ItemsSource="{Binding PredefinedDictionaryNames}"/>
+            <ComboBox SelectedItem="{Binding Dictionary}" ItemsSource="{Binding PredefinedDictionaryNames}" />
             <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
             
             <Label  Content="Squares X" Style="{DynamicResource GeneralLabelStyle}" />
