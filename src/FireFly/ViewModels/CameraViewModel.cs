@@ -39,6 +39,7 @@ namespace FireFly.ViewModels
 
         private List<double> _DistCoeffs = new List<double>();
 
+        private bool _FishEyeCalibration = true;
         private FPSCounter _FPSCounter = new FPSCounter();
 
         private double _Fx;
@@ -46,8 +47,6 @@ namespace FireFly.ViewModels
         private double _Fy;
 
         private Timer _Timer;
-
-        private bool _FishEyeCalibration = true;
 
         public CameraViewModel(MainViewModel parent) : base(parent)
         {
@@ -80,6 +79,14 @@ namespace FireFly.ViewModels
             set { SetValue(ExposureTimeSettingProperty, value); }
         }
 
+        public bool FishEyeCalibration
+        {
+            get
+            {
+                return _FishEyeCalibration;
+            }
+        }
+
         public int FPS
         {
             get { return (int)GetValue(FPSProperty); }
@@ -106,14 +113,6 @@ namespace FireFly.ViewModels
             set { SetValue(UndistortProperty, value); }
         }
 
-        public bool FishEyeCalibration
-        {
-            get
-            {
-                return _FishEyeCalibration;
-            }
-        }
-
         public void Fired(IOProxy proxy, List<AbstractProxyEventData> eventData)
         {
             if (eventData.Count == 1 && eventData[0] is CameraEventData)
@@ -133,12 +132,10 @@ namespace FireFly.ViewModels
 
                 Mat newK = new Mat();
 
-
                 for (int i = 0; i < distCoeffs.Cols && (FishEyeCalibration ? i < 4 : true); i++)
                 {
                     distCoeffs.SetValue(0, i, _DistCoeffs[i]);
                 }
-
 
                 if (FishEyeCalibration)
                 {

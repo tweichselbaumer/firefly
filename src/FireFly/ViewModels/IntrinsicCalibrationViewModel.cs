@@ -314,6 +314,7 @@ namespace FireFly.ViewModels
                 VectorOfInt allCharucoIds = new VectorOfInt();
                 VectorOfPointF allCharucoCorners = new VectorOfPointF();
                 VectorOfInt markerCounterPerFrame = new VectorOfInt();
+                VectorOfInt charucoCounterPerFrame = new VectorOfInt();
                 int squaresX = 0;
                 int squaresY = 0;
                 float squareLength = 0f;
@@ -342,6 +343,7 @@ namespace FireFly.ViewModels
                             allCharucoIds.Push(image.CharucoIds);
                             allCharucoCorners.Push(image.CharucoCorners);
                             markerCounterPerFrame.Push(new int[] { image.MarkerCorners.Size });
+                            charucoCounterPerFrame.Push(new int[] { image.CharucoCorners.Size });
                         }
                     }
                 }, null);
@@ -362,7 +364,7 @@ namespace FireFly.ViewModels
                     (Mat cameraMatrix, Mat distCoeffs, double rms) result = (null, null, 0.0);
                     try
                     {
-                        result = ChArUcoCalibration.CalibrateCharuco(squaresX, squaresY, squareLength, markerLength, dictionary, size, allCharucoIds, allCharucoCorners, markerCounterPerFrame, fisheye, delegate (byte[] input)
+                        result = ChArUcoCalibration.CalibrateCharuco(squaresX, squaresY, squareLength, markerLength, dictionary, size, allCharucoIds, allCharucoCorners, charucoCounterPerFrame, fisheye, delegate (byte[] input)
                         {
                             return Parent.IOProxy.GetRemoteChessboardCorner(input);
                         });
@@ -408,6 +410,13 @@ namespace FireFly.ViewModels
                                 ResultControlVisibility = Visibility.Visible;
 
                                 Parent.UpdateSettings(false);
+                            }, null);
+                        }
+                        else
+                        {
+                            Parent.SyncContext.Post(async c =>
+                            {
+                                Images.Clear();
                             }, null);
                         }
                     }

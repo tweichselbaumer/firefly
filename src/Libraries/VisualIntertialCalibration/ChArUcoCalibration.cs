@@ -44,11 +44,11 @@ namespace FireFly.VI.Calibration
 
             if (fisheye)
             {
-                Fisheye.Calibrate(processedObjectPoints, processedImagePoints, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs, Fisheye.CalibrationFlag.FixSkew | Fisheye.CalibrationFlag.RecomputeExtrinsic, new MCvTermCriteria(400, double.Epsilon));
+                Fisheye.Calibrate(processedObjectPoints, processedImagePoints, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs, Fisheye.CalibrationFlag.RecomputeExtrinsic, new MCvTermCriteria(400, double.Epsilon));
             }
             else
             {
-                CvInvoke.CalibrateCamera(processedObjectPoints, processedImagePoints, imageSize, cameraMatrix, distCoeffs, new Mat(), new Mat(), CalibType.FixK3, new MCvTermCriteria(30, 1e-6));
+                CvInvoke.CalibrateCamera(processedObjectPoints, processedImagePoints, imageSize, cameraMatrix, distCoeffs, new Mat(), new Mat(), CalibType.FixK3, new MCvTermCriteria(30, 1e-4));
             }
 
             rms = Validate(processedObjectPoints, processedImagePoints, cameraMatrix, distCoeffs, rvecs, tvecs, fisheye);
