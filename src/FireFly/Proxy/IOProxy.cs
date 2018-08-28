@@ -1,7 +1,8 @@
 ﻿using FireFly.Data.Storage;
+using FireFly.Settings;
 using LinkUp.Node;
+using LinkUp.Raw;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -18,19 +19,26 @@ namespace FireFly.Proxy
 
     public class IOProxy : IDisposable
     {
+        private LinkUpPropertyLabel<Double> _AccelerometerScaleLabel;
         private LinkUpEventLabel _CameraEventLabel;
         private LinkUpEventLabel _CameraImuEventLabel;
-        private LinkUpEventLabel _ImuEventLabel;
         private LinkUpPropertyLabel<Int16> _ExposureLabel;
-        private LinkUpFunctionLabel _ReplayDataSend;
         private LinkUpFunctionLabel _GetRemoteChessboardCorner;
+        private LinkUpPropertyLabel<Double> _GyroscopeScaleLabel;
+        private LinkUpEventLabel _ImuEventLabel;
         private LinkUpNode _Node;
         private IOProxyMode _ProxyMode = IOProxyMode.Live;
+        private LinkUpFunctionLabel _ReplayDataSend;
+        private SettingContainer _SettingContainer;
         private List<Tuple<IProxyEventSubscriber, ProxyEventType>> _Subscriptions = new List<Tuple<IProxyEventSubscriber, ProxyEventType>>();
         private List<Task> _Tasks = new List<Task>();
+        private LinkUpPropertyLabel<Double> _TemperatureOffsetLabel;
+        private LinkUpPropertyLabel<Double> _TemperatureScaleLabel;
+        private LinkUpFunctionLabel _UpdateSettings;
 
-        public IOProxy()
+        public IOProxy(SettingContainer settingContainer)
         {
+            _SettingContainer = settingContainer;
         }
 
         public LinkUpNode Node
@@ -63,9 +71,26 @@ namespace FireFly.Proxy
             }
         }
 
+        public void Connector_ConnectivityChanged(LinkUpConnector connector, LinkUpConnectivityState connectivity)
+        {
+            if (connectivity == LinkUpConnectivityState.Connected)
+            {
+                Update();
+            }
+        }
+
         public void Dispose()
         {
             //TODO: wait for tasks
+        }
+
+        public byte[] GetRemoteChessboardCorner(byte[] input)
+        {
+            if (_GetRemoteChessboardCorner != null)
+            {
+                return _GetRemoteChessboardCorner.Call(input);
+            }
+            return null;
         }
 
         public void ReplayOffline(DataReader reader, Action<TimeSpan> updateTime, Action onClose, Func<bool> isPaused, Func<bool> isStopped)
@@ -108,7 +133,7 @@ namespace FireFly.Proxy
                             {
                                 imuEventData = ImuEventData.Parse(res.Item1, (Tuple<double, double, double, double, double, double>)val.Item2, res.Item2.Any(c => c.Item1 == ReaderMode.Camera0));
                                 rawSize += imuEventData.RawSize;
-                                rawImu = imuEventData.Raw;
+                                rawImu = imuEventData.GetRaw(_SettingContainer.Settings.ImuSettings.GyroscopeScale, _SettingContainer.Settings.ImuSettings.AccelerometerScale, _SettingContainer.Settings.ImuSettings.TemperatureScale, _SettingContainer.Settings.ImuSettings.TemperatureOffset);
                             }
                             if (val.Item1 == ReaderMode.Camera0)
                             {
@@ -171,6 +196,14 @@ namespace FireFly.Proxy
             }, TaskCreationOptions.LongRunning));
         }
 
+        public void SetExposure(Int16 exposure)
+        {
+            if (_ExposureLabel != null)
+            {
+                _ExposureLabel.Value = exposure;
+            }
+        }
+
         public void Subscribe(IProxyEventSubscriber subscriber, ProxyEventType eventType)
         {
             lock (_Subscriptions)
@@ -195,14 +228,6 @@ namespace FireFly.Proxy
             }
         }
 
-        public void SetExposure(Int16 exposure)
-        {
-            if (_ExposureLabel != null)
-            {
-                _ExposureLabel.Value = exposure;
-            }
-        }
-
         public void UpdateLinkUpBindings()
         {
             if (Node != null)
@@ -217,15 +242,34 @@ namespace FireFly.Proxy
 
                 _GetRemoteChessboardCorner = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/get_chessboard_corner");
 
+                _UpdateSettings = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/update_settings");
+
+                _AccelerometerScaleLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/acc_scale");
+                _GyroscopeScaleLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/gyro_scale");
+                _TemperatureScaleLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/temp_scale");
+                _TemperatureOffsetLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/temp_offset");
+
                 _CameraEventLabel.Fired += _CameraEventLabel_Fired;
                 _ImuEventLabel.Fired += _CameraEventLabel_Fired;
                 _CameraImuEventLabel.Fired += _CameraEventLabel_Fired;
 
-                lock (_Subscriptions)
-                {
-                    UpdateSubscription();
-                }
+                Update();
             }
+        }
+
+        public void UpdateSettings()
+        {
+            if (_AccelerometerScaleLabel != null)
+                _AccelerometerScaleLabel.Value = _SettingContainer.Settings.ImuSettings.AccelerometerScale;
+            if (_GyroscopeScaleLabel != null)
+                _GyroscopeScaleLabel.Value = _SettingContainer.Settings.ImuSettings.GyroscopeScale;
+            if (_TemperatureScaleLabel != null)
+                _TemperatureScaleLabel.Value = _SettingContainer.Settings.ImuSettings.TemperatureScale;
+            if (_TemperatureOffsetLabel != null)
+                _TemperatureOffsetLabel.Value = _SettingContainer.Settings.ImuSettings.TemperatureOffset;
+
+            if (_UpdateSettings != null)
+                _UpdateSettings.AsyncCall(new byte[] { });
         }
 
         private void _CameraEventLabel_Fired(LinkUpEventLabel label, byte[] data)
@@ -242,7 +286,7 @@ namespace FireFly.Proxy
                 }
                 else if (label == _ImuEventLabel)
                 {
-                    ImuEventData eventData = ImuEventData.Parse(data, 0);
+                    ImuEventData eventData = ImuEventData.Parse(data, 0, _SettingContainer.Settings.ImuSettings.GyroscopeScale, _SettingContainer.Settings.ImuSettings.AccelerometerScale, _SettingContainer.Settings.ImuSettings.TemperatureScale, _SettingContainer.Settings.ImuSettings.TemperatureOffset);
                     foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuEvent))
                     {
                         t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
@@ -250,7 +294,7 @@ namespace FireFly.Proxy
                 }
                 else if (label == _CameraImuEventLabel)
                 {
-                    ImuEventData imuEventData = ImuEventData.Parse(data, 0);
+                    ImuEventData imuEventData = ImuEventData.Parse(data, 0, _SettingContainer.Settings.ImuSettings.GyroscopeScale, _SettingContainer.Settings.ImuSettings.AccelerometerScale, _SettingContainer.Settings.ImuSettings.TemperatureScale, _SettingContainer.Settings.ImuSettings.TemperatureOffset);
                     CameraEventData cameraEventData = null;
 
                     if (imuEventData.HasCameraImage)
@@ -275,6 +319,22 @@ namespace FireFly.Proxy
                         t.Item1.Fired(this, new List<AbstractProxyEventData>() { imuEventData });
                     }
                 }
+            }
+        }
+
+        private void Update()
+        {
+            try
+            {
+                lock (_Subscriptions)
+                {
+                    UpdateSubscription();
+                }
+                UpdateSettings();
+            }
+            catch(Exception ex)
+            {
+
             }
         }
 
@@ -318,15 +378,6 @@ namespace FireFly.Proxy
                 _ImuEventLabel.Unsubscribe();
                 _CameraImuEventLabel.Unsubscribe();
             }
-        }
-
-        public byte[] GetRemoteChessboardCorner(byte[] input)
-        {
-            if (_GetRemoteChessboardCorner != null)
-            {
-                return _GetRemoteChessboardCorner.Call(input);
-            }
-            return null;
         }
     }
 }

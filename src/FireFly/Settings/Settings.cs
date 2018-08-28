@@ -7,7 +7,7 @@ namespace FireFly.Settings
         private CalibrationSettings _CalibrationSettings = new CalibrationSettings();
         private ConnectionSettings _ConnectionSettings = new ConnectionSettings();
         private GeneralSettings _GeneralSettings = new GeneralSettings();
-
+        private ImuSettings _ImuSettings = new ImuSettings();
         private StreamingSettings _StreamingSettings = new StreamingSettings();
 
         public CalibrationSettings CalibrationSettings
@@ -59,6 +59,19 @@ namespace FireFly.Settings
             set
             {
                 _GeneralSettings = value;
+            }
+        }
+
+        public ImuSettings ImuSettings
+        {
+            get
+            {
+                return _ImuSettings;
+            }
+
+            set
+            {
+                _ImuSettings = value;
             }
         }
 

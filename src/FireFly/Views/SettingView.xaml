@@ -95,6 +95,42 @@
                     <Button Grid.Row="3" Grid.Column="1" Width="200" Content="new" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=NewFileLocationCommand}"/>
                 </Grid>
             </TabItem>
+            <TabItem Header="Imu">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Row="1" Grid.Column="1">
+                        <Label  Content="Accelerometer Scale" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=AccelerometerScale}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="3">
+                        <Label  Content="Gyroscope Scale" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=GyroscopeScale}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="5">
+                        <Label  Content="Temperature Scale" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=TemperatureScale}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="7">
+                        <Label  Content="Temperature Offset" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=TemperatureOffset}" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
         </Controls:MetroAnimatedSingleRowTabControl>
     </Grid>
 </UserControl>

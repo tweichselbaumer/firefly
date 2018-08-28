@@ -185,6 +185,7 @@
     <Compile Include="Settings\CalibrationSettings.cs" />
     <Compile Include="Settings\ConnectionSettings.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
+    <Compile Include="Settings\ImuSettings.cs" />
     <Compile Include="Settings\IntrinsicCalibrationSettings.cs" />
     <Compile Include="Settings\SettingContainer.cs" />
     <Compile Include="Settings\Settings.cs" />

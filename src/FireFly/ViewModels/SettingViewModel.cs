@@ -1,20 +1,25 @@
 ﻿using FireFly.Command;
 using FireFly.CustomDialogs;
 using FireFly.Settings;
+using FireFly.Utilities;
 using MahApps.Metro.Controls.Dialogs;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using FireFly.Utilities;
-using System.Linq;
 
 namespace FireFly.ViewModels
 {
     public class SettingViewModel : AbstractViewModel
     {
+        public static readonly DependencyProperty AccelerometerScaleProperty =
+            DependencyProperty.Register("AccelerometerScale", typeof(double), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
+
         public static readonly DependencyProperty FileLocationsProperty =
             DependencyProperty.Register("FileLocations", typeof(RangeObservableCollection<FileLocation>), typeof(SettingViewModel), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty GyroscopeScaleProperty =
+            DependencyProperty.Register("GyroscopeScale", typeof(double), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty IpAddressProperty =
             DependencyProperty.Register("IpAddress", typeof(string), typeof(SettingViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
@@ -22,24 +27,22 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty PortProperty =
             DependencyProperty.Register("Port", typeof(int), typeof(SettingViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
 
+        public static readonly DependencyProperty TemperatureOffsetProperty =
+            DependencyProperty.Register("TemperatureOffset", typeof(double), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty TemperatureScaleProperty =
+            DependencyProperty.Register("TemperatureScale", typeof(double), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
+
         public SettingViewModel(MainViewModel parent) : base(parent)
         {
             FileLocations = new RangeObservableCollection<FileLocation>();
             FileLocations.CollectionChanged += FileLocations_CollectionChanged;
         }
 
-        private void FileLocations_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        public double AccelerometerScale
         {
-            var firstNotSecond = FileLocations.Except(Parent.SettingContainer.Settings.GeneralSettings.FileLocations).ToList();
-            var secondNotFirst = Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Except(FileLocations).ToList();
-
-            bool changed = firstNotSecond.Any() || secondNotFirst.Any();
-
-            if (changed)
-            {
-                Parent.SettingContainer.Settings.GeneralSettings.FileLocations = FileLocations.ToList();
-                Parent.UpdateSettings(false);
-            }
+            get { return (double)GetValue(AccelerometerScaleProperty); }
+            set { SetValue(AccelerometerScaleProperty, value); }
         }
 
         public RelayCommand<object> DeleteFileLocationCommand
@@ -58,6 +61,12 @@ namespace FireFly.ViewModels
         {
             get { return (RangeObservableCollection<FileLocation>)GetValue(FileLocationsProperty); }
             set { SetValue(FileLocationsProperty, value); }
+        }
+
+        public double GyroscopeScale
+        {
+            get { return (double)GetValue(GyroscopeScaleProperty); }
+            set { SetValue(GyroscopeScaleProperty, value); }
         }
 
         public string IpAddress
@@ -84,12 +93,31 @@ namespace FireFly.ViewModels
             set { SetValue(PortProperty, value); }
         }
 
+        public double TemperatureOffset
+        {
+            get { return (double)GetValue(TemperatureOffsetProperty); }
+            set { SetValue(TemperatureOffsetProperty, value); }
+        }
+
+        public double TemperatureScale
+        {
+            get { return (double)GetValue(TemperatureScaleProperty); }
+            set { SetValue(TemperatureScaleProperty, value); }
+        }
+
         internal override void SettingsUpdated()
         {
             base.SettingsUpdated();
 
             IpAddress = Parent.SettingContainer.Settings.ConnectionSettings.IpAddress;
             Port = Parent.SettingContainer.Settings.ConnectionSettings.Port;
+
+            AccelerometerScale = Parent.SettingContainer.Settings.ImuSettings.AccelerometerScale;
+            GyroscopeScale = Parent.SettingContainer.Settings.ImuSettings.GyroscopeScale;
+            TemperatureScale = Parent.SettingContainer.Settings.ImuSettings.TemperatureScale;
+            TemperatureOffset = Parent.SettingContainer.Settings.ImuSettings.TemperatureOffset;
+
+
             var firstNotSecond = FileLocations.Except(Parent.SettingContainer.Settings.GeneralSettings.FileLocations).ToList();
             var secondNotFirst = Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Except(FileLocations).ToList();
 
@@ -120,6 +148,30 @@ namespace FireFly.ViewModels
                     changed = svm.Parent.SettingContainer.Settings.ConnectionSettings.IpAddress != svm.IpAddress;
                     svm.Parent.SettingContainer.Settings.ConnectionSettings.IpAddress = svm.IpAddress;
                     connectionSettingsChanged = true;
+                    break;
+
+                case "GyroscopeScale":
+                    changed = svm.Parent.SettingContainer.Settings.ImuSettings.GyroscopeScale != svm.GyroscopeScale;
+                    svm.Parent.SettingContainer.Settings.ImuSettings.GyroscopeScale = svm.GyroscopeScale;
+                    connectionSettingsChanged = false;
+                    break;
+
+                case "AccelerometerScale":
+                    changed = svm.Parent.SettingContainer.Settings.ImuSettings.AccelerometerScale != svm.AccelerometerScale;
+                    svm.Parent.SettingContainer.Settings.ImuSettings.AccelerometerScale = svm.AccelerometerScale;
+                    connectionSettingsChanged = false;
+                    break;
+
+                case "TemperatureOffset":
+                    changed = svm.Parent.SettingContainer.Settings.ImuSettings.TemperatureOffset != svm.TemperatureOffset;
+                    svm.Parent.SettingContainer.Settings.ImuSettings.TemperatureOffset = svm.TemperatureOffset;
+                    connectionSettingsChanged = false;
+                    break;
+
+                case "TemperatureScale":
+                    changed = svm.Parent.SettingContainer.Settings.ImuSettings.TemperatureScale != svm.TemperatureScale;
+                    svm.Parent.SettingContainer.Settings.ImuSettings.TemperatureScale = svm.TemperatureScale;
+                    connectionSettingsChanged = false;
                     break;
 
                 default:
@@ -162,13 +214,26 @@ namespace FireFly.ViewModels
                             };
                             FileLocations.Add(location);
                         }, null);
-
                     });
                     customDialog.Content = new NewFileLocationDialog { DataContext = dataContext };
 
                     Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
                 }, null);
             });
+        }
+
+        private void FileLocations_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            var firstNotSecond = FileLocations.Except(Parent.SettingContainer.Settings.GeneralSettings.FileLocations).ToList();
+            var secondNotFirst = Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Except(FileLocations).ToList();
+
+            bool changed = firstNotSecond.Any() || secondNotFirst.Any();
+
+            if (changed)
+            {
+                Parent.SettingContainer.Settings.GeneralSettings.FileLocations = FileLocations.ToList();
+                Parent.UpdateSettings(false);
+            }
         }
     }
 }

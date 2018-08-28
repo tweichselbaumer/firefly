@@ -54,14 +54,13 @@ namespace FireFly.ViewModels
 
         private IDialogCoordinator _DialogCoordinator;
 
-        private IOProxy _IOProxy = new IOProxy();
+        private IOProxy _IOProxy;
 
         private SettingContainer _SettingContainer = new SettingContainer();
 
         public MainViewModel()
         {
-            //SettingContainer.SettingFileName = ConfigFileName;
-            //SettingContainer.Load();
+            _IOProxy = new IOProxy(_SettingContainer);
 
             _SyncContext = SynchronizationContext.Current;
 
@@ -73,8 +72,6 @@ namespace FireFly.ViewModels
             ReplayViewModel = new ReplayViewModel(this);
 
             _DialogCoordinator = MahApps.Metro.Controls.Dialogs.DialogCoordinator.Instance;
-
-            //UpdateSettings(false);
         }
 
         public double BytesReceivedPerSec
@@ -208,16 +205,20 @@ namespace FireFly.ViewModels
 
                 _Connector = new LinkUpTcpClientConnector(IPAddress.Parse(SettingViewModel.IpAddress), SettingViewModel.Port);
                 _Connector.ConnectivityChanged += Connector_ConnectivityChanged;
+                _Connector.ConnectivityChanged += IOProxy.Connector_ConnectivityChanged;
                 _Connector.MetricUpdate += Connector_MetricUpdate;
 
                 Node = new LinkUpNode();
                 Node.Name = NodeName;
                 Node.AddSubNode(Connector);
                 IOProxy.Node = Node;
+
                 IOProxy.UpdateLinkUpBindings();
             }
 
             _SettingContainer.Save();
+
+            _IOProxy.UpdateSettings();
         }
 
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -245,6 +246,7 @@ namespace FireFly.ViewModels
                             mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse(mwvm.SettingViewModel.IpAddress), mwvm.SettingViewModel.Port);
 
                             mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
+                            mwvm.Connector.ConnectivityChanged += mwvm.IOProxy.Connector_ConnectivityChanged;
                             mwvm.Connector.MetricUpdate += mwvm.Connector_MetricUpdate;
 
                             mwvm.Node = new LinkUpNode();
