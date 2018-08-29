@@ -4,6 +4,7 @@ namespace FireFly.Settings
 {
     public class FileLocation
     {
+        private bool _IsRemote = false;
         private string _Name;
         private string _Path;
 
@@ -30,6 +31,19 @@ namespace FireFly.Settings
             set
             {
                 _Path = value;
+            }
+        }
+
+        public bool IsRemote
+        {
+            get
+            {
+                return _IsRemote;
+            }
+
+            set
+            {
+                _IsRemote = value;
             }
         }
     }

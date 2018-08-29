@@ -92,6 +92,30 @@ namespace FireFly.ViewModels
             set { SetValue(ChAruCoBoardProperty, value); }
         }
 
+        public RelayCommand<object> ClearCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoClear(o);
+                    });
+            }
+        }
+
+        public RelayCommand<object> CloseCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoClose(o);
+                    });
+            }
+        }
+
         public PredefinedDictionaryName Dictionary
         {
             get { return (PredefinedDictionaryName)GetValue(DictionaryProperty); }
@@ -102,6 +126,18 @@ namespace FireFly.ViewModels
         {
             get { return (ObservableCollection<ChArUcoImageContainer>)GetValue(ImagesProperty); }
             set { SetValue(ImagesProperty, value); }
+        }
+
+        public RelayCommand<object> LoadFromFileCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoLoadFromFile(o);
+                    });
+            }
         }
 
         public float MarkerLength
@@ -182,6 +218,18 @@ namespace FireFly.ViewModels
         {
             get { return (Visibility)GetValue(TakeSnapshotControlVisibilityProperty); }
             set { SetValue(TakeSnapshotControlVisibilityProperty, value); }
+        }
+
+        public RelayCommand<object> ValidateCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoValidate(o);
+                    });
+            }
         }
 
         internal override void SettingsUpdated()
@@ -382,8 +430,6 @@ namespace FireFly.ViewModels
                         {
                             Parent.SyncContext.Post(async c =>
                             {
-                                Images.Clear();
-
                                 Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx = result.cameraMatrix.GetValue(0, 0);
                                 Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy = result.cameraMatrix.GetValue(1, 1);
                                 Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx = result.cameraMatrix.GetValue(0, 2);
@@ -406,17 +452,7 @@ namespace FireFly.ViewModels
                                     }
                                 }
 
-                                TakeSnapshotControlVisibility = Visibility.Collapsed;
-                                ResultControlVisibility = Visibility.Visible;
-
                                 Parent.UpdateSettings(false);
-                            }, null);
-                        }
-                        else
-                        {
-                            Parent.SyncContext.Post(async c =>
-                            {
-                                Images.Clear();
                             }, null);
                         }
                     }
@@ -430,6 +466,34 @@ namespace FireFly.ViewModels
                     await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Error", "Not enough valide input frames available!");
                 }
             });
+        }
+
+        private Task DoClear(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    Images.Clear();
+                }, null);
+            });
+        }
+
+        private Task DoClose(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    TakeSnapshotControlVisibility = Visibility.Collapsed;
+                    ResultControlVisibility = Visibility.Visible;
+                }, null);
+            });
+        }
+
+        private Task DoLoadFromFile(object o)
+        {
+            throw new NotImplementedException();
         }
 
         private Task DoPrintBoard(object o)
@@ -481,6 +545,109 @@ namespace FireFly.ViewModels
                     ChArUcoImageContainer cauic = new ChArUcoImageContainer(SquaresX, SquaresY, SquareLength, MarkerLength, Dictionary);
                     cauic.OriginalImage = Parent.CameraViewModel.Image;
                     Images.Add(cauic);
+                }, null);
+            });
+        }
+
+        private Task DoValidate(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(async c =>
+                {
+                    VectorOfInt allIds = new VectorOfInt();
+                    VectorOfVectorOfPointF allCorners = new VectorOfVectorOfPointF();
+                    VectorOfInt allCharucoIds = new VectorOfInt();
+                    VectorOfPointF allCharucoCorners = new VectorOfPointF();
+                    VectorOfInt markerCounterPerFrame = new VectorOfInt();
+                    VectorOfInt charucoCounterPerFrame = new VectorOfInt();
+                    int squaresX = 0;
+                    int squaresY = 0;
+                    float squareLength = 0f;
+                    float markerLength = 0f;
+                    PredefinedDictionaryName dictionary = PredefinedDictionaryName.Dict4X4_50;
+                    System.Drawing.Size size = new System.Drawing.Size();
+
+                    bool fisheye = false;
+
+                    Parent.SyncContext.Send(async d =>
+                    {
+                        fisheye = Parent.CameraViewModel.FishEyeCalibration;
+
+                        squaresX = SquaresX;
+                        squaresY = SquaresY;
+                        squareLength = SquareLength;
+                        markerLength = MarkerLength;
+                        size = Parent.CameraViewModel.Image.CvImage.Size;
+                        dictionary = Dictionary;
+                        foreach (ChArUcoImageContainer image in Images)
+                        {
+                            if (image.MarkerCorners != null && image.CharucoCorners.Size > 4)
+                            {
+                                allIds.Push(image.MarkerIds);
+                                allCorners.Push(image.MarkerCorners);
+                                allCharucoIds.Push(image.CharucoIds);
+                                allCharucoCorners.Push(image.CharucoCorners);
+                                markerCounterPerFrame.Push(new int[] { image.MarkerCorners.Size });
+                                charucoCounterPerFrame.Push(new int[] { image.CharucoCorners.Size });
+                            }
+                        }
+                    }, null);
+
+                    if (markerCounterPerFrame.Size > 0)
+                    {
+                        MetroDialogSettings settings = new MetroDialogSettings()
+                        {
+                            AnimateShow = false,
+                            AnimateHide = false
+                        };
+
+                        var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Validate parameter now!", settings: settings);
+                        controller.SetIndeterminate();
+                        controller.SetCancelable(false);
+
+                        bool error = false;
+                        double rms = 0.0;
+                        try
+                        {
+                            Mat cameraMatrix = new Mat(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
+                            Mat distCoeffs = new Mat(1, Parent.CameraViewModel.FishEyeCalibration ? 4 : _DistCoeffs.Count, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
+
+                            cameraMatrix.SetValue(0, 0, _Fx);
+                            cameraMatrix.SetValue(1, 1, _Fy);
+                            cameraMatrix.SetValue(0, 2, _Cx);
+                            cameraMatrix.SetValue(1, 2, _Cy);
+                            cameraMatrix.SetValue(2, 2, 1.0f);
+
+                            for (int i = 0; i < distCoeffs.Cols && (Parent.CameraViewModel.FishEyeCalibration ? i < 4 : true); i++)
+                            {
+                                distCoeffs.SetValue(0, i, _DistCoeffs[i]);
+                            }
+
+                            rms = ChArUcoCalibration.ValidateCharuco(squaresX, squaresY, squareLength, markerLength, dictionary, size, allCharucoIds, allCharucoCorners, charucoCounterPerFrame, fisheye, delegate (byte[] input)
+                            {
+                                return Parent.IOProxy.GetRemoteChessboardCorner(input);
+                            }, cameraMatrix, distCoeffs);
+                        }
+                        catch (Exception ex)
+                        {
+                            error = true;
+                        }
+
+                        await controller.CloseAsync();
+                        if (!error)
+                        {
+                            var con = await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Result", string.Format("RMS: {0}", rms), MessageDialogStyle.Affirmative, null);
+                        }
+                        else
+                        {
+                            await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Error", "Error during validation!");
+                        }
+                    }
+                    else
+                    {
+                        await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Error", "Not enough valide input frames available!");
+                    }
                 }, null);
             });
         }

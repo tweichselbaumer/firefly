@@ -29,6 +29,13 @@
                 <Controls:ToggleSwitch
                 IsChecked="{Binding Path=Enabled}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
+
+                <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
+                
+                <Label  Content="Recorde (Remote)" Style="{DynamicResource GeneralLabelStyle}" />
+                <Controls:ToggleSwitch
+                IsChecked="{Binding Path=RecordRemote}" Margin="15,0,0,0"
+                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
             </StackPanel>
             <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
                 <!--<Button Width="200" Content="Clear" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" />

@@ -23,7 +23,9 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="10" />
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
                         <RowDefinition Height="10" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
@@ -44,6 +46,15 @@
                     <StackPanel Grid.Row="1" Grid.Column="3">
                         <Label  Content="Port" Style="{DynamicResource GeneralLabelStyle}" />
                         <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=Port}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="3" Grid.Column="1">
+                        <Label  Content="Username" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=Username}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="3" Grid.Column="3">
+                        <Label  Content="Password" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=Password}" />
                     </StackPanel>
                 </Grid>
             </TabItem>
@@ -99,7 +110,13 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="10" />
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
                         <RowDefinition Height="10" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
@@ -117,15 +134,15 @@
                         <Label  Content="Accelerometer Scale" Style="{DynamicResource GeneralLabelStyle}" />
                         <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=AccelerometerScale}" />
                     </StackPanel>
-                    <StackPanel Grid.Row="1" Grid.Column="3">
+                    <StackPanel Grid.Row="3" Grid.Column="1">
                         <Label  Content="Gyroscope Scale" Style="{DynamicResource GeneralLabelStyle}" />
                         <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=GyroscopeScale}" />
                     </StackPanel>
-                    <StackPanel Grid.Row="1" Grid.Column="5">
+                    <StackPanel Grid.Row="5" Grid.Column="1">
                         <Label  Content="Temperature Scale" Style="{DynamicResource GeneralLabelStyle}" />
                         <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=TemperatureScale}" />
                     </StackPanel>
-                    <StackPanel Grid.Row="1" Grid.Column="7">
+                    <StackPanel Grid.Row="7" Grid.Column="1">
                         <Label  Content="Temperature Offset" Style="{DynamicResource GeneralLabelStyle}" />
                         <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=TemperatureOffset}" />
                     </StackPanel>

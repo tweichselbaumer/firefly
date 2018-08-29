@@ -54,6 +54,31 @@ namespace FireFly.ViewModels
             set { SetValue(IsReplayingProperty, value); }
         }
 
+        public bool IsStopping
+        {
+            get
+            {
+                return _IsStopping;
+            }
+
+            set
+            {
+                _IsStopping = value;
+            }
+        }
+
+        public RelayCommand<object> PauseCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoPause(o);
+                    });
+            }
+        }
+
         public RelayCommand<object> RefreshCommand
         {
             get
@@ -84,30 +109,6 @@ namespace FireFly.ViewModels
             }
         }
 
-        public RelayCommand<object> PauseCommand
-        {
-            get
-            {
-                return new RelayCommand<object>(
-                    async (object o) =>
-                    {
-                        await DoPause(o);
-                    });
-            }
-        }
-
-        private Task DoPause(object o)
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                ReplayFile file = o as ReplayFile;
-                Parent.SyncContext.Post(c =>
-                {
-                    file.IsPaused = true;
-                }, null);
-            });
-        }
-
         public RelayCommand<object> StopCommand
         {
             get
@@ -118,32 +119,6 @@ namespace FireFly.ViewModels
                         await DoStop(o);
                     });
             }
-        }
-
-        public bool IsStopping
-        {
-            get
-            {
-                return _IsStopping;
-            }
-
-            set
-            {
-                _IsStopping = value;
-            }
-        }
-
-        private Task DoStop(object o)
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                ReplayFile file = o as ReplayFile;
-                Parent.SyncContext.Post(c =>
-                {
-                    file.IsPaused = false;
-                    IsStopping = true;
-                }, null);
-            });
         }
 
         internal override void SettingsUpdated()
@@ -160,31 +135,59 @@ namespace FireFly.ViewModels
                 DataReader reader = null;
 
                 string fullPath = null;
+                bool isRemote = false;
+                System.Windows.Forms.SaveFileDialog saveFileDialog = null;
+                bool save = false;
+
                 Parent.SyncContext.Send(c =>
                 {
                     fullPath = file.FullPath;
+                    isRemote = file.IsRemote;
+                    saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                    saveFileDialog.Filter = "Matlab (*.mat) | *.mat";
+                    save = saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK;
                 }, null);
 
-                reader = new DataReader(fullPath, ReaderMode.Imu0 | ReaderMode.Camera0);
-
-                reader.Open();
-
-                MetroDialogSettings settings = new MetroDialogSettings()
+                if (save)
                 {
-                    AnimateShow = false,
-                    AnimateHide = false
-                };
+                    MetroDialogSettings settings = new MetroDialogSettings()
+                    {
+                        AnimateShow = false,
+                        AnimateHide = false
+                    };
 
-                var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Export data to Matlab!", settings: settings);
-                controller.SetIndeterminate();
-                controller.SetCancelable(false);
+                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Export data to Matlab!", settings: settings);
+                    controller.SetIndeterminate();
+                    controller.SetCancelable(false);
 
-                MatlabExporter matlabExporter = new MatlabExporter(string.Format("{0}.mat", fullPath), MatlabFormat.Imu0);
-                matlabExporter.Open();
-                matlabExporter.AddFromReader(reader);
-                matlabExporter.Close();
-                reader.Close();
-                await controller.CloseAsync();
+                    if (isRemote)
+                        reader = new DataReader(fullPath, ReaderMode.Imu0, new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Password));
+                    else
+                        reader = new DataReader(fullPath, ReaderMode.Imu0 | ReaderMode.Camera0);
+
+                    reader.Open();
+
+                    MatlabExporter matlabExporter = new MatlabExporter(saveFileDialog.FileName, MatlabFormat.Imu0);
+
+                    matlabExporter.Open();
+                    matlabExporter.AddFromReader(reader);
+                    matlabExporter.Close();
+
+                    reader.Close();
+                    await controller.CloseAsync();
+                }
+            });
+        }
+
+        private Task DoPause(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                ReplayFile file = o as ReplayFile;
+                Parent.SyncContext.Post(c =>
+                {
+                    file.IsPaused = true;
+                }, null);
             });
         }
 
@@ -260,6 +263,19 @@ namespace FireFly.ViewModels
             });
         }
 
+        private Task DoStop(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                ReplayFile file = o as ReplayFile;
+                Parent.SyncContext.Post(c =>
+                {
+                    file.IsPaused = false;
+                    IsStopping = true;
+                }, null);
+            });
+        }
+
         private void Refresh()
         {
             if (!IsReplaying)
@@ -279,6 +295,20 @@ namespace FireFly.ViewModels
                                 tuple.Item2.Add(new ReplayFile() { Name = Path.GetFileNameWithoutExtension(file), FullPath = file });
                             }
                         }
+                    }
+                }
+                RemoteDataStore remoteDataStore = new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Password);
+
+                List<string> files = remoteDataStore.GetAllFileNames("/home/up/data");
+                if (files.Count > 0)
+                {
+                    Tuple<FileLocation, List<ReplayFile>> tuple = new Tuple<FileLocation, List<ReplayFile>>(new FileLocation() { Name = "Remote", Path = "/home/up/data", IsRemote = true }, new List<ReplayFile>());
+                    FilesForReplay.Add(tuple);
+
+                    foreach (string filename in files)
+                    {
+                        if (Path.GetExtension(filename) == ".csv")
+                            tuple.Item2.Add(new ReplayFile() { Name = filename, IsRemote = true, FullPath = string.Format("{0}/{1}", tuple.Item1.Path, filename) });
                     }
                 }
             }

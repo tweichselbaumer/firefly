@@ -25,6 +25,7 @@ namespace FireFly.Proxy
         private LinkUpPropertyLabel<Int16> _ExposureLabel;
         private LinkUpFunctionLabel _GetRemoteChessboardCorner;
         private LinkUpPropertyLabel<Double> _GyroscopeScaleLabel;
+        private LinkUpPropertyLabel<Boolean> _RecordRemoteLabel;
         private LinkUpEventLabel _ImuEventLabel;
         private LinkUpNode _Node;
         private IOProxyMode _ProxyMode = IOProxyMode.Live;
@@ -249,6 +250,8 @@ namespace FireFly.Proxy
                 _TemperatureScaleLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/temp_scale");
                 _TemperatureOffsetLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/temp_offset");
 
+                _RecordRemoteLabel = Node.GetLabelByName<LinkUpPropertyLabel<Boolean>>("firefly/computer_vision/record_remote");
+
                 _CameraEventLabel.Fired += _CameraEventLabel_Fired;
                 _ImuEventLabel.Fired += _CameraEventLabel_Fired;
                 _CameraImuEventLabel.Fired += _CameraEventLabel_Fired;
@@ -267,6 +270,9 @@ namespace FireFly.Proxy
                 _TemperatureScaleLabel.Value = _SettingContainer.Settings.ImuSettings.TemperatureScale;
             if (_TemperatureOffsetLabel != null)
                 _TemperatureOffsetLabel.Value = _SettingContainer.Settings.ImuSettings.TemperatureOffset;
+
+            if (_RecordRemoteLabel != null)
+                _RecordRemoteLabel.Value = _SettingContainer.Settings.ImuSettings.RecordRemote;
 
             if (_UpdateSettings != null)
                 _UpdateSettings.AsyncCall(new byte[] { });
@@ -332,7 +338,7 @@ namespace FireFly.Proxy
                 }
                 UpdateSettings();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }

@@ -1,12 +1,11 @@
-﻿using System.Reflection;
-
-namespace FireFly.Settings
+﻿namespace FireFly.Settings
 {
     public class ConnectionSettings : AbstractSettings
     {
         private string _IpAddress;
-
+        private string _Password;
         private int _Port;
+        private string _Username;
 
         public string IpAddress
         {
@@ -21,6 +20,19 @@ namespace FireFly.Settings
             }
         }
 
+        public string Password
+        {
+            get
+            {
+                return _Password;
+            }
+
+            set
+            {
+                _Password = value;
+            }
+        }
+
         public int Port
         {
             get
@@ -31,6 +43,19 @@ namespace FireFly.Settings
             set
             {
                 _Port = value;
+            }
+        }
+
+        public string Username
+        {
+            get
+            {
+                return _Username;
+            }
+
+            set
+            {
+                _Username = value;
             }
         }
 

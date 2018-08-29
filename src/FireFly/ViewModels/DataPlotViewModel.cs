@@ -12,12 +12,21 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty EnabledProperty =
             DependencyProperty.Register("Enabled", typeof(bool), typeof(DataPlotViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
 
+        public static readonly DependencyProperty RecordRemoteProperty =
+            DependencyProperty.Register("RecordRemote", typeof(bool), typeof(DataPlotViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
+
         private LineSeriesContainer _AccX;
+
         private LineSeriesContainer _AccY;
+
         private LineSeriesContainer _AccZ;
+
         private LineSeriesContainer _GyroX;
+
         private LineSeriesContainer _GyroY;
+
         private LineSeriesContainer _GyroZ;
+
         private Timer _Timer;
 
         public DataPlotViewModel(MainViewModel parent) : base(parent)
@@ -118,6 +127,12 @@ namespace FireFly.ViewModels
             }
         }
 
+        public bool RecordRemote
+        {
+            get { return (bool)GetValue(RecordRemoteProperty); }
+            set { SetValue(RecordRemoteProperty, value); }
+        }
+
         public void Fired(IOProxy proxy, List<AbstractProxyEventData> eventData)
         {
             if (eventData.Count == 1 && eventData[0] is ImuEventData)
@@ -136,6 +151,7 @@ namespace FireFly.ViewModels
         {
             base.SettingsUpdated();
             Enabled = Parent.SettingContainer.Settings.StreamingSettings.ImuRawStreamEnabled;
+            RecordRemote = Parent.SettingContainer.Settings.ImuSettings.RecordRemote;
         }
 
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -155,6 +171,10 @@ namespace FireFly.ViewModels
                             dpvm.Parent.IOProxy.Unsubscribe(dpvm, ProxyEventType.ImuEvent);
                     }
                     catch (Exception) { }
+                    break;
+                case "RecordRemote":
+                    changed = dpvm.Parent.SettingContainer.Settings.ImuSettings.RecordRemote != dpvm.RecordRemote;
+                    dpvm.Parent.SettingContainer.Settings.ImuSettings.RecordRemote = dpvm.RecordRemote;
                     break;
 
                 default:

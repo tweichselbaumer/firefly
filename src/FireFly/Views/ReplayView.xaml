@@ -69,6 +69,7 @@
                                                 <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type UserControl}}"  Path="DataContext.IsReplaying" />
                                                 <Binding Path="IsPlaying" />
                                                 <Binding Path="IsPaused" />
+                                                <Binding Path="IsRemote" />
                                             </MultiBinding>
                                         </Button.IsEnabled>
                                         <iconPacks:PackIconEntypo Width="10" Height="10" Margin="2" Kind="ControllerPlay" />
@@ -79,6 +80,7 @@
                                                 <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type UserControl}}"  Path="DataContext.IsReplaying" />
                                                 <Binding Path="IsPlaying" />
                                                 <Binding Path="IsPaused" />
+                                                <Binding Path="IsRemote" />
                                             </MultiBinding>
                                         </Button.IsEnabled>
                                         <iconPacks:PackIconEntypo Width="8" Height="8" Margin="2" Kind="ControllerPaus" />
@@ -89,6 +91,7 @@
                                                 <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type UserControl}}"  Path="DataContext.IsReplaying" />
                                                 <Binding Path="IsPlaying" />
                                                 <Binding Path="IsPaused" />
+                                                <Binding Path="IsRemote" />
                                             </MultiBinding>
                                         </Button.IsEnabled>
                                         <iconPacks:PackIconEntypo Width="8" Height="8" Margin="2" Kind="ControllerStop" />

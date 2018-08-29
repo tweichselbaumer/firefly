@@ -24,6 +24,9 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty IpAddressProperty =
             DependencyProperty.Register("IpAddress", typeof(string), typeof(SettingViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
 
+        public static readonly DependencyProperty PasswordProperty =
+            DependencyProperty.Register("Password", typeof(string), typeof(SettingViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
+
         public static readonly DependencyProperty PortProperty =
             DependencyProperty.Register("Port", typeof(int), typeof(SettingViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
 
@@ -32,6 +35,9 @@ namespace FireFly.ViewModels
 
         public static readonly DependencyProperty TemperatureScaleProperty =
             DependencyProperty.Register("TemperatureScale", typeof(double), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty UsernameProperty =
+            DependencyProperty.Register("Username", typeof(string), typeof(SettingViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
 
         public SettingViewModel(MainViewModel parent) : base(parent)
         {
@@ -87,6 +93,12 @@ namespace FireFly.ViewModels
             }
         }
 
+        public string Password
+        {
+            get { return (string)GetValue(PasswordProperty); }
+            set { SetValue(PasswordProperty, value); }
+        }
+
         public int Port
         {
             get { return (int)GetValue(PortProperty); }
@@ -105,6 +117,12 @@ namespace FireFly.ViewModels
             set { SetValue(TemperatureScaleProperty, value); }
         }
 
+        public string Username
+        {
+            get { return (string)GetValue(UsernameProperty); }
+            set { SetValue(UsernameProperty, value); }
+        }
+
         internal override void SettingsUpdated()
         {
             base.SettingsUpdated();
@@ -112,11 +130,13 @@ namespace FireFly.ViewModels
             IpAddress = Parent.SettingContainer.Settings.ConnectionSettings.IpAddress;
             Port = Parent.SettingContainer.Settings.ConnectionSettings.Port;
 
+            Password = Parent.SettingContainer.Settings.ConnectionSettings.Password;
+            Username = Parent.SettingContainer.Settings.ConnectionSettings.Username;
+
             AccelerometerScale = Parent.SettingContainer.Settings.ImuSettings.AccelerometerScale;
             GyroscopeScale = Parent.SettingContainer.Settings.ImuSettings.GyroscopeScale;
             TemperatureScale = Parent.SettingContainer.Settings.ImuSettings.TemperatureScale;
             TemperatureOffset = Parent.SettingContainer.Settings.ImuSettings.TemperatureOffset;
-
 
             var firstNotSecond = FileLocations.Except(Parent.SettingContainer.Settings.GeneralSettings.FileLocations).ToList();
             var secondNotFirst = Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Except(FileLocations).ToList();
@@ -142,6 +162,18 @@ namespace FireFly.ViewModels
                     changed = svm.Parent.SettingContainer.Settings.ConnectionSettings.Port != svm.Port;
                     svm.Parent.SettingContainer.Settings.ConnectionSettings.Port = svm.Port;
                     connectionSettingsChanged = true;
+                    break;
+
+                case "Username":
+                    changed = svm.Parent.SettingContainer.Settings.ConnectionSettings.Username != svm.Username;
+                    svm.Parent.SettingContainer.Settings.ConnectionSettings.Username = svm.Username;
+                    connectionSettingsChanged = false;
+                    break;
+
+                case "Password":
+                    changed = svm.Parent.SettingContainer.Settings.ConnectionSettings.Password != svm.Password;
+                    svm.Parent.SettingContainer.Settings.ConnectionSettings.Password = svm.Password;
+                    connectionSettingsChanged = false;
                     break;
 
                 case "IpAddress":

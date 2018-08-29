@@ -16,20 +16,24 @@ namespace FireFly.Data.Storage
 
     public class DataReader
     {
+        private Dictionary<long, double> _CamCache = new Dictionary<long, double>();
         private long _CurrentTimestamp = -1;
         private string _FileName;
         private Dictionary<long, Tuple<double, double, double, double, double, double>> _ImuCache = new Dictionary<long, Tuple<double, double, double, double, double, double>>();
-        private Dictionary<long, double> _CamCache = new Dictionary<long, double>();
+        private TimeSpan _Length = new TimeSpan();
         private ReaderMode _Mode;
+        private bool _Remote;
+        private RemoteDataStore _RemoteDataStore;
         private Dictionary<long, ReaderMode> _Timestamps = new Dictionary<long, ReaderMode>();
         private ZipArchive _ZipArchive;
         private FileStream _ZipFile;
-        private TimeSpan _Length = new TimeSpan();
 
-        public DataReader(string filename, ReaderMode mode)
+        public DataReader(string filename, ReaderMode mode, RemoteDataStore remoteDataStore = null)
         {
             _FileName = filename;
             _Mode = mode;
+            _Remote = remoteDataStore != null;
+            _RemoteDataStore = remoteDataStore;
         }
 
         public int DeltaTimeMs
@@ -57,8 +61,12 @@ namespace FireFly.Data.Storage
         {
             _Timestamps.Clear();
             _ImuCache.Clear();
-            _ZipArchive.Dispose();
-            _ZipFile.Dispose();
+
+            if (!_Remote)
+            {
+                _ZipArchive.Dispose();
+                _ZipFile.Dispose();
+            }
         }
 
         public bool HasNext()
@@ -99,92 +107,111 @@ namespace FireFly.Data.Storage
 
         public void Open()
         {
-            _ZipFile = new FileStream(_FileName, FileMode.Open);
-            _ZipArchive = new ZipArchive(_ZipFile, ZipArchiveMode.Read);
-
-            if (_Mode.HasFlag(ReaderMode.Imu0))
+            if (!_Remote)
             {
-                ZipArchiveEntry entry = _ZipArchive.GetEntry("imu0.csv");
-                using (StreamReader reader = new StreamReader(entry.Open()))
+                _ZipFile = new FileStream(_FileName, FileMode.Open);
+                _ZipArchive = new ZipArchive(_ZipFile, ZipArchiveMode.Read);
+
+                if (_Mode.HasFlag(ReaderMode.Imu0))
                 {
-                    string content = reader.ReadToEnd();
-                    bool skipFirst = true;
-                    foreach (string line in content.Split('\n'))
-                    {
-                        if (skipFirst)
-                        {
-                            skipFirst = false;
-                        }
-                        else
-                        {
-                            string[] values = line.Split(',');
-                            if (values.Length == 7)
-                            {
-                                long timestamp = long.Parse(values[0], CultureInfo.InvariantCulture);
-
-                                double omega_x = double.Parse(values[1], CultureInfo.InvariantCulture);
-                                double omega_y = double.Parse(values[2], CultureInfo.InvariantCulture);
-                                double omega_z = double.Parse(values[3], CultureInfo.InvariantCulture);
-
-                                double alpha_x = double.Parse(values[4], CultureInfo.InvariantCulture);
-                                double alpha_y = double.Parse(values[5], CultureInfo.InvariantCulture);
-                                double alpha_z = double.Parse(values[6], CultureInfo.InvariantCulture);
-
-                                Tuple<double, double, double, double, double, double> tuple = new Tuple<double, double, double, double, double, double>(omega_x * 180 / Math.PI, omega_y * 180 / Math.PI, omega_z * 180 / Math.PI, alpha_x, alpha_y, alpha_z);
-                                _Timestamps.Add(timestamp, ReaderMode.Imu0);
-                                _ImuCache.Add(timestamp, tuple);
-                            }
-                        }
-                    }
-                }
-            }
-            if (_Mode.HasFlag(ReaderMode.Camera0))
-            {
-                foreach (ZipArchiveEntry entry in _ZipArchive.Entries)
-                {
-                    if (entry.FullName.StartsWith("cam0\\"))
-                    {
-                        long timestamp = long.Parse(entry.Name.Replace(".png", ""), CultureInfo.InvariantCulture);
-
-                        if (_Timestamps.ContainsKey(timestamp))
-                        {
-                            _Timestamps[timestamp] |= ReaderMode.Camera0;
-                        }
-                        else
-                        {
-                            _Timestamps.Add(timestamp, ReaderMode.Camera0);
-                        }
-                    }
-                }
-                ZipArchiveEntry camentry = _ZipArchive.GetEntry("cam0.csv");
-                if (camentry != null)
-                {
-                    using (StreamReader reader = new StreamReader(camentry.Open()))
+                    ZipArchiveEntry entry = _ZipArchive.GetEntry("imu0.csv");
+                    using (StreamReader reader = new StreamReader(entry.Open()))
                     {
                         string content = reader.ReadToEnd();
-                        bool skipFirst = true;
-                        foreach (string line in content.Split('\n'))
+                        ParseImu(content,true);
+                    }
+                }
+                if (_Mode.HasFlag(ReaderMode.Camera0))
+                {
+                    foreach (ZipArchiveEntry entry in _ZipArchive.Entries)
+                    {
+                        if (entry.FullName.StartsWith("cam0\\"))
                         {
-                            if (skipFirst)
+                            long timestamp = long.Parse(entry.Name.Replace(".png", ""), CultureInfo.InvariantCulture);
+
+                            if (_Timestamps.ContainsKey(timestamp))
                             {
-                                skipFirst = false;
+                                _Timestamps[timestamp] |= ReaderMode.Camera0;
                             }
                             else
                             {
-                                string[] values = line.Split(',');
-                                if (values.Length == 2)
+                                _Timestamps.Add(timestamp, ReaderMode.Camera0);
+                            }
+                        }
+                    }
+                    ZipArchiveEntry camentry = _ZipArchive.GetEntry("cam0.csv");
+                    if (camentry != null)
+                    {
+                        using (StreamReader reader = new StreamReader(camentry.Open()))
+                        {
+                            string content = reader.ReadToEnd();
+                            bool skipFirst = true;
+                            foreach (string line in content.Split('\n'))
+                            {
+                                if (skipFirst)
                                 {
-                                    long timestamp = long.Parse(values[0], CultureInfo.InvariantCulture);
+                                    skipFirst = false;
+                                }
+                                else
+                                {
+                                    string[] values = line.Split(',');
+                                    if (values.Length == 2)
+                                    {
+                                        long timestamp = long.Parse(values[0], CultureInfo.InvariantCulture);
 
-                                    double exposureTime = double.Parse(values[1], CultureInfo.InvariantCulture);
-                                    _CamCache.Add(timestamp, exposureTime);
+                                        double exposureTime = double.Parse(values[1], CultureInfo.InvariantCulture);
+                                        _CamCache.Add(timestamp, exposureTime);
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                _Length = TimeSpan.FromMilliseconds((_Timestamps.Keys.Max() - _Timestamps.Keys.Min()) / (1000 * 1000));
             }
-            _Length = TimeSpan.FromMilliseconds((_Timestamps.Keys.Max() - _Timestamps.Keys.Min()) / (1000 * 1000));
+            else
+            {
+                string content = _RemoteDataStore.GetAllText(_FileName);
+                ParseImu(content, false);
+            }
+        }
+
+        private void ParseImu(string content, bool isOmega)
+        {
+            bool skipFirst = true;
+            foreach (string line in content.Split('\n'))
+            {
+                if (skipFirst)
+                {
+                    skipFirst = false;
+                }
+                else
+                {
+                    string[] values = line.Split(',');
+                    if (values.Length >= 7)
+                    {
+                        long timestamp = long.Parse(values[0], CultureInfo.InvariantCulture);
+
+                        double omega_x = double.Parse(values[1], CultureInfo.InvariantCulture);
+                        double omega_y = double.Parse(values[2], CultureInfo.InvariantCulture);
+                        double omega_z = double.Parse(values[3], CultureInfo.InvariantCulture);
+
+                        double alpha_x = double.Parse(values[4], CultureInfo.InvariantCulture);
+                        double alpha_y = double.Parse(values[5], CultureInfo.InvariantCulture);
+                        double alpha_z = double.Parse(values[6], CultureInfo.InvariantCulture);
+
+                        Tuple<double, double, double, double, double, double> tuple;
+
+                        if (isOmega)
+                            tuple = new Tuple<double, double, double, double, double, double>(omega_x * 180 / Math.PI, omega_y * 180 / Math.PI, omega_z * 180 / Math.PI, alpha_x, alpha_y, alpha_z);
+                        else
+                            tuple = new Tuple<double, double, double, double, double, double>(omega_x, omega_y, omega_z, alpha_x, alpha_y, alpha_z);
+
+                        _Timestamps.Add(timestamp, ReaderMode.Imu0);
+                        _ImuCache.Add(timestamp, tuple);
+                    }
+                }
+            }
         }
     }
 }

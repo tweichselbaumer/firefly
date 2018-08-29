@@ -15,6 +15,12 @@ namespace FireFly.Converter
             bool a = (bool)values[0];
             bool b = (bool)values[1];
             bool c = (bool)values[2];
+            bool d = (bool)values[3];
+
+            if (d)
+            {
+                return false;
+            }
 
             switch ((string)parameter)
             {

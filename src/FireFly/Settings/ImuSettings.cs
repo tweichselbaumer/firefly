@@ -8,6 +8,7 @@ namespace FireFly.Settings
 {
     public class ImuSettings : AbstractSettings
     {
+        private bool _RecordRemote;
         private double _AccelerometerScale;
         private double _GyroscopeScale;
         private double _TemperatureScale;
@@ -62,6 +63,19 @@ namespace FireFly.Settings
             set
             {
                 _TemperatureOffset = value;
+            }
+        }
+
+        public bool RecordRemote
+        {
+            get
+            {
+                return _RecordRemote;
+            }
+
+            set
+            {
+                _RecordRemote = value;
             }
         }
 
