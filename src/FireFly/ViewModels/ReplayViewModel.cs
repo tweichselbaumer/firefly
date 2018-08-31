@@ -157,20 +157,47 @@ namespace FireFly.ViewModels
                     };
 
                     var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Export data to Matlab!", settings: settings);
-                    controller.SetIndeterminate();
+
+
                     controller.SetCancelable(false);
 
                     if (isRemote)
+                    {
                         reader = new DataReader(fullPath, ReaderMode.Imu0, new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Password));
+                        reader.Open(delegate (double percent)
+                        {
+                            double value = percent * 0.66;
+                            value = value > 1 ? 1 : value;
+                            controller.SetProgress(value);
+                        });
+                    }
                     else
+                    {
                         reader = new DataReader(fullPath, ReaderMode.Imu0 | ReaderMode.Camera0);
+                        reader.Open();
+                        controller.SetIndeterminate();
+                    }
 
-                    reader.Open();
 
                     MatlabExporter matlabExporter = new MatlabExporter(saveFileDialog.FileName, MatlabFormat.Imu0);
 
                     matlabExporter.Open();
-                    matlabExporter.AddFromReader(reader);
+                    if (isRemote)
+                    {
+                        matlabExporter.AddFromReader(reader, delegate (double percent)
+                        {
+                            double value = percent * 0.33 + 0.66;
+                            value = value > 1 ? 1 : value;
+                            controller.SetProgress(value);
+                        });
+                    }
+                    else
+                    {
+                        matlabExporter.AddFromReader(reader, delegate (double percent)
+                        {
+                            controller.SetProgress(percent);
+                        });
+                    }
                     matlabExporter.Close();
 
                     reader.Close();

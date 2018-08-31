@@ -26,7 +26,7 @@ namespace FireFly.Data.Storage
             _MatlabFormat = matlabFormat;
         }
 
-        public void AddFromReader(DataReader reader)
+        public void AddFromReader(DataReader reader, Action<double> progress)
         {
             IArray time = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["time", 0];
 
@@ -40,8 +40,17 @@ namespace FireFly.Data.Storage
 
             int imu0Index = 0;
 
+            int count = reader.Count;
+
+            int i = 0;
+
             while (reader.HasNext())
             {
+                i++;
+                if (i % 100 == 0)
+                {
+                    progress?.Invoke((double)i / count);
+                }
                 Tuple<long, List<Tuple<ReaderMode, object>>> res = reader.Next();
 
                 foreach (Tuple<ReaderMode, object> val in res.Item2)
@@ -122,6 +131,11 @@ namespace FireFly.Data.Storage
                 var writer = new MatFileWriter(stream);
                 writer.Write(_DataBuilder.NewFile(new[] { _DataBuilder.NewVariable("data", _DataStruct) }));
             }
+        }
+
+        public void AddFromReader(DataReader reader, Func<double, object> p)
+        {
+            throw new NotImplementedException();
         }
 
         public void Open()

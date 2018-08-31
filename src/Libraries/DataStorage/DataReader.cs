@@ -17,16 +17,17 @@ namespace FireFly.Data.Storage
     public class DataReader
     {
         private Dictionary<long, double> _CamCache = new Dictionary<long, double>();
-        private long _CurrentTimestamp = -1;
         private string _FileName;
         private Dictionary<long, Tuple<double, double, double, double, double, double>> _ImuCache = new Dictionary<long, Tuple<double, double, double, double, double, double>>();
         private TimeSpan _Length = new TimeSpan();
         private ReaderMode _Mode;
         private bool _Remote;
         private RemoteDataStore _RemoteDataStore;
-        private Dictionary<long, ReaderMode> _Timestamps = new Dictionary<long, ReaderMode>();
         private ZipArchive _ZipArchive;
         private FileStream _ZipFile;
+        private List<long> _Timestamps = new List<long>();
+        private List<ReaderMode> _ReaderModes = new List<ReaderMode>();
+        private int _Index = 0;
 
         public DataReader(string filename, ReaderMode mode, RemoteDataStore remoteDataStore = null)
         {
@@ -34,6 +35,14 @@ namespace FireFly.Data.Storage
             _Mode = mode;
             _Remote = remoteDataStore != null;
             _RemoteDataStore = remoteDataStore;
+        }
+
+        public int Count
+        {
+            get
+            {
+                return _Timestamps.Count;
+            }
         }
 
         public int DeltaTimeMs
@@ -61,6 +70,7 @@ namespace FireFly.Data.Storage
         {
             _Timestamps.Clear();
             _ImuCache.Clear();
+            _ReaderModes.Clear();
 
             if (!_Remote)
             {
@@ -71,27 +81,32 @@ namespace FireFly.Data.Storage
 
         public bool HasNext()
         {
-            return _Timestamps.Any(c => c.Key > _CurrentTimestamp);
+            return Count > _Index;
         }
 
         public Tuple<long, List<Tuple<ReaderMode, object>>> Next()
         {
             List<Tuple<ReaderMode, object>> result = new List<Tuple<ReaderMode, object>>();
-            _CurrentTimestamp = _Timestamps.FirstOrDefault(c => c.Key > _CurrentTimestamp).Key;
 
-            ReaderMode readerMode = _Timestamps[_CurrentTimestamp];
+            long currentTimestamp = 0;
+            ReaderMode readerMode = 0;
+
+            currentTimestamp = _Timestamps[_Index];
+            readerMode = _ReaderModes[_Index];
+
+            _Index++;
 
             if (readerMode.HasFlag(ReaderMode.Imu0))
             {
-                result.Add(new Tuple<ReaderMode, object>(ReaderMode.Imu0, _ImuCache[_CurrentTimestamp]));
+                result.Add(new Tuple<ReaderMode, object>(ReaderMode.Imu0, _ImuCache[currentTimestamp]));
             }
 
             if (readerMode.HasFlag(ReaderMode.Camera0))
             {
                 double exposerTime = 0;
-                if (_CamCache.Any(c => c.Key == _CurrentTimestamp))
-                    exposerTime = _CamCache.FirstOrDefault(c => c.Key == _CurrentTimestamp).Value;
-                ZipArchiveEntry imageEntry = _ZipArchive.GetEntry(string.Format("cam0\\{0}.png", _CurrentTimestamp));
+                if (_CamCache.Any(c => c.Key == currentTimestamp))
+                    exposerTime = _CamCache.FirstOrDefault(c => c.Key == currentTimestamp).Value;
+                ZipArchiveEntry imageEntry = _ZipArchive.GetEntry(string.Format("cam0\\{0}.png", currentTimestamp));
                 using (Stream stream = imageEntry.Open())
                 {
                     using (MemoryStream ms = new MemoryStream())
@@ -102,11 +117,13 @@ namespace FireFly.Data.Storage
                 }
             }
 
-            return new Tuple<long, List<Tuple<ReaderMode, object>>>(_CurrentTimestamp, result);
+            return new Tuple<long, List<Tuple<ReaderMode, object>>>(currentTimestamp, result);
         }
 
-        public void Open()
+        public void Open(Action<double> progress = null)
         {
+            Dictionary<long, ReaderMode> timestampDict = new Dictionary<long, ReaderMode>();
+
             if (!_Remote)
             {
                 _ZipFile = new FileStream(_FileName, FileMode.Open);
@@ -118,7 +135,7 @@ namespace FireFly.Data.Storage
                     using (StreamReader reader = new StreamReader(entry.Open()))
                     {
                         string content = reader.ReadToEnd();
-                        ParseImu(content,true);
+                        ParseImu(content, true, timestampDict);
                     }
                 }
                 if (_Mode.HasFlag(ReaderMode.Camera0))
@@ -129,13 +146,13 @@ namespace FireFly.Data.Storage
                         {
                             long timestamp = long.Parse(entry.Name.Replace(".png", ""), CultureInfo.InvariantCulture);
 
-                            if (_Timestamps.ContainsKey(timestamp))
+                            if (timestampDict.ContainsKey(timestamp))
                             {
-                                _Timestamps[timestamp] |= ReaderMode.Camera0;
+                                timestampDict[timestamp] |= ReaderMode.Camera0;
                             }
                             else
                             {
-                                _Timestamps.Add(timestamp, ReaderMode.Camera0);
+                                timestampDict.Add(timestamp, ReaderMode.Camera0);
                             }
                         }
                     }
@@ -167,16 +184,46 @@ namespace FireFly.Data.Storage
                         }
                     }
                 }
-                _Length = TimeSpan.FromMilliseconds((_Timestamps.Keys.Max() - _Timestamps.Keys.Min()) / (1000 * 1000));
+                _Length = TimeSpan.FromMilliseconds((timestampDict.Keys.Max() - timestampDict.Keys.Min()) / (1000 * 1000));
             }
             else
             {
-                string content = _RemoteDataStore.GetAllText(_FileName);
-                ParseImu(content, false);
+                string tempfile = System.IO.Path.GetTempFileName();
+                _RemoteDataStore.DownloadFile(_FileName, tempfile, delegate (double percent)
+               {
+                   progress?.Invoke(percent * 0.5);
+               });
+
+
+                bool skipFirst = true;
+                int i = 0;
+                int count = File.ReadLines(tempfile).Count();
+                foreach (string line in File.ReadLines(tempfile))
+                {
+                    i++;
+                    if (skipFirst)
+                    {
+                        skipFirst = false;
+                    }
+                    else
+                    {
+                        ParseImuLine(line, false, timestampDict);
+                    }
+                    if (i % 100 == 0)
+                    {
+                        progress?.Invoke(0.5 + ((double)i / count) * 0.5);
+                    }
+                }
+                File.Delete(tempfile);
             }
+
+            IEnumerable<KeyValuePair<long, ReaderMode>> temp = timestampDict.OrderBy(c => c.Key);
+
+            _Timestamps = temp.Select(c => c.Key).ToList();
+            _ReaderModes = temp.Select(c => c.Value).ToList();
         }
 
-        private void ParseImu(string content, bool isOmega)
+        private void ParseImu(string content, bool isOmega, Dictionary<long, ReaderMode> timestampDict)
         {
             bool skipFirst = true;
             foreach (string line in content.Split('\n'))
@@ -187,30 +234,35 @@ namespace FireFly.Data.Storage
                 }
                 else
                 {
-                    string[] values = line.Split(',');
-                    if (values.Length >= 7)
-                    {
-                        long timestamp = long.Parse(values[0], CultureInfo.InvariantCulture);
-
-                        double omega_x = double.Parse(values[1], CultureInfo.InvariantCulture);
-                        double omega_y = double.Parse(values[2], CultureInfo.InvariantCulture);
-                        double omega_z = double.Parse(values[3], CultureInfo.InvariantCulture);
-
-                        double alpha_x = double.Parse(values[4], CultureInfo.InvariantCulture);
-                        double alpha_y = double.Parse(values[5], CultureInfo.InvariantCulture);
-                        double alpha_z = double.Parse(values[6], CultureInfo.InvariantCulture);
-
-                        Tuple<double, double, double, double, double, double> tuple;
-
-                        if (isOmega)
-                            tuple = new Tuple<double, double, double, double, double, double>(omega_x * 180 / Math.PI, omega_y * 180 / Math.PI, omega_z * 180 / Math.PI, alpha_x, alpha_y, alpha_z);
-                        else
-                            tuple = new Tuple<double, double, double, double, double, double>(omega_x, omega_y, omega_z, alpha_x, alpha_y, alpha_z);
-
-                        _Timestamps.Add(timestamp, ReaderMode.Imu0);
-                        _ImuCache.Add(timestamp, tuple);
-                    }
+                    ParseImuLine(line, isOmega, timestampDict);
                 }
+            }
+        }
+
+        private void ParseImuLine(string line, bool isOmega, Dictionary<long, ReaderMode> timestampDict)
+        {
+            string[] values = line.Split(',');
+            if (values.Length >= 7)
+            {
+                long timestamp = long.Parse(values[0], CultureInfo.InvariantCulture);
+
+                double omega_x = double.Parse(values[1], CultureInfo.InvariantCulture);
+                double omega_y = double.Parse(values[2], CultureInfo.InvariantCulture);
+                double omega_z = double.Parse(values[3], CultureInfo.InvariantCulture);
+
+                double alpha_x = double.Parse(values[4], CultureInfo.InvariantCulture);
+                double alpha_y = double.Parse(values[5], CultureInfo.InvariantCulture);
+                double alpha_z = double.Parse(values[6], CultureInfo.InvariantCulture);
+
+                Tuple<double, double, double, double, double, double> tuple;
+
+                if (isOmega)
+                    tuple = new Tuple<double, double, double, double, double, double>(omega_x * 180 / Math.PI, omega_y * 180 / Math.PI, omega_z * 180 / Math.PI, alpha_x, alpha_y, alpha_z);
+                else
+                    tuple = new Tuple<double, double, double, double, double, double>(omega_x, omega_y, omega_z, alpha_x, alpha_y, alpha_z);
+
+                timestampDict.Add(timestamp, ReaderMode.Imu0);
+                _ImuCache.Add(timestamp, tuple);
             }
         }
     }

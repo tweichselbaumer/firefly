@@ -2,6 +2,7 @@
 using Renci.SshNet.Sftp;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,11 @@ namespace FireFly.Data.Storage
         ConnectionInfo _ConnectionInfo;
         public RemoteDataStore(string host, string user, string pwd)
         {
-            _ConnectionInfo = new ConnectionInfo(host, user, new PasswordAuthenticationMethod(user, pwd));
+            if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(pwd))
+            {
+                _ConnectionInfo = new ConnectionInfo(host, user, new PasswordAuthenticationMethod(user, pwd));
+                _ConnectionInfo.Timeout = new TimeSpan(0, 0, 1);
+            }
         }
 
         public List<string> GetAllFileNames(string path)
@@ -34,21 +39,27 @@ namespace FireFly.Data.Storage
             return result;
         }
 
-        internal string GetAllText(string filename)
+        internal void DownloadFile(string filename, string tempFileName, Action<double> downloadAction)
         {
-            try
+            using (FileStream stream = File.Open(tempFileName, FileMode.OpenOrCreate))
             {
-                using (SftpClient client = new SftpClient(_ConnectionInfo))
+                try
                 {
-                    client.Connect();
-                    return client.ReadAllText(filename);
+                    using (SftpClient client = new SftpClient(_ConnectionInfo))
+                    {
+                        client.Connect();
+                        SftpFileAttributes attributes = client.GetAttributes(filename);
+                        client.DownloadFile(filename, stream, delegate (ulong i)
+                        {
+                            downloadAction((double)i / (double)attributes.Size);
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+
                 }
             }
-            catch (Exception ex)
-            {
-
-            }
-            return "";
         }
     }
 }
