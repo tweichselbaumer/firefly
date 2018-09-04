@@ -58,6 +58,7 @@ namespace FireFly.ViewModels
         private double _Fx;
 
         private double _Fy;
+        private double _Alpha;
 
         private Timer _Timer;
 
@@ -247,6 +248,7 @@ namespace FireFly.ViewModels
             changed |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy != _Fy;
             changed |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx != _Cx;
             changed |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy != _Cy;
+            changed |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Alpha != _Alpha;
 
             var firstNotSecond = _DistCoeffs.Except(Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs).ToList();
             var secondNotFirst = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Except(_DistCoeffs).ToList();
@@ -259,6 +261,7 @@ namespace FireFly.ViewModels
                 _Fy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy;
                 _Cx = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx;
                 _Cy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy;
+                _Alpha = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Alpha;
                 _DistCoeffs = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.ToList();
 
                 Mat board = ChArUcoCalibration.DrawBoard(5, 5, 0.04f, 0.02f, new System.Drawing.Size(512, 512), 10, Emgu.CV.Aruco.Dictionary.PredefinedDictionaryName.Dict6X6_250);
@@ -269,6 +272,7 @@ namespace FireFly.ViewModels
 
                 cameraMatrix.SetValue(0, 0, _Fx);
                 cameraMatrix.SetValue(1, 1, _Fy);
+                cameraMatrix.SetValue(0, 1, _Fx * _Alpha);
                 cameraMatrix.SetValue(0, 2, _Cx);
                 cameraMatrix.SetValue(1, 2, _Cy);
                 cameraMatrix.SetValue(2, 2, 1.0f);
@@ -434,6 +438,7 @@ namespace FireFly.ViewModels
                                 Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy = result.cameraMatrix.GetValue(1, 1);
                                 Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx = result.cameraMatrix.GetValue(0, 2);
                                 Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy = result.cameraMatrix.GetValue(1, 2);
+                                Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Alpha = result.cameraMatrix.GetValue(0, 1) / result.cameraMatrix.GetValue(0, 0); ;
 
                                 Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.Clear();
 
@@ -615,6 +620,7 @@ namespace FireFly.ViewModels
 
                             cameraMatrix.SetValue(0, 0, _Fx);
                             cameraMatrix.SetValue(1, 1, _Fy);
+                            cameraMatrix.SetValue(0, 1, _Fx * _Alpha);
                             cameraMatrix.SetValue(0, 2, _Cx);
                             cameraMatrix.SetValue(1, 2, _Cy);
                             cameraMatrix.SetValue(2, 2, 1.0f);

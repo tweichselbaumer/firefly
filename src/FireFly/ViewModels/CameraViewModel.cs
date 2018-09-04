@@ -46,6 +46,8 @@ namespace FireFly.ViewModels
 
         private double _Fy;
 
+        private double _Alpha;
+
         private Timer _Timer;
 
         public CameraViewModel(MainViewModel parent) : base(parent)
@@ -126,6 +128,7 @@ namespace FireFly.ViewModels
 
                 cameraMatrix.SetValue(0, 0, _Fx);
                 cameraMatrix.SetValue(1, 1, _Fy);
+                cameraMatrix.SetValue(0, 1, _Fx * _Alpha);
                 cameraMatrix.SetValue(0, 2, _Cx);
                 cameraMatrix.SetValue(1, 2, _Cy);
                 cameraMatrix.SetValue(2, 2, 1.0f);
@@ -174,6 +177,7 @@ namespace FireFly.ViewModels
             _Fy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fy;
             _Cx = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx;
             _Cy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy;
+            _Alpha = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Alpha;
             _DistCoeffs = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.ToList();
         }
 

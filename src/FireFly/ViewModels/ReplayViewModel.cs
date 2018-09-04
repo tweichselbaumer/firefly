@@ -7,6 +7,7 @@ using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -24,6 +25,11 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("ReplayTime", typeof(TimeSpan), typeof(ReplayViewModel), new PropertyMetadata(null));
 
         private bool _IsStopping = false;
+
+        private List<FileLocation> _FileLocations = new List<FileLocation>();
+        private string _Password;
+        private string _Username;
+        private string _IpAddress;
 
         public ReplayViewModel(MainViewModel parent) : base(parent)
         {
@@ -124,7 +130,28 @@ namespace FireFly.ViewModels
         internal override void SettingsUpdated()
         {
             base.SettingsUpdated();
-            Refresh();
+
+            bool changed = false;
+            changed |= Parent.SettingContainer.Settings.ConnectionSettings.IpAddress != _IpAddress;
+            changed |= Parent.SettingContainer.Settings.ConnectionSettings.Username != _Username;
+            changed |= Parent.SettingContainer.Settings.ConnectionSettings.Password != _Password;
+
+            var firstNotSecond = _FileLocations.Select(c => c.Name + c.Path).Except(Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Select(d => d.Name + d.Path)).ToList();
+            var secondNotFirst = Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Select(d => d.Name + d.Path).Except(_FileLocations.Select(c => c.Name + c.Path)).ToList();
+
+            changed |= firstNotSecond.Any() || secondNotFirst.Any();
+
+            if (changed)
+            {
+                _IpAddress = Parent.SettingContainer.Settings.ConnectionSettings.IpAddress;
+                _Username = Parent.SettingContainer.Settings.ConnectionSettings.Username;
+                _Password = Parent.SettingContainer.Settings.ConnectionSettings.Password;
+
+                _FileLocations.Clear();
+                _FileLocations.AddRange(Parent.SettingContainer.Settings.GeneralSettings.FileLocations);
+
+                Refresh();
+            }
         }
 
         private Task DoExport(object o)

@@ -25,10 +25,10 @@ namespace FireFly.Proxy
         private LinkUpPropertyLabel<Int16> _ExposureLabel;
         private LinkUpFunctionLabel _GetRemoteChessboardCorner;
         private LinkUpPropertyLabel<Double> _GyroscopeScaleLabel;
-        private LinkUpPropertyLabel<Boolean> _RecordRemoteLabel;
         private LinkUpEventLabel _ImuEventLabel;
         private LinkUpNode _Node;
         private IOProxyMode _ProxyMode = IOProxyMode.Live;
+        private LinkUpPropertyLabel<Boolean> _RecordRemoteLabel;
         private LinkUpFunctionLabel _ReplayDataSend;
         private SettingContainer _SettingContainer;
         private List<Tuple<IProxyEventSubscriber, ProxyEventType>> _Subscriptions = new List<Tuple<IProxyEventSubscriber, ProxyEventType>>();
@@ -263,19 +263,55 @@ namespace FireFly.Proxy
         public void UpdateSettings()
         {
             if (_AccelerometerScaleLabel != null)
-                _AccelerometerScaleLabel.Value = _SettingContainer.Settings.ImuSettings.AccelerometerScale;
+            {
+                try
+                {
+                    _AccelerometerScaleLabel.Value = _SettingContainer.Settings.ImuSettings.AccelerometerScale;
+                }
+                catch (Exception) { }
+            }
             if (_GyroscopeScaleLabel != null)
-                _GyroscopeScaleLabel.Value = _SettingContainer.Settings.ImuSettings.GyroscopeScale;
+            {
+                try
+                {
+                    _GyroscopeScaleLabel.Value = _SettingContainer.Settings.ImuSettings.GyroscopeScale;
+                }
+                catch (Exception) { }
+            }
             if (_TemperatureScaleLabel != null)
-                _TemperatureScaleLabel.Value = _SettingContainer.Settings.ImuSettings.TemperatureScale;
+            {
+                try
+                {
+                    _TemperatureScaleLabel.Value = _SettingContainer.Settings.ImuSettings.TemperatureScale;
+                }
+                catch (Exception) { }
+            }
             if (_TemperatureOffsetLabel != null)
-                _TemperatureOffsetLabel.Value = _SettingContainer.Settings.ImuSettings.TemperatureOffset;
+            {
+                try
+                {
+                    _TemperatureOffsetLabel.Value = _SettingContainer.Settings.ImuSettings.TemperatureOffset;
+                }
+                catch (Exception) { }
+            }
 
             if (_RecordRemoteLabel != null)
-                _RecordRemoteLabel.Value = _SettingContainer.Settings.ImuSettings.RecordRemote;
+            {
+                try
+                {
+                    _RecordRemoteLabel.Value = _SettingContainer.Settings.ImuSettings.RecordRemote;
+                }
+                catch (Exception) { }
+            }
 
             if (_UpdateSettings != null)
-                _UpdateSettings.AsyncCall(new byte[] { });
+            {
+                try
+                {
+                    _UpdateSettings.AsyncCall(new byte[] { });
+                }
+                catch (Exception) { }
+            }
         }
 
         private void _CameraEventLabel_Fired(LinkUpEventLabel label, byte[] data)
@@ -340,7 +376,6 @@ namespace FireFly.Proxy
             }
             catch (Exception ex)
             {
-
             }
         }
 

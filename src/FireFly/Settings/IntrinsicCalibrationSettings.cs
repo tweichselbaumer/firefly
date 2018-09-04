@@ -5,6 +5,7 @@ namespace FireFly.Settings
 {
     public class IntrinsicCalibrationSettings : AbstractSettings
     {
+        private double _Alpha;
         private double _Cx;
 
         private double _Cy;
@@ -151,6 +152,19 @@ namespace FireFly.Settings
             set
             {
                 _SquaresY = value;
+            }
+        }
+
+        public double Alpha
+        {
+            get
+            {
+                return _Alpha;
+            }
+
+            set
+            {
+                _Alpha = value;
             }
         }
 
