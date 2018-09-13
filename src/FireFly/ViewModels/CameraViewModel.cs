@@ -219,7 +219,9 @@ namespace FireFly.ViewModels
             {
                 if (ExposureSweep)
                 {
+
                     ExposureTimeSetting++;
+
                     if (ExposureTimeSetting > MaxExposureTime)
                     {
                         ExposureTimeSetting = 0;

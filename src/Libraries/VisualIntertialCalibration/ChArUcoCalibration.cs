@@ -91,13 +91,14 @@ namespace FireFly.VI.Calibration
                 distCoeffsNew.SetValue(0, 3, 0);
 
                 Fisheye.UndistorPoints(currentImgPoints, currentImgPointsUndistort, cameraMatrix, distCoeffs, Mat.Eye(3, 3, DepthType.Cv64F, 1), Mat.Eye(3, 3, DepthType.Cv64F, 1));
-                ArucoInvoke.EstimatePoseCharucoBoard(currentImgPointsUndistort, currentIds, CreateBoard(squaresX, squaresY, squareLength, markerLength, new Dictionary(dictionary)), Mat.Eye(3, 3, DepthType.Cv64F, 1), distCoeffsNew, rvec, tvec);
+                if (ArucoInvoke.EstimatePoseCharucoBoard(currentImgPointsUndistort, currentIds, CreateBoard(squaresX, squaresY, squareLength, markerLength, new Dictionary(dictionary)), Mat.Eye(3, 3, DepthType.Cv64F, 1), distCoeffsNew, rvec, tvec))
+                {
+                    rvecs.Push(new MCvPoint3D32f[] { new MCvPoint3D32f((float)rvec.GetValue(0, 0), (float)rvec.GetValue(1, 0), (float)rvec.GetValue(2, 0)) });
+                    tvecs.Push(new MCvPoint3D32f[] { new MCvPoint3D32f((float)tvec.GetValue(0, 0), (float)tvec.GetValue(1, 0), (float)tvec.GetValue(2, 0)) });
 
-                rvecs.Push(new MCvPoint3D32f[] { new MCvPoint3D32f((float)rvec.GetValue(0, 0), (float)rvec.GetValue(1, 0), (float)rvec.GetValue(2, 0)) });
-                tvecs.Push(new MCvPoint3D32f[] { new MCvPoint3D32f((float)tvec.GetValue(0, 0), (float)tvec.GetValue(1, 0), (float)tvec.GetValue(2, 0)) });
-
-                processedImagePoints.Push(currentImgPoints);
-                processedObjectPoints.Push(currentObjPoints);
+                    processedImagePoints.Push(currentImgPoints);
+                    processedObjectPoints.Push(currentObjPoints);
+                }
             }
 
             return Validate(processedObjectPoints, processedImagePoints, cameraMatrix, distCoeffs, rvecs, tvecs, fisheye);
