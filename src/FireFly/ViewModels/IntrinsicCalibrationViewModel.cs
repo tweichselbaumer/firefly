@@ -49,6 +49,7 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty TakeSnapshotControlVisibilityProperty =
             DependencyProperty.Register("TakeSnapshotControlVisibility", typeof(Visibility), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(Visibility.Collapsed));
 
+        private double _Alpha;
         private double _Cx;
 
         private double _Cy;
@@ -58,8 +59,6 @@ namespace FireFly.ViewModels
         private double _Fx;
 
         private double _Fy;
-        private double _Alpha;
-
         private Timer _Timer;
 
         public IntrinsicCalibrationViewModel(MainViewModel parent) : base(parent)
@@ -264,7 +263,7 @@ namespace FireFly.ViewModels
                 _Alpha = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Alpha;
                 _DistCoeffs = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.ToList();
 
-                Mat board = ChArUcoCalibration.DrawBoard(5, 5, 0.04f, 0.02f, new System.Drawing.Size(512, 512), 10, Emgu.CV.Aruco.Dictionary.PredefinedDictionaryName.Dict6X6_250);
+                Mat board = ChArUcoCalibration.DrawBoard(5, 5, 0.04f, 0.02f, new System.Drawing.Size(Parent.CameraViewModel.ImageWidth, Parent.CameraViewModel.ImageHeight), 10, PredefinedDictionaryName.Dict6X6_250);
                 Mat boardDist = board.Clone();
 
                 Mat cameraMatrix = new Mat(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
@@ -286,10 +285,10 @@ namespace FireFly.ViewModels
 
                 if (Parent.CameraViewModel.FishEyeCalibration)
                 {
-                    Fisheye.EstimateNewCameraMatrixForUndistorRectify(cameraMatrix, distCoeffs, new System.Drawing.Size(512, 512), Mat.Eye(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1), newK, 1, new System.Drawing.Size(512, 512), 1);
+                    Fisheye.EstimateNewCameraMatrixForUndistorRectify(cameraMatrix, distCoeffs, new System.Drawing.Size(Parent.CameraViewModel.ImageWidth, Parent.CameraViewModel.ImageHeight), Mat.Eye(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1), newK, 0, new System.Drawing.Size(Parent.CameraViewModel.ImageWidth, Parent.CameraViewModel.ImageHeight), 0.3);
                     Mat map1 = new Mat();
                     Mat map2 = new Mat();
-                    Fisheye.InitUndistorRectifyMap(cameraMatrix, distCoeffs, Mat.Eye(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1), newK, new System.Drawing.Size(512, 512), Emgu.CV.CvEnum.DepthType.Cv32F, map1, map2);
+                    Fisheye.InitUndistorRectifyMap(cameraMatrix, distCoeffs, Mat.Eye(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1), newK, new System.Drawing.Size(Parent.CameraViewModel.ImageWidth, Parent.CameraViewModel.ImageHeight), Emgu.CV.CvEnum.DepthType.Cv32F, map1, map2);
                     CvInvoke.Remap(board, boardDist, map1, map2, Emgu.CV.CvEnum.Inter.Linear, Emgu.CV.CvEnum.BorderType.Constant);
                 }
                 else

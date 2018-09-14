@@ -201,6 +201,7 @@
     <Compile Include="ViewModels\AbstractViewModel.cs" />
     <Compile Include="ViewModels\IntrinsicCalibrationViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\PhotometricCalibrationViewModel.cs" />
     <Compile Include="ViewModels\RecordViewModel.cs" />
     <Compile Include="ViewModels\ReplayViewModel.cs" />
     <Compile Include="ViewModels\SettingViewModel.cs" />

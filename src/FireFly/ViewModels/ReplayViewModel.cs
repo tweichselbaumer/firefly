@@ -24,12 +24,11 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty ReplayTimeProperty =
             DependencyProperty.Register("ReplayTime", typeof(TimeSpan), typeof(ReplayViewModel), new PropertyMetadata(null));
 
-        private bool _IsStopping = false;
-
         private List<FileLocation> _FileLocations = new List<FileLocation>();
+        private string _IpAddress;
+        private bool _IsStopping = false;
         private string _Password;
         private string _Username;
-        private string _IpAddress;
 
         public ReplayViewModel(MainViewModel parent) : base(parent)
         {
@@ -185,7 +184,6 @@ namespace FireFly.ViewModels
 
                     var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Export data to Matlab!", settings: settings);
 
-
                     controller.SetCancelable(false);
 
                     if (isRemote)
@@ -204,7 +202,6 @@ namespace FireFly.ViewModels
                         reader.Open();
                         controller.SetIndeterminate();
                     }
-
 
                     MatlabExporter matlabExporter = new MatlabExporter(saveFileDialog.FileName, MatlabFormat.Imu0);
 

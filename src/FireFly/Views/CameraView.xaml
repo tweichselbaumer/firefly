@@ -29,7 +29,7 @@
         <Grid Grid.Column="1" Grid.Row="1">
             <Viewbox>
                 <Border BorderThickness="1" BorderBrush="Black">
-                    <Image Width="512" Height="512" Source="{Binding Path=Image.ImageSource}" />
+                    <Image Width="{Binding Path=ImageWidth}" Height="{Binding Path=ImageHeight}" Source="{Binding Path=Image.ImageSource}" />
                 </Border>
             </Viewbox >
             <Grid Panel.ZIndex="1000" Opacity="0.8" Margin="0 0 1 12">
@@ -75,7 +75,7 @@
                 </Grid>
 
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
-                
+
                 <Label  Content="Exposure Sweep" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
                 IsChecked="{Binding Path=ExposureSweep}" Margin="15,0,0,0"

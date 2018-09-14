@@ -19,15 +19,15 @@ namespace FireFly.Data.Storage
         private Dictionary<long, double> _CamCache = new Dictionary<long, double>();
         private string _FileName;
         private Dictionary<long, Tuple<double, double, double, double, double, double>> _ImuCache = new Dictionary<long, Tuple<double, double, double, double, double, double>>();
+        private int _Index = 0;
         private TimeSpan _Length = new TimeSpan();
         private ReaderMode _Mode;
+        private List<ReaderMode> _ReaderModes = new List<ReaderMode>();
         private bool _Remote;
         private RemoteDataStore _RemoteDataStore;
+        private List<long> _Timestamps = new List<long>();
         private ZipArchive _ZipArchive;
         private FileStream _ZipFile;
-        private List<long> _Timestamps = new List<long>();
-        private List<ReaderMode> _ReaderModes = new List<ReaderMode>();
-        private int _Index = 0;
 
         public DataReader(string filename, ReaderMode mode, RemoteDataStore remoteDataStore = null)
         {
@@ -193,7 +193,6 @@ namespace FireFly.Data.Storage
                {
                    progress?.Invoke(percent * 0.5);
                });
-
 
                 bool skipFirst = true;
                 int i = 0;

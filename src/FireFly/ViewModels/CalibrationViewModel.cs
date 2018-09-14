@@ -7,9 +7,23 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty IntrinsicCalibrationViewModelProperty =
             DependencyProperty.Register("IntrinsicCalibrationViewModel", typeof(IntrinsicCalibrationViewModel), typeof(CalibrationViewModel), new PropertyMetadata(null));
 
+
+
+        public PhotometricCalibrationViewModel PhotometricCalibrationViewModel
+        {
+            get { return (PhotometricCalibrationViewModel)GetValue(PhotometricCalibrationViewModelProperty); }
+            set { SetValue(PhotometricCalibrationViewModelProperty, value); }
+        }
+
+        public static readonly DependencyProperty PhotometricCalibrationViewModelProperty =
+            DependencyProperty.Register("PhotometricCalibrationViewModel", typeof(PhotometricCalibrationViewModel), typeof(CalibrationViewModel), new PropertyMetadata(null));
+
+
+
         public CalibrationViewModel(MainViewModel parent) : base(parent)
         {
             IntrinsicCalibrationViewModel = new IntrinsicCalibrationViewModel(parent);
+            PhotometricCalibrationViewModel = new PhotometricCalibrationViewModel(parent);
         }
 
         public IntrinsicCalibrationViewModel IntrinsicCalibrationViewModel

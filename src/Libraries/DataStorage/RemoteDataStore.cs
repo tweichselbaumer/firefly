@@ -4,14 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FireFly.Data.Storage
 {
     public class RemoteDataStore
     {
-        ConnectionInfo _ConnectionInfo;
+        private ConnectionInfo _ConnectionInfo;
+
         public RemoteDataStore(string host, string user, string pwd)
         {
             if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(pwd))
@@ -34,7 +33,6 @@ namespace FireFly.Data.Storage
             }
             catch (Exception ex)
             {
-
             }
             return result;
         }
@@ -57,7 +55,6 @@ namespace FireFly.Data.Storage
                 }
                 catch (Exception ex)
                 {
-
                 }
             }
         }

@@ -28,8 +28,8 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Photometric">
-                <Grid>
-
+                <Grid DataContext="{Binding Path=PhotometricCalibrationViewModel}">
+                    <Button Content="Generate Files" Command="{Binding RunCalibrationCommand}"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Intrinisc">

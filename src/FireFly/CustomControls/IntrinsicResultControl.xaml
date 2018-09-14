@@ -20,7 +20,7 @@
 
         <Viewbox Grid.Row="0" Grid.Column="0">
             <Border BorderThickness="1" BorderBrush="Black">
-                <Image Width="512" Height="512" Source="{Binding Path=ChAruCoBoard.ImageSource}"/>
+                <Image Width="{Binding Path=Parent.CameraViewModel.ImageWidth}" Height="{Binding Path=Parent.CameraViewModel.ImageHeight}" Source="{Binding Path=ChAruCoBoard.ImageSource}"/>
             </Border>
         </Viewbox>
 
@@ -28,7 +28,7 @@
             <Label  Content="Dictionary" Style="{DynamicResource GeneralLabelStyle}" />
             <ComboBox SelectedItem="{Binding Dictionary}" ItemsSource="{Binding PredefinedDictionaryNames}" />
             <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
-            
+
             <Label  Content="Squares X" Style="{DynamicResource GeneralLabelStyle}" />
             <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=SquaresX}" />
             <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />

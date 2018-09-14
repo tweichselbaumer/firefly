@@ -26,7 +26,7 @@ namespace FireFly.Data.Storage
             _MatlabFormat = matlabFormat;
         }
 
-        public void AddFromReader(DataReader reader, Action<double> progress)
+        public void AddFromReader(DataReader reader, Action<double> progress = null)
         {
             IArray time = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["time", 0];
 
@@ -111,6 +111,11 @@ namespace FireFly.Data.Storage
             ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accz", 0] = accz;
         }
 
+        public void AddFromReader(DataReader reader, Func<double, object> p)
+        {
+            throw new NotImplementedException();
+        }
+
         public void AddImage(int camIndex, long timestamp_ns, byte[] data)
         {
         }
@@ -131,11 +136,6 @@ namespace FireFly.Data.Storage
                 var writer = new MatFileWriter(stream);
                 writer.Write(_DataBuilder.NewFile(new[] { _DataBuilder.NewVariable("data", _DataStruct) }));
             }
-        }
-
-        public void AddFromReader(DataReader reader, Func<double, object> p)
-        {
-            throw new NotImplementedException();
         }
 
         public void Open()
