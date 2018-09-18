@@ -30,8 +30,8 @@ namespace FireFly.ViewModels
                 Parent.SyncContext.Post(c =>
                 {
                     //TODO:
-                    string file = @"C:\Users\thoma\OneDrive\Mechatronik\Masterarbeit\Daten\sweep1.ffc";
-                    string outputPath = @"E:\Data\sweep1";
+                    string file = @"C:\Users\thoma\OneDrive\Mechatronik\Masterarbeit\Daten\vignette2.ffc";
+                    string outputPath = @"E:\Data\vignette2";
 
                     double fxO = Parent.CameraViewModel.OrginalCameraMatrix.GetValue(0, 0);
                     double fyO = Parent.CameraViewModel.OrginalCameraMatrix.GetValue(1, 1);
@@ -53,7 +53,7 @@ namespace FireFly.ViewModels
 
                     DataReader reader = new DataReader(file, ReaderMode.Camera0);
                     reader.Open();
-                    PhotometricCalibratrionExporter exporter = new PhotometricCalibratrionExporter(fxO, fyO, cxO, cyO, fxO, fyO, cxO, cyO, width, height, k1, k2, k3, k4, outputPath);
+                    PhotometricCalibratrionExporter exporter = new PhotometricCalibratrionExporter(fxO, fyO, cxO, cyO, fxN, fyN, cxN, cyN, width, height, k1, k2, k3, k4, outputPath, false);
                     exporter.Open();
                     exporter.AddFromReader(reader);
                     exporter.Close();

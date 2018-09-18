@@ -108,12 +108,15 @@ namespace FireFly.Proxy
                 {
                     while (isPaused())
                     {
+                        watch.Stop();
                         Thread.Sleep(500);
+                        watch.Start();
                     }
                     if (isStopped())
                     {
                         break;
                     }
+                  
                     Tuple<long, List<Tuple<ReaderMode, object>>> res = reader.Next();
                     if (startTime == -1)
                         startTime = res.Item1;

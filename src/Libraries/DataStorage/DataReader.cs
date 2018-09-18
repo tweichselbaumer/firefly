@@ -28,6 +28,7 @@ namespace FireFly.Data.Storage
         private List<long> _Timestamps = new List<long>();
         private ZipArchive _ZipArchive;
         private FileStream _ZipFile;
+        private int _DeltaTimeMs;
 
         public DataReader(string filename, ReaderMode mode, RemoteDataStore remoteDataStore = null)
         {
@@ -48,8 +49,8 @@ namespace FireFly.Data.Storage
         public int DeltaTimeMs
         {
             get
-            {//TODO:
-                return 1000 / 200;
+            {
+                return _DeltaTimeMs;
             }
         }
 
@@ -220,6 +221,12 @@ namespace FireFly.Data.Storage
 
             _Timestamps = temp.Select(c => c.Key).ToList();
             _ReaderModes = temp.Select(c => c.Value).ToList();
+            var test = _Timestamps.Take(_Timestamps.Count - 1).Select((v, i) => _Timestamps[i + 1] - v);
+            if (_Timestamps.Count >= 2)
+                _DeltaTimeMs = (int)Math.Round(_Timestamps.Take(_Timestamps.Count - 1).Select((v, i) => _Timestamps[i + 1] - v).Sum() / ((_Timestamps.Count - 1) * 1000 * 1000.0));
+            else
+                _DeltaTimeMs = 1000 / 200;
+
         }
 
         private void ParseImu(string content, bool isOmega, Dictionary<long, ReaderMode> timestampDict)
