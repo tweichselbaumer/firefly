@@ -171,6 +171,10 @@
     <Compile Include="CustomDialogs\PrintCharucoBoardDialog.xaml.cs">
       <DependentUpon>PrintCharucoBoardDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomDialogs\ReplaySelectDialog.xaml.cs">
+      <DependentUpon>ReplaySelectDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomDialogs\ReplaySelectDialogModel.cs" />
     <Compile Include="Models\ChArUcoImageContainer.cs" />
     <Compile Include="Models\CvImageContainer.cs" />
     <Compile Include="Models\LineSeriesContainer.cs" />
@@ -246,6 +250,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomDialogs\PrintCharucoBoardDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomDialogs\ReplaySelectDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -360,4 +368,8 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\EMGU.CV.3.4.1.2976\build\EMGU.CV.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EMGU.CV.3.4.1.2976\build\EMGU.CV.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>mkdir $(ProjectDir)$(OutDir)\Tools
+copy $(SolutionDir)..\ThirdParty\* $(ProjectDir)$(OutDir)\Tools</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -4,6 +4,7 @@ using FireFly.Settings;
 using FireFly.Utilities;
 using MahApps.Metro.Controls.Dialogs;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -256,15 +257,18 @@ namespace FireFly.ViewModels
 
         private void FileLocations_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            var firstNotSecond = FileLocations.Except(Parent.SettingContainer.Settings.GeneralSettings.FileLocations).ToList();
-            var secondNotFirst = Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Except(FileLocations).ToList();
-
-            bool changed = firstNotSecond.Any() || secondNotFirst.Any();
-
-            if (changed)
+            if (e.Action == NotifyCollectionChangedAction.Add || e.Action == NotifyCollectionChangedAction.Remove)
             {
-                Parent.SettingContainer.Settings.GeneralSettings.FileLocations = FileLocations.ToList();
-                Parent.UpdateSettings(false);
+                var firstNotSecond = FileLocations.Except(Parent.SettingContainer.Settings.GeneralSettings.FileLocations).ToList();
+                var secondNotFirst = Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Except(FileLocations).ToList();
+
+                bool changed = firstNotSecond.Any() || secondNotFirst.Any();
+
+                if (changed)
+                {
+                    Parent.SettingContainer.Settings.GeneralSettings.FileLocations = FileLocations.ToList();
+                    Parent.UpdateSettings(false);
+                }
             }
         }
     }

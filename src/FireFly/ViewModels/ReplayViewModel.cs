@@ -199,8 +199,8 @@ namespace FireFly.ViewModels
                     else
                     {
                         reader = new DataReader(fullPath, ReaderMode.Imu0 | ReaderMode.Camera0);
-                        reader.Open();
                         controller.SetIndeterminate();
+                        reader.Open();
                     }
 
                     MatlabExporter matlabExporter = new MatlabExporter(saveFileDialog.FileName, MatlabFormat.Imu0);
@@ -327,7 +327,7 @@ namespace FireFly.ViewModels
             });
         }
 
-        private void Refresh()
+        public void Refresh()
         {
             if (!IsReplaying)
             {

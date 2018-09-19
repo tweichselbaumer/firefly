@@ -189,7 +189,7 @@ namespace FireFly.Data.Storage
             }
             else
             {
-                string tempfile = System.IO.Path.GetTempFileName();
+                string tempfile = Path.GetTempFileName();
                 _RemoteDataStore.DownloadFile(_FileName, tempfile, delegate (double percent)
                {
                    progress?.Invoke(percent * 0.5);

@@ -60,30 +60,30 @@
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
                 <ListBox x:Name="ListBoxImages" Grid.Row="0"  SelectedItem="{Binding Mode=OneWay}" ItemsSource="{Binding Path=Images}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Viewbox Width="128">
-                                <Border BorderThickness="1" BorderBrush="Black">
-                                    <Image Width="128" Height="96" Source="{Binding Path=ProgressedImage.ImageSource}"/>
-                                </Border>
-                            </Viewbox>
-                        </Grid>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Padding" Value="0"/>
-                        <Setter Property="Margin" Value="6"/>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-            </ListBox>
-                <Button Width="200" Grid.Row="2" Content="clear" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=ClearCommand}"/>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Viewbox Width="128">
+                                    <Border BorderThickness="1" BorderBrush="Black">
+                                        <Image Width="128" Height="96" Source="{Binding Path=ProgressedImage.ImageSource}"/>
+                                    </Border>
+                                </Viewbox>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="6"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
+                <Button Width="200" Grid.Row="2" Content="clear" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=CloseCommand}"/>
             </Grid>
         </Grid>
     </Grid>

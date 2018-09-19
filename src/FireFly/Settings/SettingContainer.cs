@@ -53,7 +53,16 @@ namespace FireFly.Settings
         public void Save()
         {
             string output = JsonConvert.SerializeObject(_Settings);
-            File.WriteAllText(_SettingFileName, output);
+            if (File.ReadAllText(_SettingFileName) != output)
+            {
+                string backupDir = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(_SettingFileName)), "Backup");
+                if (!Directory.Exists(backupDir))
+                {
+                    Directory.CreateDirectory(backupDir);
+                }
+                File.WriteAllText(Path.Combine(backupDir, string.Format("{0}.{2}{1}", Path.GetFileNameWithoutExtension(_SettingFileName), Path.GetExtension(_SettingFileName), DateTime.Now.ToFileTimeUtc())), output);
+                File.WriteAllText(_SettingFileName, output);
+            }
         }
     }
 }

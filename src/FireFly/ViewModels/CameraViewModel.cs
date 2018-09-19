@@ -55,17 +55,17 @@ namespace FireFly.ViewModels
             _Timer.Start();
         }
 
-
-
         public Mat DistortionCoefficients
         {
             get
             {
                 Mat distCoeffs = new Mat(1, FishEyeCalibration ? 4 : _DistCoeffs.Count, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
-
-                for (int i = 0; i < distCoeffs.Cols && (FishEyeCalibration ? i < 4 : true); i++)
+                if ((FishEyeCalibration ? 4 : _DistCoeffs.Count) <= _DistCoeffs.Count)
                 {
-                    distCoeffs.SetValue(0, i, _DistCoeffs[i]);
+                    for (int i = 0; i < distCoeffs.Cols && (FishEyeCalibration ? i < 4 : true); i++)
+                    {
+                        distCoeffs.SetValue(0, i, _DistCoeffs[i]);
+                    }
                 }
 
                 return distCoeffs;
@@ -148,6 +148,8 @@ namespace FireFly.ViewModels
                 {
                     Mat newCameraMatrix = new Mat();
                     Fisheye.EstimateNewCameraMatrixForUndistorRectify(OrginalCameraMatrix, DistortionCoefficients, new System.Drawing.Size(ImageWidth, ImageHeight), Mat.Eye(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1), newCameraMatrix, 0, new System.Drawing.Size(ImageWidth, ImageHeight), 0.3);
+                    newCameraMatrix.SetValue(0, 2, ImageWidth / 2);
+                    newCameraMatrix.SetValue(1, 2, ImageHeight / 2);
                     return newCameraMatrix;
                 }
                 else
