@@ -24,8 +24,11 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty ExposureTimeSettingProperty =
                     DependencyProperty.Register("ExposureTimeSetting", typeof(short), typeof(CameraViewModel), new FrameworkPropertyMetadata((short)-1, new PropertyChangedCallback(OnPropertyChanged)));
 
+        public static readonly DependencyProperty FOVScaleProperty =
+            DependencyProperty.Register("FOVScale", typeof(double), typeof(CameraViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
+
         public static readonly DependencyProperty FPSProperty =
-            DependencyProperty.Register("FPS", typeof(int), typeof(CameraViewModel), new PropertyMetadata(0));
+                    DependencyProperty.Register("FPS", typeof(int), typeof(CameraViewModel), new PropertyMetadata(0));
 
         public static readonly DependencyProperty ImageProperty =
             DependencyProperty.Register("Image", typeof(CvImageContainer), typeof(CameraViewModel), new PropertyMetadata(null));
@@ -34,6 +37,7 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("Undistort", typeof(bool), typeof(CameraViewModel), new PropertyMetadata(false));
 
         private double _Alpha;
+
         private double _Cx;
 
         private double _Cy;
@@ -41,11 +45,13 @@ namespace FireFly.ViewModels
         private List<double> _DistCoeffs = new List<double>();
 
         private bool _FishEyeCalibration = true;
+
         private FPSCounter _FPSCounter = new FPSCounter();
 
         private double _Fx;
 
         private double _Fy;
+
         private Timer _Timer;
 
         public CameraViewModel(MainViewModel parent) : base(parent)
@@ -104,6 +110,12 @@ namespace FireFly.ViewModels
             }
         }
 
+        public double FOVScale
+        {
+            get { return (double)GetValue(FOVScaleProperty); }
+            set { SetValue(FOVScaleProperty, value); }
+        }
+
         public int FPS
         {
             get { return (int)GetValue(FPSProperty); }
@@ -144,18 +156,21 @@ namespace FireFly.ViewModels
         {
             get
             {
-                if (FishEyeCalibration)
+                Mat newCameraMatrix = new Mat();
+                Parent.SyncContext.Send(d =>
                 {
-                    Mat newCameraMatrix = new Mat();
-                    Fisheye.EstimateNewCameraMatrixForUndistorRectify(OrginalCameraMatrix, DistortionCoefficients, new System.Drawing.Size(ImageWidth, ImageHeight), Mat.Eye(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1), newCameraMatrix, 0, new System.Drawing.Size(ImageWidth, ImageHeight), 0.3);
-                    newCameraMatrix.SetValue(0, 2, ImageWidth / 2);
-                    newCameraMatrix.SetValue(1, 2, ImageHeight / 2);
-                    return newCameraMatrix;
-                }
-                else
-                {
-                    return OrginalCameraMatrix;
-                }
+                    if (FishEyeCalibration)
+                    {
+                        Fisheye.EstimateNewCameraMatrixForUndistorRectify(OrginalCameraMatrix, DistortionCoefficients, new System.Drawing.Size(ImageWidth, ImageHeight), Mat.Eye(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1), newCameraMatrix, 0, new System.Drawing.Size(ImageWidth, ImageHeight), FOVScale);
+                        newCameraMatrix.SetValue(0, 2, ImageWidth / 2);
+                        newCameraMatrix.SetValue(1, 2, ImageHeight / 2);
+                    }
+                    else
+                    {
+                        newCameraMatrix = OrginalCameraMatrix;
+                    }
+                }, null);
+                return newCameraMatrix;
             }
         }
 
@@ -227,6 +242,8 @@ namespace FireFly.ViewModels
             _Cy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy;
             _Alpha = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Alpha;
             _DistCoeffs = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.DistCoeffs.ToList();
+
+            FOVScale = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.FOVScale;
         }
 
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -250,6 +267,11 @@ namespace FireFly.ViewModels
 
                 case "ExposureTimeSetting":
                     cvm.Parent.IOProxy.SetExposure(cvm.ExposureTimeSetting);
+                    break;
+
+                case "FOVScale":
+                    changed = cvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.FOVScale != cvm.FOVScale;
+                    cvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.FOVScale = cvm.FOVScale;
                     break;
 
                 default:

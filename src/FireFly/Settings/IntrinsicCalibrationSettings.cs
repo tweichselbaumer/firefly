@@ -25,6 +25,8 @@ namespace FireFly.Settings
 
         private int _SquaresY;
 
+        private double _FOVScale;
+
         public double Cx
         {
             get
@@ -165,6 +167,19 @@ namespace FireFly.Settings
             set
             {
                 _Alpha = value;
+            }
+        }
+
+        public double FOVScale
+        {
+            get
+            {
+                return _FOVScale;
+            }
+
+            set
+            {
+                _FOVScale = value;
             }
         }
 

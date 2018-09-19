@@ -31,11 +31,11 @@
                 <Border BorderThickness="1" BorderBrush="Black">
                     <Image Width="{Binding Path=ImageWidth}" Height="{Binding Path=ImageHeight}" Source="{Binding Path=Image.ImageSource}" />
                 </Border>
-            </Viewbox >
+            </Viewbox>
             <Grid Panel.ZIndex="1000" Opacity="0.8" Margin="0 0 1 12">
                 <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Right" Orientation="Horizontal" Background="Black" Opacity="0.8">
-                    <Label  Content="FPS" Style="{DynamicResource GeneralLabelStyle}" Foreground="White" FontWeight="Bold"/>
-                    <Label  Content="{Binding Path=FPS}" Style="{DynamicResource GeneralLabelStyle}" Foreground="White" FontWeight="Bold"/>
+                    <Label  Content="FPS" Style="{DynamicResource GeneralLabelStyle}" Foreground="White" FontWeight="Bold" />
+                    <Label  Content="{Binding Path=FPS}" Style="{DynamicResource GeneralLabelStyle}" Foreground="White" FontWeight="Bold" />
                 </StackPanel>
             </Grid>
         </Grid>
@@ -59,8 +59,8 @@
                 <Label  Content="Exposure Time" Style="{DynamicResource GeneralLabelStyle}" />
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*"/>
-                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="2*" />
                     </Grid.ColumnDefinitions>
                     <Slider Width="120" Grid.Column="0"
                         AutoToolTipPlacement="TopLeft"
@@ -81,6 +81,27 @@
                 IsChecked="{Binding Path=ExposureSweep}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
+                <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
+
+                <Label  Content="FOV Scale" Style="{DynamicResource GeneralLabelStyle}" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="2*" />
+                    </Grid.ColumnDefinitions>
+                    <Slider Width="120" Grid.Column="0"
+                        AutoToolTipPlacement="TopLeft"
+                        LargeChange="10"
+                        Maximum="1"
+                        Minimum="0"
+                        IsSnapToTickEnabled="True"
+                        TickFrequency="0.1"
+                        Orientation="Horizontal"
+                        SmallChange="0.1"
+                        Style="{DynamicResource MahApps.Metro.Styles.Slider.Win10}"
+                        Value="{Binding Path=FOVScale}" />
+                    <Label Grid.Column="1" Content="{Binding Path=FOVScale}" />
+                </Grid>
             </StackPanel>
             <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
                 <!--<Button Width="200" Content="calibrate" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" />
