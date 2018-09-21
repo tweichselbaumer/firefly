@@ -5,7 +5,7 @@ namespace FireFly.Settings
     public class CalibrationSettings : AbstractSettings
     {
         private IntrinsicCalibrationSettings _IntrinsicCalibrationSettings = new IntrinsicCalibrationSettings();
-
+        private PhotometricCalibrationSettings _PhotometricCalibrationSettings = new PhotometricCalibrationSettings();
         public IntrinsicCalibrationSettings IntrinsicCalibrationSettings
         {
             get
@@ -16,6 +16,19 @@ namespace FireFly.Settings
             set
             {
                 _IntrinsicCalibrationSettings = value;
+            }
+        }
+
+        public PhotometricCalibrationSettings PhotometricCalibrationSettings
+        {
+            get
+            {
+                return _PhotometricCalibrationSettings;
+            }
+
+            set
+            {
+                _PhotometricCalibrationSettings = value;
             }
         }
 

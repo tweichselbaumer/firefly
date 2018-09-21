@@ -1,22 +1,50 @@
-﻿using FireFly.Command;
+﻿using Emgu.CV;
+using FireFly.Command;
 using FireFly.CustomDialogs;
 using FireFly.Data.Storage;
+using FireFly.Models;
 using FireFly.Utilities;
 using MahApps.Metro.Controls.Dialogs;
+using OxyPlot;
 using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace FireFly.ViewModels
 {
     public class PhotometricCalibrationViewModel : AbstractViewModel
     {
+        public static readonly DependencyProperty ResponseValuesProperty =
+            DependencyProperty.Register("ResponseValues", typeof(RangeObservableCollection<DataPoint>), typeof(PhotometricCalibrationViewModel), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty VignetteProperty =
+            DependencyProperty.Register("Vignette", typeof(CvImageContainer), typeof(PhotometricCalibrationViewModel), new PropertyMetadata(null));
+
         public PhotometricCalibrationViewModel(MainViewModel parent) : base(parent)
         {
+            ResponseValues = new RangeObservableCollection<DataPoint>();
+            ResponseValues.CollectionChanged += ResponseValues_CollectionChanged;
+        }
+
+        public List<DataPoint> LinearResponseValues
+        {
+            get
+            {
+                return Enumerable.Range(0, 256).Select(c => new DataPoint(c, c)).ToList();
+            }
+        }
+
+        public RangeObservableCollection<DataPoint> ResponseValues
+        {
+            get { return (RangeObservableCollection<DataPoint>)GetValue(ResponseValuesProperty); }
+            set { SetValue(ResponseValuesProperty, value); }
         }
 
         public RelayCommand<object> RunCalibrationCommand
@@ -31,13 +59,63 @@ namespace FireFly.ViewModels
             }
         }
 
+        public CvImageContainer Vignette
+        {
+            get { return (CvImageContainer)GetValue(VignetteProperty); }
+            set { SetValue(VignetteProperty, value); }
+        }
+
+        internal override void SettingsUpdated()
+        {
+            base.SettingsUpdated();
+
+            var firstNotSecond = ResponseValues.Select(c => c.Y).Except(Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.ResponseValues).ToList();
+            var secondNotFirst = Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.ResponseValues.Except(ResponseValues.Select(c => c.Y)).ToList();
+
+            bool changed = firstNotSecond.Any() || secondNotFirst.Any();
+
+            if (changed)
+            {
+                List<double> l = Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.ResponseValues.ToList();
+                ResponseValues.Clear();
+                ResponseValues.AddRange(l.Select((c, i) => new DataPoint(i, c)));
+
+            }
+            Vignette = new CvImageContainer();
+            try
+            {
+                if (!string.IsNullOrEmpty(Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.VignetteFileBase64))
+                {
+                    byte[] data = Convert.FromBase64String(Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.VignetteFileBase64);
+                    Mat temp = new Mat();
+                    CvInvoke.Imdecode(data, Emgu.CV.CvEnum.ImreadModes.Grayscale, temp);
+                    Vignette.CvImage = temp;
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+
         private Task DoRunCalibration(object o)
         {
             return Task.Factory.StartNew(() =>
             {
+                bool response = o is string && !string.IsNullOrEmpty(o as string) && (o as string).Equals("response");
+
                 Parent.SyncContext.Post(c =>
                 {
-                    CustomDialog customDialog = new CustomDialog() { Title = "Select calibration file" };
+                    CustomDialog customDialog;
+
+                    if (response)
+                    {
+                        customDialog = new CustomDialog() { Title = "Select response calibration file" };
+                    }
+                    else
+                    {
+                        customDialog = new CustomDialog() { Title = "Select vignette calibration file" };
+                    }
 
                     var dataContext = new ReplaySelectDialogModel(obj =>
                     {
@@ -45,19 +123,18 @@ namespace FireFly.ViewModels
                         {
                             Task.Factory.StartNew(async () =>
                             {
-                                MetroDialogSettings settings = new MetroDialogSettings()
-                                {
-                                    AnimateShow = false,
-                                    AnimateHide = false
-                                };
-                                var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Photometric calibration!", settings: settings);
-                                controller.SetCancelable(false);
-                                controller.SetIndeterminate();
-
-
                                 ReplaySelectDialogModel replaySelectDialogModel = obj as ReplaySelectDialogModel;
                                 if (replaySelectDialogModel.SelectedFile != null)
                                 {
+                                    MetroDialogSettings settings = new MetroDialogSettings()
+                                    {
+                                        AnimateShow = false,
+                                        AnimateHide = false
+                                    };
+                                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Photometric calibration!", settings: settings);
+                                    controller.SetCancelable(false);
+                                    controller.SetIndeterminate();
+
                                     string file = null;
                                     string outputPath = null;
 
@@ -78,6 +155,7 @@ namespace FireFly.ViewModels
 
                                     int width = 0;
                                     int height = 0;
+                                    List<double> responseValues = new List<double>();
                                     Parent.SyncContext.Send(async d2 =>
                                     {
                                         file = replaySelectDialogModel.SelectedFile.FullPath;
@@ -98,20 +176,22 @@ namespace FireFly.ViewModels
                                         k3 = Parent.CameraViewModel.DistortionCoefficients.GetValue(0, 2);
                                         k4 = Parent.CameraViewModel.DistortionCoefficients.GetValue(0, 3);
 
+                                        if (!response)
+                                            responseValues.AddRange(ResponseValues.Select(f => f.Y));
+
                                         width = Parent.CameraViewModel.ImageWidth;
                                         height = Parent.CameraViewModel.ImageHeight;
-
                                     }, null);
 
                                     DataReader reader = new DataReader(file, ReaderMode.Camera0);
 
                                     reader.Open();
 
-                                    PhotometricCalibratrionExporter exporter = new PhotometricCalibratrionExporter(fxO, fyO, cxO, cyO, fxN, fyN, cxN, cyN, width, height, k1, k2, k3, k4, outputPath, false);
+                                    PhotometricCalibratrionExporter exporter = new PhotometricCalibratrionExporter(fxO, fyO, cxO, cyO, fxN, fyN, cxN, cyN, width, height, k1, k2, k3, k4, outputPath, response, responseValues);
                                     exporter.Open();
                                     exporter.AddFromReader(reader, delegate (double percent)
                                     {
-                                        double value = percent * 0.33 + 0.33;
+                                        double value = percent * 0.33;
                                         value = value > 1 ? 1 : value;
                                         controller.SetProgress(value);
                                     });
@@ -119,42 +199,60 @@ namespace FireFly.ViewModels
                                     reader.Close();
 
                                     Process p = new Process();
-                                    //p.StartInfo.RedirectStandardError = true;
                                     p.StartInfo.RedirectStandardOutput = true;
-                                    //p.StartInfo.RedirectStandardInput = true;
                                     p.StartInfo.UseShellExecute = false;
                                     p.StartInfo.WorkingDirectory = outputPath;
                                     p.StartInfo.CreateNoWindow = true;
                                     p.EnableRaisingEvents = true;
-                                    p.StartInfo.FileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Tools", "responseCalib.exe");
-                                    p.StartInfo.Arguments = string.Format("{0}\\ -noGUI", outputPath);
+                                    if (response)
+                                    {
+                                        p.StartInfo.FileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Tools", "responseCalib.exe");
+                                    }
+                                    else
+                                    {
+                                        p.StartInfo.FileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Tools", "vignetteCalib.exe");
+                                    }
+                                    p.StartInfo.Arguments = string.Format("{0}\\ -noGUI -showPercent", outputPath);
 
                                     p.OutputDataReceived += new DataReceivedEventHandler((s, e) =>
                                         {
                                             Debug.WriteLine(e.Data);
+                                            if (!string.IsNullOrEmpty(e.Data))
+                                            {
+                                                foreach (string line in e.Data.Split('\n'))
+                                                {
+                                                    if (line.StartsWith("percent: "))
+                                                    {
+                                                        double percent = double.Parse(line.Replace("percent: ", ""), CultureInfo.InvariantCulture);
+                                                        double value = 0.33 + percent * 0.66;
+                                                        value = value > 1 ? 1 : value;
+                                                        controller.SetProgress(value);
+                                                    }
+                                                }
+                                            }
                                         }
                                     );
 
-                                    p.ErrorDataReceived += new DataReceivedEventHandler((s, e) =>
-                                    {
-                                        Debug.WriteLine(e.Data);
-                                    });
-
                                     p.Exited += new EventHandler((s, e) =>
                                     {
-                                        Parent.SyncContext.Post(x =>
+                                        Parent.SyncContext.Post(async x =>
                                         {
+                                            if (response)
+                                            {
+                                                ParseResponseResult(outputPath);
+                                            }
+                                            else
+                                            {
+                                                ParseVignetteResult(outputPath);
+                                            }
                                             Directory.Delete(outputPath, true);
-                                            controller.CloseAsync();
-                                            Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                                            await controller.CloseAsync();
                                         }, null);
                                     });
 
                                     p.Start();
                                     p.BeginOutputReadLine();
-                                    //p.BeginErrorReadLine();
                                 }
-
                             }, TaskCreationOptions.LongRunning);
                             Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
                         }, null);
@@ -166,6 +264,47 @@ namespace FireFly.ViewModels
                     Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
                 }, null);
             });
+        }
+
+        private void ParseResponseResult(string outputPath)
+        {
+            ResponseValues.Clear();
+            int i = 0;
+            string file = Path.Combine(outputPath, "photoCalibResult", "pcalib.txt");
+            string content = File.ReadAllText(file);
+            foreach (string item in content.Split(' '))
+            {
+                double val = 0.0;
+                if (double.TryParse(item, NumberStyles.Any, CultureInfo.InvariantCulture, out val))
+                {
+                    ResponseValues.Add(new DataPoint(i++, val));
+                }
+            }
+        }
+
+        private void ParseVignetteResult(string outputPath)
+        {
+            string file = Path.Combine(outputPath, "vignetteCalibResult", "vignetteSmoothed.png");
+            byte[] data = File.ReadAllBytes(file);
+            Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.VignetteFileBase64 = Convert.ToBase64String(data);
+            Parent.UpdateSettings(false);
+        }
+
+        private void ResponseValues_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add || e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                var firstNotSecond = ResponseValues.Select(c => c.Y).Except(Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.ResponseValues).ToList();
+                var secondNotFirst = Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.ResponseValues.Except(ResponseValues.Select(c => c.Y)).ToList();
+
+                bool changed = firstNotSecond.Any() || secondNotFirst.Any();
+
+                if (changed)
+                {
+                    Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.ResponseValues = ResponseValues.Select(c => c.Y).ToList();
+                    Parent.UpdateSettings(false);
+                }
+            }
         }
     }
 }

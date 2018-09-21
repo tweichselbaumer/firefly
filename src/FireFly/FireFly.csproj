@@ -163,6 +163,9 @@
     <Compile Include="CustomControls\IntrinsicSnapshotsControl.xaml.cs">
       <DependentUpon>IntrinsicSnapshotsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\PhotometricCalibrationControl.xaml.cs">
+      <DependentUpon>PhotometricCalibrationControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomDialogs\NewFileLocationDialog.xaml.cs">
       <DependentUpon>NewFileLocationDialog.xaml</DependentUpon>
     </Compile>
@@ -192,6 +195,7 @@
     <Compile Include="Settings\GeneralSettings.cs" />
     <Compile Include="Settings\ImuSettings.cs" />
     <Compile Include="Settings\IntrinsicCalibrationSettings.cs" />
+    <Compile Include="Settings\PhotometricCalibrationSettings.cs" />
     <Compile Include="Settings\SettingContainer.cs" />
     <Compile Include="Settings\Settings.cs" />
     <Compile Include="Settings\StreamingSettings.cs" />
@@ -242,6 +246,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\IntrinsicSnapshotsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\PhotometricCalibrationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

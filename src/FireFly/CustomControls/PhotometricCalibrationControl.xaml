@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="FireFly.CustomControls.PhotometricCalibrationControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:oxy="http://oxyplot.org/wpf"
+             xmlns:local="clr-namespace:FireFly.CustomControls"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="10" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <oxy:Plot Grid.Row="0" Grid.Column="0">
+            <oxy:Plot.Axes>
+                <oxy:LinearAxis Position="Left" TickStyle="Inside" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Minimum="0" Maximum="256" MajorStep="64" MinorStep="16" Title="irradiance U(I)"/>
+                <oxy:LinearAxis Position="Bottom" TickStyle="Inside" MajorGridlineStyle="Solid" MajorStep="64" MinorStep="16" MinorGridlineStyle="Dot" Minimum="0" Maximum="256" Title="pixel value I" IsZoomEnabled="False" />
+            </oxy:Plot.Axes>
+            <oxy:Plot.Series>
+                <oxy:LineSeries ItemsSource="{Binding Path=ResponseValues}" StrokeThickness="1" Color="{DynamicResource AccentBaseColor}"/>
+                <oxy:LineSeries ItemsSource="{Binding Path=LinearResponseValues}" StrokeThickness="1" Color="{DynamicResource AccentColor3}"/>
+            </oxy:Plot.Series>
+        </oxy:Plot>
+
+        <Viewbox Grid.Row="0" Grid.Column="2">
+            <Border BorderThickness="1" BorderBrush="Black">
+                <Image Width="{Binding Path=Parent.CameraViewModel.ImageWidth}" Height="{Binding Path=Parent.CameraViewModel.ImageHeight}" Source="{Binding Path=Vignette.ImageSource}" />
+            </Border>
+        </Viewbox>
+
+        <Button Width="200" Grid.Row="2" Grid.Column="0" Content="calibrate response" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=RunCalibrationCommand}" CommandParameter="response"/>
+
+        <Button Width="200" Grid.Row="2" Grid.Column="2" Content="calibrate vignette" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=RunCalibrationCommand}" CommandParameter="vignette"/>
+    </Grid>
+</UserControl>

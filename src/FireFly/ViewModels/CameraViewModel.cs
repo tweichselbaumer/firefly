@@ -22,13 +22,13 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("ExposureTime", typeof(double), typeof(CameraViewModel), new PropertyMetadata(0.0));
 
         public static readonly DependencyProperty ExposureTimeSettingProperty =
-                    DependencyProperty.Register("ExposureTimeSetting", typeof(short), typeof(CameraViewModel), new FrameworkPropertyMetadata((short)-1, new PropertyChangedCallback(OnPropertyChanged)));
+            DependencyProperty.Register("ExposureTimeSetting", typeof(short), typeof(CameraViewModel), new FrameworkPropertyMetadata((short)-1, new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty FOVScaleProperty =
             DependencyProperty.Register("FOVScale", typeof(double), typeof(CameraViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty FPSProperty =
-                    DependencyProperty.Register("FPS", typeof(int), typeof(CameraViewModel), new PropertyMetadata(0));
+            DependencyProperty.Register("FPS", typeof(int), typeof(CameraViewModel), new PropertyMetadata(0));
 
         public static readonly DependencyProperty ImageProperty =
             DependencyProperty.Register("Image", typeof(CvImageContainer), typeof(CameraViewModel), new PropertyMetadata(null));

@@ -12,12 +12,14 @@ namespace FireFly.Data.Storage
         private List<Tuple<long, double>> _ExposureTimes = new List<Tuple<long, double>>();
         private string _OutputPath;
         private bool _DistinctExposure;
+        List<double> _ResponseValues = new List<double>();
 
-        public PhotometricCalibratrionExporter(double fxO, double fyO, double cxO, double cyO, double fxN, double fyN, double cxN, double cyN, int width, int height, double k1, double k2, double k3, double k4, string outputPath, bool distinctExposure)
+        public PhotometricCalibratrionExporter(double fxO, double fyO, double cxO, double cyO, double fxN, double fyN, double cxN, double cyN, int width, int height, double k1, double k2, double k3, double k4, string outputPath, bool distinctExposure, List<double> responseValues)
         {
             _OutputPath = outputPath;
             _Config = string.Format(CultureInfo.InvariantCulture, "{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n{8}\t{9}\n{10}\t{11}\t{12}\t{13}\n{8}\t{9}", fxO / width, fyO / height, cxO / width, cyO / height, k1, k2, k3, k4, width, height, fxN / width, fyN / height, cxN / width, cyN / height);
             _DistinctExposure = distinctExposure;
+            _ResponseValues = responseValues;
         }
 
         public void AddFromReader(DataReader reader, Action<double> progress = null)
@@ -62,6 +64,11 @@ namespace FireFly.Data.Storage
                 i++;
             }
             File.WriteAllText(Path.Combine(_OutputPath, "times.txt"), string.Join("\n", times));
+
+            if (_ResponseValues != null && _ResponseValues.Count > 0)
+            {
+                File.WriteAllText(Path.Combine(_OutputPath, "pcalib.txt"), string.Format("{0}\r\n", string.Join(" ", _ResponseValues.Select(c => string.Format(CultureInfo.InvariantCulture, "{0}", c)))));
+            }
         }
 
         public void Open()
