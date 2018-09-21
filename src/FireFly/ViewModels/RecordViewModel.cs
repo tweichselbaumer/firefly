@@ -112,7 +112,7 @@ namespace FireFly.ViewModels
                 }
                 if (cameraEventData != null)
                 {
-                    _DataWritter.AddImage(0, imuEventData.TimeNanoSeconds, cameraEventData.Image.ToPNGBinary(3),cameraEventData.ExposureTime);
+                    _DataWritter.AddImage(0, imuEventData.TimeNanoSeconds, cameraEventData.Image.ToPNGBinary(3), cameraEventData.ExposureTime);
                 }
             }
         }
@@ -166,7 +166,6 @@ namespace FireFly.ViewModels
                     Parent.IOProxy.Subscribe(this, ProxyEventType.CameraImuEvent);
                     _StopWatch.Restart();
                     IsRecording = true;
-
                 }, null);
             });
         }
@@ -177,7 +176,10 @@ namespace FireFly.ViewModels
             {
                 Parent.SyncContext.Post(c =>
                 {
-                    Parent.IOProxy.Unsubscribe(this, ProxyEventType.CameraImuEvent);
+                    Task.Run(() =>
+                    {
+                        Parent.IOProxy.Unsubscribe(this, ProxyEventType.CameraImuEvent);
+                    });
                     _DataWritter.Close();
 
                     _StopWatch.Restart();

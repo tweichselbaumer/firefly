@@ -2,6 +2,7 @@
 using Emgu.CV.Util;
 using FireFly.Command;
 using FireFly.CustomDialogs;
+using FireFly.Data.Storage;
 using FireFly.Models;
 using FireFly.Utilities;
 using FireFly.VI.Calibration;
@@ -9,6 +10,7 @@ using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
@@ -112,6 +114,18 @@ namespace FireFly.ViewModels
                     async (object o) =>
                     {
                         await DoClose(o);
+                    });
+            }
+        }
+
+        public RelayCommand<object> DeleteCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoDelete(o);
                     });
             }
         }
@@ -495,9 +509,99 @@ namespace FireFly.ViewModels
             });
         }
 
+        private Task DoDelete(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    if (o != null && o is ChArUcoImageContainer)
+                        Images.Remove(o as ChArUcoImageContainer);
+                }, null);
+            });
+        }
+
         private Task DoLoadFromFile(object o)
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    CustomDialog customDialog = new CustomDialog() { Title = "Select calibration file" };
+
+                    var dataContext = new ReplaySelectDialogModel(obj =>
+                    {
+                        Parent.SyncContext.Post(d =>
+                        {
+                            Task.Factory.StartNew(async () =>
+                            {
+                                ReplaySelectDialogModel replaySelectDialogModel = obj as ReplaySelectDialogModel;
+                                if (replaySelectDialogModel.SelectedFile != null)
+                                {
+                                    MetroDialogSettings settings = new MetroDialogSettings()
+                                    {
+                                        AnimateShow = false,
+                                        AnimateHide = false
+                                    };
+                                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Loading calibration images!", settings: settings);
+                                    controller.SetCancelable(false);
+                                    controller.SetIndeterminate();
+
+                                    string file = null;
+                                    string outputPath = null;
+
+                                    Parent.SyncContext.Send(async d2 =>
+                                    {
+                                        file = replaySelectDialogModel.SelectedFile.FullPath;
+                                        outputPath = Path.Combine(Path.GetTempPath(), "firefly", Guid.NewGuid().ToString());
+                                    }, null);
+
+                                    DataReader reader = new DataReader(file, ReaderMode.Camera0);
+                                    reader.Open();
+                                    MemoryImageExporter exporter = new MemoryImageExporter();
+                                    exporter.AddFromReader(reader, delegate (double percent)
+                                    {
+                                        double value = percent;
+                                        value = value > 1 ? 1 : value;
+                                        controller.SetProgress(value);
+                                    });
+
+                                    reader.Close();
+
+                                    Parent.SyncContext.Post(d2 =>
+                                    {
+                                        int i = 0;
+                                        int count = exporter.Images.Count;
+                                        foreach (Mat m in exporter.Images)
+                                        {
+                                            //double value = 0.5 + i / count * 0.5;
+                                            //value = value > 1 ? 1 : value;
+                                            //controller.SetProgress(value);
+
+                                            if (i++ % 20 == 0)
+                                            {
+                                                ChArUcoImageContainer cauic = new ChArUcoImageContainer(SquaresX, SquaresY, SquareLength, MarkerLength, Dictionary);
+                                                CvImageContainer container = new CvImageContainer();
+                                                container.CvImage = m;
+                                                cauic.OriginalImage = container;
+                                                Images.Add(cauic);
+                                            }
+                                        }
+
+                                        controller.CloseAsync();
+                                    }, null);
+                                }
+                            }, TaskCreationOptions.LongRunning);
+                            Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                        }, null);
+                    });
+                    Parent.ReplayViewModel.Refresh();
+                    dataContext.FilesForReplay.AddRange(Parent.ReplayViewModel.FilesForReplay.Where(x => !x.Item1.IsRemote));
+                    customDialog.Content = new ReplaySelectDialog { DataContext = dataContext };
+
+                    Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
+                }, null);
+            });
         }
 
         private Task DoPrintBoard(object o)
@@ -582,7 +686,7 @@ namespace FireFly.ViewModels
                         squaresY = SquaresY;
                         squareLength = SquareLength;
                         markerLength = MarkerLength;
-                        size = Parent.CameraViewModel.Image.CvImage.Size;
+                        size = new System.Drawing.Size(Parent.CameraViewModel.ImageWidth, Parent.CameraViewModel.ImageHeight);
                         dictionary = Dictionary;
                         foreach (ChArUcoImageContainer image in Images)
                         {
