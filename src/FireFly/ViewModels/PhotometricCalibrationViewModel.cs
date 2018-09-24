@@ -274,11 +274,11 @@ namespace FireFly.ViewModels
             string content = File.ReadAllText(file);
             foreach (string item in content.Split(' '))
             {
+                if (i >= 256)
+                    break;
                 double val = 0.0;
-                if (double.TryParse(item, NumberStyles.Any, CultureInfo.InvariantCulture, out val))
-                {
-                    ResponseValues.Add(new DataPoint(i++, val));
-                }
+                double.TryParse(item, NumberStyles.Any, CultureInfo.InvariantCulture, out val);
+                ResponseValues.Add(new DataPoint(i++, val));
             }
         }
 

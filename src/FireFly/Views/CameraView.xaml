@@ -49,6 +49,27 @@
 
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
 
+                <Label  Content="FOV Scale" Style="{DynamicResource GeneralLabelStyle}" />
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="2*" />
+                    </Grid.ColumnDefinitions>
+                    <Slider Width="120" Grid.Column="0"
+                        AutoToolTipPlacement="TopLeft"
+                        LargeChange="10"
+                        Maximum="1"
+                        Minimum="0"
+                        IsSnapToTickEnabled="True"
+                        TickFrequency="0.1"
+                        Orientation="Horizontal"
+                        SmallChange="0.1"
+                        Style="{DynamicResource MahApps.Metro.Styles.Slider.Win10}"
+                        Value="{Binding Path=FOVScale}" />
+                    <Label Grid.Column="1" Content="{Binding Path=FOVScale}" />
+                </Grid>
+
                 <Label  Content="Undistort" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
                 IsChecked="{Binding Path=Undistort}" Margin="15,0,0,0"
@@ -74,8 +95,6 @@
                     <Label Grid.Column="1" Content="{Binding Path=ExposureTime, Converter={StaticResource ExposureTimeConverter}}" Style="{DynamicResource GeneralLabelStyle}" />
                 </Grid>
 
-                <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
-
                 <Label  Content="Exposure Sweep" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
                 IsChecked="{Binding Path=ExposureSweep}" Margin="15,0,0,0"
@@ -83,25 +102,17 @@
 
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
 
-                <Label  Content="FOV Scale" Style="{DynamicResource GeneralLabelStyle}" />
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*" />
-                        <ColumnDefinition Width="2*" />
-                    </Grid.ColumnDefinitions>
-                    <Slider Width="120" Grid.Column="0"
-                        AutoToolTipPlacement="TopLeft"
-                        LargeChange="10"
-                        Maximum="1"
-                        Minimum="0"
-                        IsSnapToTickEnabled="True"
-                        TickFrequency="0.1"
-                        Orientation="Horizontal"
-                        SmallChange="0.1"
-                        Style="{DynamicResource MahApps.Metro.Styles.Slider.Win10}"
-                        Value="{Binding Path=FOVScale}" />
-                    <Label Grid.Column="1" Content="{Binding Path=FOVScale}" />
-                </Grid>
+                <Label  Content="Gamma Correction" Style="{DynamicResource GeneralLabelStyle}" />
+                <Controls:ToggleSwitch
+                IsChecked="{Binding Path=GammaCorretion}" Margin="15,0,0,0"
+                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
+
+                <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
+
+                <Label  Content="Vignette Correction" Style="{DynamicResource GeneralLabelStyle}" />
+                <Controls:ToggleSwitch
+                IsChecked="{Binding Path=VignetteCorretion}" Margin="15,0,0,0"
+                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
             </StackPanel>
             <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
                 <!--<Button Width="200" Content="calibrate" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" />

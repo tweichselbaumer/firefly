@@ -217,8 +217,8 @@ namespace FireFly.ViewModels
             }
 
             _SettingContainer.Save();
-
-            _IOProxy.UpdateSettings();
+            if (Connector != null && Connector.ConnectivityState == LinkUpConnectivityState.Connected)
+                _IOProxy.UpdateSettings();
         }
 
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
