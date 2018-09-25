@@ -6,6 +6,7 @@
                       xmlns:Views="clr-namespace:FireFly.Views"
                       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
                       xmlns:ViewModles="clr-namespace:FireFly.ViewModels"
+                      xmlns:CustomControls="clr-namespace:FireFly.CustomControls"
                       xmlns:Converter="clr-namespace:FireFly.Converter"
                       xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
                       xmlns:materialDesignConverters="clr-namespace:MaterialDesignThemes.Wpf.Converters;assembly=MaterialDesignThemes.Wpf"
@@ -267,6 +268,13 @@
                 </DataTemplate>
             </Controls:HamburgerMenu.ContentTemplate>
         </Controls:HamburgerMenu>
+
+        <Grid Panel.ZIndex="2000">
+            <CustomControls:ResizableCanvas>
+                <CustomControls:DragableCameraControl Canvas.Left="0" Canvas.Top="0" DataContext="{Binding Source={StaticResource Data}, Path=CameraViewModel}" />
+            </CustomControls:ResizableCanvas>
+        </Grid>
+
         <StatusBar Grid.Row="1">
             <StatusBarItem Content="{Binding Path=ConnectivityState, Mode=OneWay}" />
             <Separator Style="{StaticResource MetroStatusBarSeparator}" />

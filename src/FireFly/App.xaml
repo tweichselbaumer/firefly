@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
                 <!-- Accent and AppTheme setting -->
                 <ResourceDictionary Source="/FireFly;component/Style/CustomAccents.xaml" />
+                <ResourceDictionary Source="/FireFly;component/Style/DragableStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style x:Key="DescriptionHeaderStyle" TargetType="Label">

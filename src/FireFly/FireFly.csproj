@@ -154,18 +154,25 @@
     <Compile Include="Command\RelayCommand.cs" />
     <Compile Include="Converter\BoolToVisibilityConverter.cs" />
     <Compile Include="Converter\BytesPerSecondConverter.cs" />
-    <Compile Include="Converter\ExposureTimeConverter.cs" />
     <Compile Include="Converter\InverseBooleanConverter.cs" />
     <Compile Include="Converter\MultiValueReplayBoolConverter.cs" />
+    <Compile Include="CustomControls\DragableCameraControl.xaml.cs">
+      <DependentUpon>DragableCameraControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomControls\DragableItem.cs" />
+    <Compile Include="CustomControls\DragItem.cs" />
     <Compile Include="CustomControls\IntrinsicResultControl.xaml.cs">
       <DependentUpon>IntrinsicResultControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\IntrinsicSnapshotsControl.xaml.cs">
       <DependentUpon>IntrinsicSnapshotsControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\MovedEventArgs.cs" />
     <Compile Include="CustomControls\PhotometricCalibrationControl.xaml.cs">
       <DependentUpon>PhotometricCalibrationControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomControls\ResizableCanvas.cs" />
+    <Compile Include="CustomControls\ResizingAdorner.cs" />
     <Compile Include="CustomDialogs\NewFileLocationDialog.xaml.cs">
       <DependentUpon>NewFileLocationDialog.xaml</DependentUpon>
     </Compile>
@@ -241,6 +248,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="CustomControls\DragableCameraControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CustomControls\IntrinsicResultControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -272,6 +283,10 @@
     <Page Include="CustomControls\PlotControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Style\DragableStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\CalibrationView.xaml">
       <SubType>Designer</SubType>
