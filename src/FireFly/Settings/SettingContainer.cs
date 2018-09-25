@@ -53,7 +53,7 @@ namespace FireFly.Settings
         public void Save()
         {
             string output = JsonConvert.SerializeObject(_Settings);
-            if (File.ReadAllText(_SettingFileName) != output)
+            if (!File.Exists(_SettingFileName) || File.ReadAllText(_SettingFileName) != output)
             {
                 string backupDir = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(_SettingFileName)), "Backup");
                 if (!Directory.Exists(backupDir))

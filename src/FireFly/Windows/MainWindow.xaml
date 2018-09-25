@@ -270,9 +270,11 @@
         </Controls:HamburgerMenu>
 
         <Grid Panel.ZIndex="2000">
-            <CustomControls:ResizableCanvas>
-                <CustomControls:DragableCameraControl Canvas.Left="0" Canvas.Top="0" DataContext="{Binding Source={StaticResource Data}, Path=CameraViewModel}" />
-            </CustomControls:ResizableCanvas>
+            <Canvas>
+                <!--<CustomControls:ResizableCanvas>-->
+                <CustomControls:DragableCameraControl Canvas.Bottom="0" Canvas.Right="0" Height="256" Width="256" DataContext="{Binding Source={StaticResource Data}, Path=CameraViewModel}" Visibility="{Binding ElementName=ToggleButtonCamera, Path=IsChecked,Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <!--</CustomControls:ResizableCanvas>-->
+            </Canvas>
         </Grid>
 
         <StatusBar Grid.Row="1">
@@ -282,6 +284,9 @@
             <StatusBarItem Content="{Binding Path=BytesReceivedPerSec, Mode=OneWay,Converter={StaticResource BytesPerSecondConverter}}" />
             <StatusBarItem HorizontalAlignment="Right" Margin="0" Padding="0">
                 <StackPanel Orientation="Horizontal">
+                    <ToggleButton Width="15" Height="15" Margin="4" Style="{DynamicResource MahApps.Metro.Styles.MetroCircleToggleButtonStyle}" Name="ToggleButtonCamera">
+                        <iconPacks:PackIconModern Width="10" Height="10" Kind="Video" />
+                    </ToggleButton>
                     <StackPanel Orientation="Horizontal" Visibility="{Binding Source={StaticResource Data}, Path=RecordViewModel.IsRecording,Converter={StaticResource BoolToVisibilityConverter}}">
                         <StatusBarItem Content="Recording" />
                         <Separator Style="{StaticResource MetroStatusBarSeparator}" />
