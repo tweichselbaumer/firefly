@@ -22,6 +22,13 @@ namespace FireFly.Data.Storage
             _ResponseValues = responseValues;
         }
 
+        public static void ExporterSettings(double fxO, double fyO, double cxO, double cyO, double fxN, double fyN, double cxN, double cyN, int width, int height, double k1, double k2, double k3, double k4, string outputPath, List<double> responseValues, byte[] vignette)
+        {
+            File.WriteAllText(Path.Combine(outputPath, "camera.txt"), string.Format(CultureInfo.InvariantCulture, "{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\n{8}\t{9}\n{10}\t{11}\t{12}\t{13}\n{8}\t{9}", fxO / width, fyO / height, cxO / width, cyO / height, k1, k2, k3, k4, width, height, fxN / width, fyN / height, cxN / width, cyN / height));
+            File.WriteAllText(Path.Combine(outputPath, "pcalib.txt"), string.Format("{0}\r\n", string.Join(" ", responseValues.Select(c => string.Format(CultureInfo.InvariantCulture, "{0}", c)))));
+            File.WriteAllBytes(Path.Combine(outputPath, "vignette.png"), vignette);
+        }
+
         public void AddFromReader(DataReader reader, Action<double> progress = null)
         {
             int count = reader.Count;

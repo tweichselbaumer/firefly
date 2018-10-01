@@ -65,10 +65,15 @@ namespace FireFly.Proxy
             private set
             {
                 _ProxyMode = value;
-                lock (_Subscriptions)
+
+                Task.Run(() =>
                 {
-                    UpdateSubscription();
-                }
+                    lock (_Subscriptions)
+                    {
+                        UpdateSubscription();
+                    }
+                });
+
             }
         }
 
@@ -116,7 +121,7 @@ namespace FireFly.Proxy
                     {
                         break;
                     }
-                  
+
                     Tuple<long, List<Tuple<ReaderMode, object>>> res = reader.Next();
                     if (startTime == -1)
                         startTime = res.Item1;
@@ -158,6 +163,7 @@ namespace FireFly.Proxy
                                 Array.Copy(rawImage, 0, data, imuEventData.RawSize + sizeof(double), rawImage.Length);
                             }
                             _ReplayDataSend.AsyncCall(data);
+
                         }
 
                         foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraImuEvent))
@@ -390,37 +396,83 @@ namespace FireFly.Proxy
                 {
                     if (_Subscriptions.Any(c => c.Item2 == ProxyEventType.CameraEvent) && _Subscriptions.Any(c => c.Item2 == ProxyEventType.ImuEvent) || _Subscriptions.Any(c => c.Item2 == ProxyEventType.CameraImuEvent))
                     {
-                        _CameraImuEventLabel.Subscribe();
-                        _ImuEventLabel.Unsubscribe();
-                        _CameraEventLabel.Unsubscribe();
-                    }
-                    else
-                    {
-                        _CameraImuEventLabel.Unsubscribe();
-                        if (_Subscriptions.Any(c => c.Item2 == ProxyEventType.CameraEvent))
+                        try
                         {
-                            _CameraEventLabel.Subscribe();
+                            _CameraImuEventLabel.Subscribe();
                         }
-                        else
-                        {
-                            _CameraEventLabel.Unsubscribe();
-                        }
-                        if (_Subscriptions.Any(c => c.Item2 == ProxyEventType.ImuEvent))
-                        {
-                            _ImuEventLabel.Subscribe();
-                        }
-                        else
+                        catch (Exception) { }
+                        try
                         {
                             _ImuEventLabel.Unsubscribe();
                         }
+                        catch (Exception) { }
+                        try
+                        {
+                            _CameraEventLabel.Unsubscribe();
+                        }
+                        catch (Exception) { }
+                    }
+                    else
+                    {
+
+                        try
+                        {
+                            _CameraImuEventLabel.Unsubscribe();
+                        }
+                        catch (Exception) { }
+                        if (_Subscriptions.Any(c => c.Item2 == ProxyEventType.CameraEvent))
+                        {
+                            try
+                            {
+                                _CameraEventLabel.Subscribe();
+                            }
+                            catch (Exception) { }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                _CameraEventLabel.Unsubscribe();
+                            }
+                            catch (Exception) { }
+                        }
+                        if (_Subscriptions.Any(c => c.Item2 == ProxyEventType.ImuEvent))
+                        {
+                            try
+                            {
+                                _ImuEventLabel.Subscribe();
+                            }
+                            catch (Exception) { }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                _ImuEventLabel.Unsubscribe();
+                            }
+                            catch (Exception) { }
+                        }
+
                     }
                 }
             }
             else if (ProxyMode == IOProxyMode.Offline)
             {
-                _CameraEventLabel.Unsubscribe();
-                _ImuEventLabel.Unsubscribe();
-                _CameraImuEventLabel.Unsubscribe();
+                try
+                {
+                    _CameraEventLabel.Unsubscribe();
+                }
+                catch (Exception) { }
+                try
+                {
+                    _ImuEventLabel.Unsubscribe();
+                }
+                catch (Exception) { }
+                try
+                {
+                    _CameraImuEventLabel.Unsubscribe();
+                }
+                catch (Exception) { }
             }
         }
     }

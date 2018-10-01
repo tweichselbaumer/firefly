@@ -36,7 +36,7 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("GammaCorretion", typeof(bool), typeof(CameraViewModel), new PropertyMetadata(false));
 
         public static readonly DependencyProperty ImageProperty =
-                    DependencyProperty.Register("Image", typeof(CvImageContainer), typeof(CameraViewModel), new PropertyMetadata(null));
+            DependencyProperty.Register("Image", typeof(CvImageContainer), typeof(CameraViewModel), new PropertyMetadata(null));
 
         public static readonly DependencyProperty UndistortProperty =
             DependencyProperty.Register("Undistort", typeof(bool), typeof(CameraViewModel), new PropertyMetadata(false));

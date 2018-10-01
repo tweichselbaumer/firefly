@@ -27,6 +27,10 @@
                         <RowDefinition Height="10" />
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="10" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="10" />
@@ -56,6 +60,7 @@
                         <Label  Content="Password" Style="{DynamicResource GeneralLabelStyle}" />
                         <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=Password}" />
                     </StackPanel>
+                    <Button Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="7" Width="200" Content="update remote" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=UpdateSettingsRemoteCommand}"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Locations">

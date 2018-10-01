@@ -1,5 +1,6 @@
 ﻿using FireFly.Command;
 using FireFly.CustomDialogs;
+using FireFly.Data.Storage;
 using FireFly.Settings;
 using FireFly.Utilities;
 using MahApps.Metro.Controls.Dialogs;
@@ -116,6 +117,18 @@ namespace FireFly.ViewModels
         {
             get { return (double)GetValue(TemperatureScaleProperty); }
             set { SetValue(TemperatureScaleProperty, value); }
+        }
+
+        public RelayCommand<object> UpdateSettingsRemoteCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoUpdateSettingsRemote(o);
+                    });
+            }
         }
 
         public string Username
@@ -251,6 +264,41 @@ namespace FireFly.ViewModels
                     customDialog.Content = new NewFileLocationDialog { DataContext = dataContext };
 
                     Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
+                }, null);
+            });
+        }
+
+        private Task DoUpdateSettingsRemote(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    double fxO = Parent.CameraViewModel.OrginalCameraMatrix.GetValue(0, 0);
+                    double fyO = Parent.CameraViewModel.OrginalCameraMatrix.GetValue(1, 1);
+                    double cxO = Parent.CameraViewModel.OrginalCameraMatrix.GetValue(0, 2);
+                    double cyO = Parent.CameraViewModel.OrginalCameraMatrix.GetValue(1, 2);
+
+                    double fxN = Parent.CameraViewModel.NewCameraMatrix.GetValue(0, 0);
+                    double fyN = Parent.CameraViewModel.NewCameraMatrix.GetValue(1, 1);
+                    double cxN = Parent.CameraViewModel.NewCameraMatrix.GetValue(0, 2);
+                    double cyN = Parent.CameraViewModel.NewCameraMatrix.GetValue(1, 2);
+
+                    double k1 = Parent.CameraViewModel.DistortionCoefficients.GetValue(0, 0);
+                    double k2 = Parent.CameraViewModel.DistortionCoefficients.GetValue(0, 1);
+                    double k3 = Parent.CameraViewModel.DistortionCoefficients.GetValue(0, 2);
+                    double k4 = Parent.CameraViewModel.DistortionCoefficients.GetValue(0, 3);
+
+                    List<double> responseValues = new List<double>();
+
+                    responseValues.AddRange(Parent.CalibrationViewModel.PhotometricCalibrationViewModel.ResponseValues.Select(f => f.Y));
+
+                    byte[] vignette = Parent.CalibrationViewModel.PhotometricCalibrationViewModel.Vignette.CvImage.ToPNGBinary(0);
+
+                    int width = Parent.CameraViewModel.ImageWidth;
+                    int height = Parent.CameraViewModel.ImageHeight;
+
+                    PhotometricCalibratrionExporter.ExporterSettings(fxO, fyO, cxO, cyO, fxN, fyN, cxN, cyN, width, height, k1, k2, k3, k4, @"C:\Users\thoma\source\repos\computer-vision\bin", responseValues, vignette);
                 }, null);
             });
         }

@@ -11,6 +11,7 @@ namespace FireFly.Proxy
     {
         private Mat _Image = new Mat();
         private double _ExposureTime;
+        private int _RawSize;
 
         public Mat Image
         {
@@ -32,14 +33,14 @@ namespace FireFly.Proxy
         {
             get
             {
-                return sizeof(double) + _Image.Cols * _Image.Rows;
+                return sizeof(double) + _RawSize;
             }
         }
 
         internal static CameraEventData Parse(byte[] data, int offset, bool hasExposureTime, double exposureTime = 0)
         {
             CameraEventData obj = new CameraEventData();
-
+            obj._RawSize = data.Length;
             int calcOffset = offset;
             if (hasExposureTime)
                 calcOffset += sizeof(double);

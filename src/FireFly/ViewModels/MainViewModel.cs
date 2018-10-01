@@ -204,6 +204,9 @@ namespace FireFly.ViewModels
                 }
 
                 _Connector = new LinkUpTcpClientConnector(IPAddress.Parse(SettingViewModel.IpAddress), SettingViewModel.Port);
+
+                _Connector.DebugDump = false;
+
                 _Connector.ConnectivityChanged += Connector_ConnectivityChanged;
                 _Connector.ConnectivityChanged += IOProxy.Connector_ConnectivityChanged;
                 _Connector.MetricUpdate += Connector_MetricUpdate;
@@ -244,6 +247,8 @@ namespace FireFly.ViewModels
                         if (!string.IsNullOrEmpty(mwvm.SettingViewModel.IpAddress))
                         {
                             mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse(mwvm.SettingViewModel.IpAddress), mwvm.SettingViewModel.Port);
+
+                            mwvm._Connector.DebugDump = false;
 
                             mwvm.Connector.ConnectivityChanged += mwvm.Connector_ConnectivityChanged;
                             mwvm.Connector.ConnectivityChanged += mwvm.IOProxy.Connector_ConnectivityChanged;
