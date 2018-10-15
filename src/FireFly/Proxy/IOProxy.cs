@@ -42,6 +42,22 @@ namespace FireFly.Proxy
             _SettingContainer = settingContainer;
         }
 
+        public LinkUpConnectivityState ConnectivityState
+        {
+            get
+            {
+                LinkUpConnectivityState linkUpConnectivityState = LinkUpConnectivityState.Disconnected;
+                if (Node != null)
+                {
+                    if (Node.SubNodes != null && Node.SubNodes.Count > 0)
+                    {
+                        linkUpConnectivityState = Node.SubNodes[0].Connector.ConnectivityState;
+                    }
+                }
+                return linkUpConnectivityState;
+            }
+        }
+
         public LinkUpNode Node
         {
             get
@@ -73,7 +89,6 @@ namespace FireFly.Proxy
                         UpdateSubscription();
                     }
                 });
-
             }
         }
 
@@ -163,7 +178,6 @@ namespace FireFly.Proxy
                                 Array.Copy(rawImage, 0, data, imuEventData.RawSize + sizeof(double), rawImage.Length);
                             }
                             _ReplayDataSend.AsyncCall(data);
-
                         }
 
                         foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraImuEvent))
@@ -275,7 +289,8 @@ namespace FireFly.Proxy
             {
                 try
                 {
-                    _AccelerometerScaleLabel.Value = _SettingContainer.Settings.ImuSettings.AccelerometerScale;
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _AccelerometerScaleLabel.Value = _SettingContainer.Settings.ImuSettings.AccelerometerScale;
                 }
                 catch (Exception) { }
             }
@@ -283,7 +298,8 @@ namespace FireFly.Proxy
             {
                 try
                 {
-                    _GyroscopeScaleLabel.Value = _SettingContainer.Settings.ImuSettings.GyroscopeScale;
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _GyroscopeScaleLabel.Value = _SettingContainer.Settings.ImuSettings.GyroscopeScale;
                 }
                 catch (Exception) { }
             }
@@ -291,7 +307,8 @@ namespace FireFly.Proxy
             {
                 try
                 {
-                    _TemperatureScaleLabel.Value = _SettingContainer.Settings.ImuSettings.TemperatureScale;
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _TemperatureScaleLabel.Value = _SettingContainer.Settings.ImuSettings.TemperatureScale;
                 }
                 catch (Exception) { }
             }
@@ -299,7 +316,8 @@ namespace FireFly.Proxy
             {
                 try
                 {
-                    _TemperatureOffsetLabel.Value = _SettingContainer.Settings.ImuSettings.TemperatureOffset;
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _TemperatureOffsetLabel.Value = _SettingContainer.Settings.ImuSettings.TemperatureOffset;
                 }
                 catch (Exception) { }
             }
@@ -308,7 +326,8 @@ namespace FireFly.Proxy
             {
                 try
                 {
-                    _RecordRemoteLabel.Value = _SettingContainer.Settings.ImuSettings.RecordRemote;
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _RecordRemoteLabel.Value = _SettingContainer.Settings.ImuSettings.RecordRemote;
                 }
                 catch (Exception) { }
             }
@@ -317,11 +336,14 @@ namespace FireFly.Proxy
             {
                 try
                 {
-                    _UpdateSettings.AsyncCall(new byte[] { });
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _UpdateSettings.AsyncCall(new byte[] { });
                 }
                 catch (Exception) { }
             }
         }
+
+        long lastTimestamp = 0;
 
         private void _CameraEventLabel_Fired(LinkUpEventLabel label, byte[] data)
         {
@@ -369,6 +391,8 @@ namespace FireFly.Proxy
                     {
                         t.Item1.Fired(this, new List<AbstractProxyEventData>() { imuEventData });
                     }
+
+                    lastTimestamp = imuEventData.TimeNanoSeconds;
                 }
             }
         }
@@ -398,33 +422,37 @@ namespace FireFly.Proxy
                     {
                         try
                         {
-                            _CameraImuEventLabel.Subscribe();
+                            if (ConnectivityState == LinkUpConnectivityState.Connected)
+                                _CameraImuEventLabel.Subscribe();
                         }
                         catch (Exception) { }
                         try
                         {
-                            _ImuEventLabel.Unsubscribe();
+                            if (ConnectivityState == LinkUpConnectivityState.Connected)
+                                _ImuEventLabel.Unsubscribe();
                         }
                         catch (Exception) { }
                         try
                         {
-                            _CameraEventLabel.Unsubscribe();
+                            if (ConnectivityState == LinkUpConnectivityState.Connected)
+                                _CameraEventLabel.Unsubscribe();
                         }
                         catch (Exception) { }
                     }
                     else
                     {
-
                         try
                         {
-                            _CameraImuEventLabel.Unsubscribe();
+                            if (ConnectivityState == LinkUpConnectivityState.Connected)
+                                _CameraImuEventLabel.Unsubscribe();
                         }
                         catch (Exception) { }
                         if (_Subscriptions.Any(c => c.Item2 == ProxyEventType.CameraEvent))
                         {
                             try
                             {
-                                _CameraEventLabel.Subscribe();
+                                if (ConnectivityState == LinkUpConnectivityState.Connected)
+                                    _CameraEventLabel.Subscribe();
                             }
                             catch (Exception) { }
                         }
@@ -432,7 +460,8 @@ namespace FireFly.Proxy
                         {
                             try
                             {
-                                _CameraEventLabel.Unsubscribe();
+                                if (ConnectivityState == LinkUpConnectivityState.Connected)
+                                    _CameraEventLabel.Unsubscribe();
                             }
                             catch (Exception) { }
                         }
@@ -440,7 +469,8 @@ namespace FireFly.Proxy
                         {
                             try
                             {
-                                _ImuEventLabel.Subscribe();
+                                if (ConnectivityState == LinkUpConnectivityState.Connected)
+                                    _ImuEventLabel.Subscribe();
                             }
                             catch (Exception) { }
                         }
@@ -448,11 +478,11 @@ namespace FireFly.Proxy
                         {
                             try
                             {
-                                _ImuEventLabel.Unsubscribe();
+                                if (ConnectivityState == LinkUpConnectivityState.Connected)
+                                    _ImuEventLabel.Unsubscribe();
                             }
                             catch (Exception) { }
                         }
-
                     }
                 }
             }
@@ -460,17 +490,20 @@ namespace FireFly.Proxy
             {
                 try
                 {
-                    _CameraEventLabel.Unsubscribe();
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _CameraEventLabel.Unsubscribe();
                 }
                 catch (Exception) { }
                 try
                 {
-                    _ImuEventLabel.Unsubscribe();
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _ImuEventLabel.Unsubscribe();
                 }
                 catch (Exception) { }
                 try
                 {
-                    _CameraImuEventLabel.Unsubscribe();
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _CameraImuEventLabel.Unsubscribe();
                 }
                 catch (Exception) { }
             }

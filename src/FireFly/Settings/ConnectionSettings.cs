@@ -6,6 +6,7 @@
         private string _Password;
         private int _Port;
         private string _Username;
+        private string _Hostname;
 
         public string IpAddress
         {
@@ -56,6 +57,19 @@
             set
             {
                 _Username = value;
+            }
+        }
+
+        public string Hostname
+        {
+            get
+            {
+                return _Hostname;
+            }
+
+            set
+            {
+                _Hostname = value;
             }
         }
 

@@ -44,7 +44,7 @@
             </TabItem>
             <TabItem Header="Extrinsic">
                 <Grid>
-
+                    <CustomControls:ExtrinsicCalibrationControl DataContext="{Binding Path=ExtrinsicCalibrationViewModel}" />
                 </Grid>
             </TabItem>
         </TabControl>

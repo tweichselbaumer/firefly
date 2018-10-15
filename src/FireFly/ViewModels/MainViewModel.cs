@@ -140,6 +140,18 @@ namespace FireFly.ViewModels
             }
         }
 
+        public MetroDialogSettings MetroDialogSettings
+        {
+            get
+            {
+                return new MetroDialogSettings()
+                {
+                    AnimateShow = true,
+                    AnimateHide = true
+                };
+            }
+        }
+
         public LinkUpNode Node
         {
             get { return (LinkUpNode)GetValue(NodeProperty); }

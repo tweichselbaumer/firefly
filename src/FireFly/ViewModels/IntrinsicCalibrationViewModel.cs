@@ -417,8 +417,8 @@ namespace FireFly.ViewModels
                 {
                     MetroDialogSettings settings = new MetroDialogSettings()
                     {
-                        AnimateShow = false,
-                        AnimateHide = false
+                        AnimateShow = true,
+                        AnimateHide = true
                     };
 
                     var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Calculating calibration parameter now!", settings: settings);
@@ -442,7 +442,7 @@ namespace FireFly.ViewModels
                     await controller.CloseAsync();
                     if (!error)
                     {
-                        var con = await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Result", string.Format("RMS: {0}\nDo you want to save?", result.rms), MahApps.Metro.Controls.Dialogs.MessageDialogStyle.AffirmativeAndNegative, null);
+                        var con = await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Result", string.Format("RMS: {0}\nDo you want to save?", result.rms), MessageDialogStyle.AffirmativeAndNegative, null);
                         if (con == MessageDialogResult.Affirmative)
                         {
                             Parent.SyncContext.Post(async c =>
@@ -543,7 +543,7 @@ namespace FireFly.ViewModels
                                         AnimateShow = false,
                                         AnimateHide = false
                                     };
-                                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Loading calibration images!", settings: settings);
+                                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Loading calibration images!", settings: Parent.MetroDialogSettings);
                                     controller.SetCancelable(false);
                                     controller.SetIndeterminate();
 
@@ -710,7 +710,7 @@ namespace FireFly.ViewModels
                             AnimateHide = false
                         };
 
-                        var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Validate parameter now!", settings: settings);
+                        var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Validate parameter now!", settings: Parent.MetroDialogSettings);
                         controller.SetIndeterminate();
                         controller.SetCancelable(false);
 

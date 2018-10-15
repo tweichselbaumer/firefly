@@ -31,6 +31,11 @@
         </oxy:Plot>
 
         <Viewbox Grid.Row="0" Grid.Column="2">
+            <Viewbox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Save png image to..." Command="{Binding Path=SaveVignetteCommand}"/>
+                </ContextMenu>
+            </Viewbox.ContextMenu>
             <Border BorderThickness="1" BorderBrush="Black">
                 <Image Width="{Binding Path=Parent.CameraViewModel.ImageWidth}" Height="{Binding Path=Parent.CameraViewModel.ImageHeight}" Source="{Binding Path=Vignette.ImageSource}" />
             </Border>

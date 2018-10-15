@@ -161,6 +161,9 @@
     </Compile>
     <Compile Include="CustomControls\DragableItem.cs" />
     <Compile Include="CustomControls\DragItem.cs" />
+    <Compile Include="CustomControls\ExtrinsicCalibrationControl.xaml.cs">
+      <DependentUpon>ExtrinsicCalibrationControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomControls\IntrinsicResultControl.xaml.cs">
       <DependentUpon>IntrinsicResultControl.xaml</DependentUpon>
     </Compile>
@@ -214,6 +217,7 @@
     <Compile Include="ViewModels\CameraViewModel.cs" />
     <Compile Include="ViewModels\DataPlotViewModel.cs" />
     <Compile Include="ViewModels\AbstractViewModel.cs" />
+    <Compile Include="ViewModels\ExtrinsicCalibrationViewModel.cs" />
     <Compile Include="ViewModels\IntrinsicCalibrationViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\PhotometricCalibrationViewModel.cs" />
@@ -249,6 +253,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="CustomControls\DragableCameraControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomControls\ExtrinsicCalibrationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

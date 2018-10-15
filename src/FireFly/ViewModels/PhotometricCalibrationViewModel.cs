@@ -47,6 +47,40 @@ namespace FireFly.ViewModels
             set { SetValue(ResponseValuesProperty, value); }
         }
 
+
+
+        public RelayCommand<object> SaveVignetteCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoSaveVignette(o);
+                    });
+            }
+        }
+
+        private Task DoSaveVignette(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    System.Windows.Forms.SaveFileDialog saveFileDialog = null;
+                    bool save = false;
+                    saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                    saveFileDialog.Filter = "Portable Network Graphics (*.png) | *.png";
+                    save = saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK;
+
+                    if (save)
+                    {
+                        File.WriteAllBytes(saveFileDialog.FileName, Vignette.CvImage.ToPNGBinary(0));
+                    }
+                }, null);
+            });
+        }
+
         public RelayCommand<object> RunCalibrationCommand
         {
             get
@@ -119,6 +153,11 @@ namespace FireFly.ViewModels
 
                     var dataContext = new ReplaySelectDialogModel(obj =>
                     {
+                        Parent.SyncContext.Send(d =>
+                        {
+                            Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                        }, null);
+
                         Parent.SyncContext.Post(d =>
                         {
                             Task.Factory.StartNew(async () =>
@@ -131,7 +170,7 @@ namespace FireFly.ViewModels
                                         AnimateShow = false,
                                         AnimateHide = false
                                     };
-                                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Photometric calibration!", settings: settings);
+                                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Photometric calibration!", settings: Parent.MetroDialogSettings);
                                     controller.SetCancelable(false);
                                     controller.SetIndeterminate();
 
@@ -156,7 +195,7 @@ namespace FireFly.ViewModels
                                     int width = 0;
                                     int height = 0;
                                     List<double> responseValues = new List<double>();
-                                    Parent.SyncContext.Send(async d2 =>
+                                    Parent.SyncContext.Send(d2 =>
                                     {
                                         file = replaySelectDialogModel.SelectedFile.FullPath;
                                         outputPath = Path.Combine(Path.GetTempPath(), "firefly", Guid.NewGuid().ToString());
@@ -254,7 +293,6 @@ namespace FireFly.ViewModels
                                     p.BeginOutputReadLine();
                                 }
                             }, TaskCreationOptions.LongRunning);
-                            Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
                         }, null);
                     });
                     Parent.ReplayViewModel.Refresh();
@@ -265,6 +303,8 @@ namespace FireFly.ViewModels
                 }, null);
             });
         }
+
+
 
         private void ParseResponseResult(string outputPath)
         {

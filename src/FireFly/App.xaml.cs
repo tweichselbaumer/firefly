@@ -25,7 +25,7 @@ namespace FireFly
         [DllImport("kernel32.dll")]
         private static extern bool FreeConsole();
 
-        private const int MINIMUM_SPLASH_TIME = 2500;
+        private const int MINIMUM_SPLASH_TIME = 1500;
 
         protected override void OnStartup(StartupEventArgs e)
         {
