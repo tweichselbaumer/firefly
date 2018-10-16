@@ -176,6 +176,10 @@
     </Compile>
     <Compile Include="CustomControls\ResizableCanvas.cs" />
     <Compile Include="CustomControls\ResizingAdorner.cs" />
+    <Compile Include="CustomDialogs\ImageResultViewerDialog.xaml.cs">
+      <DependentUpon>ImageResultViewerDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomDialogs\ImageResultViewerDialogModel.cs" />
     <Compile Include="CustomDialogs\NewFileLocationDialog.xaml.cs">
       <DependentUpon>NewFileLocationDialog.xaml</DependentUpon>
     </Compile>
@@ -269,6 +273,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomControls\PhotometricCalibrationControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomDialogs\ImageResultViewerDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

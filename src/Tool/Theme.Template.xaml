@@ -6,46 +6,46 @@
                     mc:Ignorable="options">
 
     <!-- Matadata -->
-    <system:String x:Key="Theme.Name">Light.Firefly</system:String>
-    <system:String x:Key="Theme.DisplayName">Firefly (Light)</system:String>
-    <system:String x:Key="Theme.BaseColorScheme">Light</system:String>
-    <system:String x:Key="Theme.ColorScheme">Firefly</system:String>
-    <SolidColorBrush x:Key="Theme.ShowcaseBrush" Color="#FFCC3300" options:Freeze="True" />
+    <system:String x:Key="Theme.Name">{{ThemeName}}</system:String>
+    <system:String x:Key="Theme.DisplayName">{{ThemeDisplayName}}</system:String>
+    <system:String x:Key="Theme.BaseColorScheme">{{BaseColorScheme}}</system:String>
+    <system:String x:Key="Theme.ColorScheme">{{ColorScheme}}</system:String>
+    <SolidColorBrush x:Key="Theme.ShowcaseBrush" Color="{{AccentBaseColor}}" options:Freeze="True" />
 
     <!--  *************COLORS START*************  -->
 
     <!--  Theme Base Colors  -->
 
     <!--  ACCENT COLORS  -->
-    <Color x:Key="HighlightColor">#33D63600</Color>
-    <Color x:Key="AccentBaseColor">#FFCC3300</Color>
+    <Color x:Key="HighlightColor">{{HighlightColor}}</Color>
+    <Color x:Key="AccentBaseColor">{{AccentBaseColor}}</Color>
     <!--  80%  -->
-    <Color x:Key="AccentColor">#FFD63600</Color>
+    <Color x:Key="AccentColor">{{AccentColor}}</Color>
     <!--  60%  -->
-    <Color x:Key="AccentColor2">#CCD63600</Color>
+    <Color x:Key="AccentColor2">{{AccentColor2}}</Color>
     <!--  40%  -->
-    <Color x:Key="AccentColor3">#99D63600</Color>
+    <Color x:Key="AccentColor3">{{AccentColor3}}</Color>
     <!--  20%  -->
-    <Color x:Key="AccentColor4">#66D63600</Color>
+    <Color x:Key="AccentColor4">{{AccentColor4}}</Color>
 
     <!--  BASE COLORS  -->
-    <Color x:Key="BlackColor">#FF000000</Color>
-    <Color x:Key="WhiteColor">#FFFFFFFF</Color>
-    <Color x:Key="Gray1">#FF333333</Color>
-    <Color x:Key="Gray2">#FF7F7F7F</Color>
-    <Color x:Key="Gray3">#FF9D9D9D</Color>
-    <Color x:Key="Gray4">#FFA59F93</Color>
-    <Color x:Key="Gray5">#FFB9B9B9</Color>
-    <Color x:Key="Gray6">#FFCCCCCC</Color>
-    <Color x:Key="Gray7">#FFD8D8D9</Color>
-    <Color x:Key="Gray8">#FFE0E0E0</Color>
-    <Color x:Key="Gray9">#5EC9C9C9</Color>
-    <Color x:Key="Gray10">#FFF7F7F7</Color>
+    <Color x:Key="BlackColor">{{BlackColor}}</Color>
+    <Color x:Key="WhiteColor">{{WhiteColor}}</Color>
+    <Color x:Key="Gray1">{{Gray1}}</Color>
+    <Color x:Key="Gray2">{{Gray2}}</Color>
+    <Color x:Key="Gray3">{{Gray3}}</Color>
+    <Color x:Key="Gray4">{{Gray4}}</Color>
+    <Color x:Key="Gray5">{{Gray5}}</Color>
+    <Color x:Key="Gray6">{{Gray6}}</Color>
+    <Color x:Key="Gray7">{{Gray7}}</Color>
+    <Color x:Key="Gray8">{{Gray8}}</Color>
+    <Color x:Key="Gray9">{{Gray9}}</Color>
+    <Color x:Key="Gray10">{{Gray10}}</Color>
 
-    <Color x:Key="GrayNormal">#FFBEBEBE</Color>
-    <Color x:Key="GrayHover">#FF333333</Color>
+    <Color x:Key="GrayNormal">{{GrayNormal}}</Color>
+    <Color x:Key="GrayHover">{{GrayHover}}</Color>
 
-    <Color x:Key="FlyoutColor">#FFFFFFFF</Color>
+    <Color x:Key="FlyoutColor">{{FlyoutColor}}</Color>
 
     <!--  CORE CONTROL COLORS  -->
     <Color x:Key="ProgressIndeterminateColor1">#33878787</Color>
@@ -128,11 +128,11 @@
         <GradientStop Offset="1" Color="{StaticResource AccentColor3}" />
     </LinearGradientBrush>
 
-    <SolidColorBrush x:Key="SliderValueDisabled" Color="#FFBABABA" options:Freeze="True" />
-    <SolidColorBrush x:Key="SliderTrackDisabled" Color="#FFDBDBDB" options:Freeze="True" />
-    <SolidColorBrush x:Key="SliderThumbDisabled" Color="#FFA0A0A0" options:Freeze="True" />
-    <SolidColorBrush x:Key="SliderTrackHover" Color="#FFD0D0D0" options:Freeze="True" />
-    <SolidColorBrush x:Key="SliderTrackNormal" Color="#FFC6C6C6" options:Freeze="True" />
+    <SolidColorBrush x:Key="SliderValueDisabled" Color="{{SliderValueDisabled}}" options:Freeze="True" />
+    <SolidColorBrush x:Key="SliderTrackDisabled" Color="{{SliderTrackDisabled}}" options:Freeze="True" />
+    <SolidColorBrush x:Key="SliderThumbDisabled" Color="{{SliderThumbDisabled}}" options:Freeze="True" />
+    <SolidColorBrush x:Key="SliderTrackHover" Color="{{SliderTrackHover}}" options:Freeze="True" />
+    <SolidColorBrush x:Key="SliderTrackNormal" Color="{{SliderTrackNormal}}" options:Freeze="True" />
 
     <SolidColorBrush x:Key="FlyoutBackgroundBrush" Color="{StaticResource FlyoutColor}" options:Freeze="True" />
     <SolidColorBrush x:Key="FlyoutForegroundBrush" Color="{StaticResource BlackColor}" options:Freeze="True" />
@@ -142,7 +142,7 @@
 
     <SolidColorBrush x:Key="FlatButtonBackgroundBrush" Color="#D5D5D5" options:Freeze="True" />
     <SolidColorBrush x:Key="FlatButtonForegroundBrush" Color="#222222" options:Freeze="True" />
-    <SolidColorBrush x:Key="FlatButtonPressedBackgroundBrush" Color="#222222" options:Freeze="True" />
+    <SolidColorBrush x:Key="FlatButtonPressedBackgroundBrush" Color="{{FlatButtonPressedBackgroundBrush}}" options:Freeze="True" />
     <SolidColorBrush x:Key="FlatButtonPressedForegroundBrush" Color="White" options:Freeze="True" />
 
     <SolidColorBrush x:Key="DarkIdealForegroundDisabledBrush" Color="#ADADAD" options:Freeze="True" />
@@ -180,15 +180,15 @@
     <SolidColorBrush x:Key="ContextMenuBorderBrush" Color="{StaticResource BlackColor}" options:Freeze="True" />
     <SolidColorBrush x:Key="SubMenuBorderBrush" Color="{StaticResource BlackColor}" options:Freeze="True" />
 
-    <SolidColorBrush x:Key="MenuItemSelectionFill" Color="#DEDEDE" options:Freeze="True" />
-    <SolidColorBrush x:Key="MenuItemSelectionStroke" Color="#DEDEDE" options:Freeze="True" />
+    <SolidColorBrush x:Key="MenuItemSelectionFill" Color="{{MenuItemSelectionFill}}" options:Freeze="True" />
+    <SolidColorBrush x:Key="MenuItemSelectionStroke" Color="{{MenuItemSelectionStroke}}" options:Freeze="True" />
 
-    <SolidColorBrush x:Key="TopMenuItemPressedFill" Color="#DEDEDE" options:Freeze="True" />
-    <SolidColorBrush x:Key="TopMenuItemPressedStroke" Color="#E0717070" options:Freeze="True" />
-    <SolidColorBrush x:Key="TopMenuItemSelectionStroke" Color="#90717070" options:Freeze="True" />
+    <SolidColorBrush x:Key="TopMenuItemPressedFill" Color="{{TopMenuItemPressedFill}}" options:Freeze="True" />
+    <SolidColorBrush x:Key="TopMenuItemPressedStroke" Color="{{TopMenuItemPressedStroke}}" options:Freeze="True" />
+    <SolidColorBrush x:Key="TopMenuItemSelectionStroke" Color="{{TopMenuItemSelectionStroke}}" options:Freeze="True" />
 
     <!--  original #FF9A9A9A"  -->
-    <SolidColorBrush x:Key="DisabledMenuItemForeground" Color="{StaticResource Gray2}" options:Freeze="True" />
+    <SolidColorBrush x:Key="DisabledMenuItemForeground" Color="{{DisabledMenuItemForeground}}" options:Freeze="True" />
     <SolidColorBrush x:Key="DisabledMenuItemGlyphPanel" Color="#848589" options:Freeze="True" />
 
     <SolidColorBrush x:Key="{x:Static SystemColors.MenuTextBrushKey}" Color="{StaticResource BlackColor}" options:Freeze="True" />
@@ -196,9 +196,9 @@
     <SolidColorBrush x:Key="CheckmarkFill" Color="{StaticResource AccentColor}" options:Freeze="True" />
     <SolidColorBrush x:Key="RightArrowFill" Color="{StaticResource AccentColor}" options:Freeze="True" />
 
-    <Color x:Key="MenuShadowColor">#FF000000</Color>
+    <Color x:Key="MenuShadowColor">{{MenuShadowColor}}</Color>
 
-    <Color x:Key="IdealForegroundColor">White</Color>
+    <Color x:Key="IdealForegroundColor">{{IdealForegroundColor}}</Color>
 
     <SolidColorBrush x:Key="IdealForegroundColorBrush" Color="{StaticResource IdealForegroundColor}" options:Freeze="True" />
     <SolidColorBrush x:Key="IdealForegroundDisabledBrush" Opacity="0.4" Color="{StaticResource IdealForegroundColor}" options:Freeze="True" />
@@ -214,21 +214,21 @@
     <SolidColorBrush x:Key="MetroDataGrid.InactiveSelectionHighlightBrush" Color="{StaticResource AccentColor2}" options:Freeze="True" />
     <SolidColorBrush x:Key="MetroDataGrid.InactiveSelectionHighlightTextBrush" Color="{StaticResource IdealForegroundColor}" options:Freeze="True" />
 
-    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.PressedBrush.Win10" Color="#FF666666" options:Freeze="True" />
-    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OffBorderBrush.Win10" Color="#FF333333" options:Freeze="True" />
-    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OffMouseOverBorderBrush.Win10" Color="#FF000000" options:Freeze="True" />
-    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OffDisabledBorderBrush.Win10" Color="#FF999999" options:Freeze="True" />
+    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.PressedBrush.Win10" Color="{{MahApps.Metro.Brushes.ToggleSwitchButton.PressedBrush.Win10}}" options:Freeze="True" />
+    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OffBorderBrush.Win10" Color="{{MahApps.Metro.Brushes.ToggleSwitchButton.OffBorderBrush.Win10}}" options:Freeze="True" />
+    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OffMouseOverBorderBrush.Win10" Color="{{MahApps.Metro.Brushes.ToggleSwitchButton.OffMouseOverBorderBrush.Win10}}" options:Freeze="True" />
+    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OffDisabledBorderBrush.Win10" Color="{{MahApps.Metro.Brushes.ToggleSwitchButton.OffDisabledBorderBrush.Win10}}" options:Freeze="True" />
     <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OffSwitchBrush.Win10" Color="Transparent" options:Freeze="True" />
     <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OnSwitchBrush.Win10" Color="{StaticResource AccentColor}" options:Freeze="True" />
-    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OnSwitchDisabledBrush.Win10" Color="#FFCCCCCC" options:Freeze="True" />
+    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OnSwitchDisabledBrush.Win10" Color="{{MahApps.Metro.Brushes.ToggleSwitchButton.OnSwitchDisabledBrush.Win10}}" options:Freeze="True" />
     <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.OnSwitchMouseOverBrush.Win10" Color="{StaticResource AccentColor2}" options:Freeze="True" />
-    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorBrush.Win10" Color="#FF333333" options:Freeze="True" />
-    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorMouseOverBrush.Win10" Color="#FF000000" options:Freeze="True" />
+    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorBrush.Win10" Color="{{MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorBrush.Win10}}" options:Freeze="True" />
+    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorMouseOverBrush.Win10" Color="{{MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorMouseOverBrush.Win10}}" options:Freeze="True" />
     <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorCheckedBrush.Win10" Color="{StaticResource IdealForegroundColor}" options:Freeze="True" />
-    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorPressedBrush.Win10" Color="#FFFFFFFF" options:Freeze="True" />
-    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorDisabledBrush.Win10" Color="#FF999999" options:Freeze="True" />
+    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorPressedBrush.Win10" Color="{{MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorPressedBrush.Win10}}" options:Freeze="True" />
+    <SolidColorBrush x:Key="MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorDisabledBrush.Win10" Color="{{MahApps.Metro.Brushes.ToggleSwitchButton.ThumbIndicatorDisabledBrush.Win10}}" options:Freeze="True" />
 
-    <SolidColorBrush x:Key="MahApps.Metro.Brushes.Badged.DisabledBackgroundBrush" Color="#FF999999" options:Freeze="True" />
+    <SolidColorBrush x:Key="MahApps.Metro.Brushes.Badged.DisabledBackgroundBrush" Color="{{MahApps.Metro.Brushes.Badged.DisabledBackgroundBrush}}" options:Freeze="True" />
 
     <!--  HamburgerMenu  -->
 

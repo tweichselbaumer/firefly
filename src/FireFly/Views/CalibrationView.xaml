@@ -21,19 +21,19 @@
             <RowDefinition Height="10" />
         </Grid.RowDefinitions>
 
-        <TabControl  Grid.Column="1" Grid.Row="1">
+        <Controls:MetroTabControl Controls:TabControlHelper.IsUnderlined="True" Controls:TabControlHelper.Underlined="TabPanel"  Grid.Column="1" Grid.Row="1">
             <TabItem Header="IMU">
                 <Grid>
 
                 </Grid>
             </TabItem>
             <TabItem Header="Photometric">
-                <Grid>
+                <Grid Margin="0 10 0 0">
                     <CustomControls:PhotometricCalibrationControl DataContext="{Binding Path=PhotometricCalibrationViewModel}"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Intrinisc">
-                <Grid>
+                <Grid Margin="0 10 0 0">
                     <Grid Visibility="{Binding Path=IntrinsicCalibrationViewModel.TakeSnapshotControlVisibility}">
                         <CustomControls:IntrinsicSnapshotsControl DataContext="{Binding Path=IntrinsicCalibrationViewModel}"/>
                     </Grid>
@@ -43,10 +43,10 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Extrinsic">
-                <Grid>
+                <Grid Margin="0 10 0 0">
                     <CustomControls:ExtrinsicCalibrationControl DataContext="{Binding Path=ExtrinsicCalibrationViewModel}" />
                 </Grid>
             </TabItem>
-        </TabControl>
+        </Controls:MetroTabControl>
     </Grid>
 </UserControl>

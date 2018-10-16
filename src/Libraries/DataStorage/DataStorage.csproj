@@ -78,7 +78,7 @@
     <Compile Include="MemoryImageExporter.cs" />
     <Compile Include="Model\CalibrationTarget.cs" />
     <Compile Include="Model\CameraChain.cs" />
-    <Compile Include="Model\ImuTarget.cs" />
+    <Compile Include="Model\ImuChain.cs" />
     <Compile Include="PhotometricCalibratrionExporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemoteDataStore.cs" />

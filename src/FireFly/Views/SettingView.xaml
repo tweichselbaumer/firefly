@@ -16,7 +16,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <Controls:MetroAnimatedSingleRowTabControl>
+        <Controls:MetroTabControl Controls:TabControlHelper.IsUnderlined="True" Controls:TabControlHelper.Underlined="TabPanel">
             <!--<TabItem Header="General">
             </TabItem>-->
             <TabItem Header="Connection">
@@ -153,6 +153,6 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-        </Controls:MetroAnimatedSingleRowTabControl>
+        </Controls:MetroTabControl>
     </Grid>
 </UserControl>

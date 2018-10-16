@@ -84,7 +84,7 @@ namespace FireFly.ViewModels
                                         TagRows = 7
                                     }));
 
-                                    remoteDataStore.UploadContentToFile(string.Format(@"{0}/imu.yaml", remoteFolder), YamlTranslator.ConvertToYaml(new ImuTarget()
+                                    remoteDataStore.UploadContentToFile(string.Format(@"{0}/imu.yaml", remoteFolder), YamlTranslator.ConvertToYaml(new Imu()
                                     {
                                         RosTopic = "/imu0",
                                         UpdateRate = 200.0,
@@ -112,18 +112,36 @@ namespace FireFly.ViewModels
                                     }));
 
                                     remoteDataStore.ExecuteCommands(new List<string>()
-                                            {
+                                    {
                                         string.Format(@"cd {0}",remoteFolder),
                                         string.Format(@"unzip {0} -d {1}",Path.GetFileName(localFile),Path.GetFileNameWithoutExtension(localFile)),
                                         @"source ~/kalibr_workspace/devel/setup.bash",
                                         string.Format(@"kalibr_bagcreater --folder {0} --output-bag {0}.bag", Path.GetFileNameWithoutExtension(localFile)),
-                                        string.Format(@"kalibr_calibrate_imu_camera --bag {0}.bag --cams cam.yaml --imu imu.yaml --imu-models {1} --target target.yaml --time-calibration --dont-show-report",Path.GetFileNameWithoutExtension(localFile),"calibrated")
-                                            }, expactString);
+                                        string.Format(@"kalibr_calibrate_imu_camera --bag {0}.bag --cams cam.yaml --imu imu.yaml --imu-models {1} --target target.yaml --time-calibration --dont-show-report",Path.GetFileNameWithoutExtension(localFile),"scale-misalignment-size-effect"),
+                                        string.Format("pdftoppm report-imucam-{0}.pdf result -png",Path.GetFileNameWithoutExtension(localFile))
+                                     }, expactString);
+
+                                    CameraChain cameraChain = YamlTranslator.ConvertFromYaml<CameraChain>(remoteDataStore.DownloadFileToMemory(string.Format("{0}/camchain-imucam-{1}.yaml", remoteFolder, Path.GetFileNameWithoutExtension(localFile))));
+                                    ImuCain imuChain = YamlTranslator.ConvertFromYaml<ImuCain>(remoteDataStore.DownloadFileToMemory(string.Format("{0}/imu-{1}.yaml", remoteFolder, Path.GetFileNameWithoutExtension(localFile))));
+
+                                    string outputPath = Path.Combine(Path.GetTempPath(), "firefly", guid);
+
+                                    if (!Directory.Exists(outputPath))
+                                    {
+                                        Directory.CreateDirectory(outputPath);
+                                    }
+
+                                    foreach (string file in remoteDataStore.GetAllFileNames(remoteFolder))
+                                    {
+                                        remoteDataStore.DownloadFile(string.Format("{0}/{1}", remoteFolder, file), Path.Combine(outputPath, file));
+                                    }
 
                                     remoteDataStore.ExecuteCommands(new List<string>()
-                                            {
+                                    {
                                         string.Format(@"rm -r {0}",remoteFolder)
-                                            }, expactString);
+                                     }, expactString);
+
+                                    Directory.Delete(outputPath, true);
 
                                     await controller.CloseAsync();
                                 }

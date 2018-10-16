@@ -22,7 +22,7 @@ namespace FireFly.Data.Storage
             }
         }
 
-        public void DownloadFile(string remoteFileName, string localFileName, Action<double> downloadAction)
+        public void DownloadFile(string remoteFileName, string localFileName, Action<double> downloadAction=null)
         {
             using (FileStream stream = File.Open(localFileName, FileMode.CreateNew))
             {
@@ -42,6 +42,22 @@ namespace FireFly.Data.Storage
                 {
                 }
             }
+        }
+
+        public string DownloadFileToMemory(string remoteFileName)
+        {
+            try
+            {
+                using (SftpClient client = new SftpClient(_ConnectionInfo))
+                {
+                    client.Connect();
+                    return client.ReadAllText(remoteFileName);
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            return "";
         }
 
         public string ExecuteCommands(List<string> commands, string expactString)

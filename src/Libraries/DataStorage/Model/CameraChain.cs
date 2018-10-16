@@ -29,6 +29,8 @@ namespace FireFly.Data.Storage.Model
         private double _Fy;
         private int _Height;
         private string _RosTopic;
+        private double[][] _TCamImu;
+        private double _TimeshiftCamImu;
         private int _Width;
 
         [YamlIgnore]
@@ -50,7 +52,23 @@ namespace FireFly.Data.Storage.Model
         {
             get
             {
-                return CameraModel.ToString().ToLower();
+                switch (_CameraModel)
+                {
+                    case CameraModel.Pinhole:
+                        return "pinhole";
+
+                    case CameraModel.Omnidirectional:
+                        return "omni";
+
+                    case CameraModel.DoubleSphere:
+                        return "ds";
+
+                    case CameraModel.ExtendedUnified:
+                        return "eucm";
+
+                    default:
+                        return "pinhole";
+                }
             }
             set
             {
@@ -151,8 +169,25 @@ namespace FireFly.Data.Storage.Model
         {
             get
             {
-                return DistortionModel.ToString().ToLower();
+                switch (_DistortionModel)
+                {
+                    case DistortionModel.RadialTangential:
+                        return "radtan";
+
+                    case DistortionModel.Equidistant:
+                        return "equidistant";
+
+                    case DistortionModel.None:
+                        return "none";
+
+                    case DistortionModel.FieldOfView:
+                        return "fov";
+
+                    default:
+                        return "none";
+                }
             }
+
             set
             {
                 switch (value)
@@ -161,7 +196,7 @@ namespace FireFly.Data.Storage.Model
                         _DistortionModel = DistortionModel.RadialTangential;
                         break;
 
-                    case "equi":
+                    case "equidistant":
                         _DistortionModel = DistortionModel.Equidistant;
                         break;
 
@@ -268,6 +303,34 @@ namespace FireFly.Data.Storage.Model
             set
             {
                 _RosTopic = value;
+            }
+        }
+
+        [YamlMember(Alias = "T_cam_imu", ApplyNamingConventions = false)]
+        public double[][] TCamImu
+        {
+            get
+            {
+                return _TCamImu;
+            }
+
+            set
+            {
+                _TCamImu = value;
+            }
+        }
+
+        [YamlMember(Alias = "timeshift_cam_imu", ApplyNamingConventions = false)]
+        public double TimeshiftCamImu
+        {
+            get
+            {
+                return _TimeshiftCamImu;
+            }
+
+            set
+            {
+                _TimeshiftCamImu = value;
             }
         }
 

@@ -43,7 +43,7 @@
             </StackPanel>
         </DockPanel>
 
-        <TabControl  Grid.Column="1" Grid.Row="1">
+        <Controls:MetroTabControl Controls:TabControlHelper.IsUnderlined="True" Controls:TabControlHelper.Underlined="TabPanel"   Grid.Column="1" Grid.Row="1">
             <TabItem Header="Gyro">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -88,6 +88,6 @@
                     <CustomControls:PlotControl Grid.Row="4" />-->
                 </Grid>
             </TabItem>
-        </TabControl>
+        </Controls:MetroTabControl>
     </Grid>
 </UserControl>
