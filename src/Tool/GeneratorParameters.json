@@ -100,12 +100,12 @@
       "Name": "Firefly",
       "Values": 
 		{
-        "AccentBaseColor": "#FFCC3300",
-        "AccentColor": "#FFD63600",
-        "AccentColor2": "#CCD63600",
-        "AccentColor3": "#99D63600",
-        "AccentColor4": "#66D63600",
-        "HighlightColor": "#33D63600"
+        "HighlightColor": "#FFCC3300",
+        "AccentBaseColor": "#FFD63600",
+        "AccentColor": "#CCD63600",
+        "AccentColor2": "#99D63600",
+        "AccentColor3": "#66D63600",
+        "AccentColor4": "#33D63600"
       }
     }
   ]

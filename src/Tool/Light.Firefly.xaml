@@ -10,23 +10,23 @@
     <system:String x:Key="Theme.DisplayName">Firefly (Light)</system:String>
     <system:String x:Key="Theme.BaseColorScheme">Light</system:String>
     <system:String x:Key="Theme.ColorScheme">Firefly</system:String>
-    <SolidColorBrush x:Key="Theme.ShowcaseBrush" Color="#FFCC3300" options:Freeze="True" />
+    <SolidColorBrush x:Key="Theme.ShowcaseBrush" Color="#FFD63600" options:Freeze="True" />
 
     <!--  *************COLORS START*************  -->
 
     <!--  Theme Base Colors  -->
 
     <!--  ACCENT COLORS  -->
-    <Color x:Key="HighlightColor">#33D63600</Color>
-    <Color x:Key="AccentBaseColor">#FFCC3300</Color>
+    <Color x:Key="HighlightColor">{{HighlightColor}}</Color>
+    <Color x:Key="AccentBaseColor">#FFD63600</Color>
     <!--  80%  -->
-    <Color x:Key="AccentColor">#FFD63600</Color>
+    <Color x:Key="AccentColor">#CCD63600</Color>
     <!--  60%  -->
-    <Color x:Key="AccentColor2">#CCD63600</Color>
+    <Color x:Key="AccentColor2">#99D63600</Color>
     <!--  40%  -->
-    <Color x:Key="AccentColor3">#99D63600</Color>
+    <Color x:Key="AccentColor3">#66D63600</Color>
     <!--  20%  -->
-    <Color x:Key="AccentColor4">#66D63600</Color>
+    <Color x:Key="AccentColor4">#33D63600</Color>
 
     <!--  BASE COLORS  -->
     <Color x:Key="BlackColor">#FF000000</Color>
