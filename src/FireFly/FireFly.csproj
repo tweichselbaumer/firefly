@@ -221,6 +221,7 @@
     <Compile Include="ViewModels\CameraViewModel.cs" />
     <Compile Include="ViewModels\DataPlotViewModel.cs" />
     <Compile Include="ViewModels\AbstractViewModel.cs" />
+    <Compile Include="ViewModels\DebugViewModel.cs" />
     <Compile Include="ViewModels\ExtrinsicCalibrationViewModel.cs" />
     <Compile Include="ViewModels\IntrinsicCalibrationViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
@@ -236,6 +237,9 @@
     </Compile>
     <Compile Include="Views\DataPlotView.xaml.cs">
       <DependentUpon>DataPlotView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DebugView.xaml.cs">
+      <DependentUpon>DebugView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\RecordView.xaml.cs">
       <DependentUpon>RecordView.xaml</DependentUpon>
@@ -313,6 +317,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DataPlotView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DebugView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

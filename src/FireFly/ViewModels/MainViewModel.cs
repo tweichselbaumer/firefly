@@ -33,8 +33,11 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty DataPlotViewModelProperty =
             DependencyProperty.Register("DataPlotViewModel", typeof(DataPlotViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty DebugViewModelProperty =
+            DependencyProperty.Register("DebugViewModel", typeof(DebugViewModel), typeof(MainViewModel), new PropertyMetadata(null));
+
         public static readonly DependencyProperty NodeNameProperty =
-            DependencyProperty.Register("NodeName", typeof(string), typeof(MainViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
+                    DependencyProperty.Register("NodeName", typeof(string), typeof(MainViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty NodeProperty =
             DependencyProperty.Register("Node", typeof(LinkUpNode), typeof(MainViewModel), new PropertyMetadata(null));
@@ -70,6 +73,7 @@ namespace FireFly.ViewModels
             CalibrationViewModel = new CalibrationViewModel(this);
             RecordViewModel = new RecordViewModel(this);
             ReplayViewModel = new ReplayViewModel(this);
+            DebugViewModel = new DebugViewModel(this);
 
             _DialogCoordinator = MahApps.Metro.Controls.Dialogs.DialogCoordinator.Instance;
         }
@@ -122,6 +126,12 @@ namespace FireFly.ViewModels
         {
             get { return (DataPlotViewModel)GetValue(DataPlotViewModelProperty); }
             set { SetValue(DataPlotViewModelProperty, value); }
+        }
+
+        public DebugViewModel DebugViewModel
+        {
+            get { return (DebugViewModel)GetValue(DebugViewModelProperty); }
+            set { SetValue(DebugViewModelProperty, value); }
         }
 
         public IDialogCoordinator DialogCoordinator
