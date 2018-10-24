@@ -22,7 +22,7 @@ namespace FireFly.Data.Storage
             }
         }
 
-        public void DownloadFile(string remoteFileName, string localFileName, Action<double> downloadAction=null)
+        public void DownloadFile(string remoteFileName, string localFileName, Action<double> downloadAction = null)
         {
             using (FileStream stream = File.Open(localFileName, FileMode.CreateNew))
             {
@@ -77,12 +77,16 @@ namespace FireFly.Data.Storage
                             Debug.WriteLine(s.Exception);
                         };
 
-                        result += stream.Expect(new Regex(expactString));
+                        stream.Expect(new Regex(expactString));
 
                         foreach (string command in commands)
                         {
-                            stream.Write(string.Format("{0}\n", command));
-                            result += stream.Expect(new Regex(expactString));
+                            string logfile = string.Format("/var/tmp/firefly/{0}.log", Guid.NewGuid());
+                            stream.Write(string.Format("{0} > {1}\n", command, logfile));
+                            result += DownloadFileToMemory(logfile);
+                            stream.Expect(new Regex(expactString));
+                            stream.Write(string.Format("{0} {1}\n", "rm", logfile));
+                            stream.Expect(new Regex(expactString));
                         }
                     }
                 }

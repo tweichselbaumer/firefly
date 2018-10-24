@@ -1,11 +1,66 @@
-﻿using System.Reflection;
-
-namespace FireFly.Settings
+﻿namespace FireFly.Settings
 {
     public class CalibrationSettings : AbstractSettings
     {
+        private AprilGridCalibrationSettings _AprilGridCalibration = new AprilGridCalibrationSettings();
+        private ChArucoCalibrationSettings _ChArucoCalibrationSettings = new ChArucoCalibrationSettings();
+        private ExtrinsicCalibrationSettings _ExtrinsicCalibrationSettings = new ExtrinsicCalibrationSettings();
+        private ImuCalibration _ImuCalibration = new ImuCalibration();
         private IntrinsicCalibrationSettings _IntrinsicCalibrationSettings = new IntrinsicCalibrationSettings();
         private PhotometricCalibrationSettings _PhotometricCalibrationSettings = new PhotometricCalibrationSettings();
+
+        public AprilGridCalibrationSettings AprilGridCalibration
+        {
+            get
+            {
+                return _AprilGridCalibration;
+            }
+
+            set
+            {
+                _AprilGridCalibration = value;
+            }
+        }
+
+        public ChArucoCalibrationSettings ChArucoCalibrationSettings
+        {
+            get
+            {
+                return _ChArucoCalibrationSettings;
+            }
+
+            set
+            {
+                _ChArucoCalibrationSettings = value;
+            }
+        }
+
+        public ExtrinsicCalibrationSettings ExtrinsicCalibrationSettings
+        {
+            get
+            {
+                return _ExtrinsicCalibrationSettings;
+            }
+
+            set
+            {
+                _ExtrinsicCalibrationSettings = value;
+            }
+        }
+
+        public ImuCalibration ImuCalibration
+        {
+            get
+            {
+                return _ImuCalibration;
+            }
+
+            set
+            {
+                _ImuCalibration = value;
+            }
+        }
+
         public IntrinsicCalibrationSettings IntrinsicCalibrationSettings
         {
             get

@@ -204,9 +204,14 @@
     <Compile Include="Proxy\IProxyEventSubscriber.cs" />
     <Compile Include="Proxy\ProxyEventType.cs" />
     <Compile Include="Settings\AbstractSettings.cs" />
+    <Compile Include="Settings\AprilGridCalibrationSettings.cs" />
     <Compile Include="Settings\CalibrationSettings.cs" />
+    <Compile Include="Settings\ChArucoCalibrationSettings.cs" />
+    <Compile Include="Settings\CameraSettings.cs" />
     <Compile Include="Settings\ConnectionSettings.cs" />
+    <Compile Include="Settings\ExtrinsicCalibrationSettings.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
+    <Compile Include="Settings\ImuCalibration.cs" />
     <Compile Include="Settings\ImuSettings.cs" />
     <Compile Include="Settings\IntrinsicCalibrationSettings.cs" />
     <Compile Include="Settings\PhotometricCalibrationSettings.cs" />

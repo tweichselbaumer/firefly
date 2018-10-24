@@ -1,10 +1,10 @@
 ﻿<UserControl x:Class="FireFly.CustomControls.IntrinsicResultControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:FireFly.CustomControls"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
@@ -20,7 +20,7 @@
 
         <Viewbox Grid.Row="0" Grid.Column="0">
             <Border BorderThickness="1" BorderBrush="Black">
-                <Image Width="{Binding Path=Parent.CameraViewModel.ImageWidth}" Height="{Binding Path=Parent.CameraViewModel.ImageHeight}" Source="{Binding Path=ChAruCoBoard.ImageSource}"/>
+                <Image Width="{Binding Path=Parent.CameraViewModel.ImageWidth}" Height="{Binding Path=Parent.CameraViewModel.ImageHeight}" Source="{Binding Path=ChAruCoBoard.ImageSource}" />
             </Border>
         </Viewbox>
 
@@ -37,18 +37,17 @@
             <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=SquaresY}" />
             <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
 
-            <Label  Content="Square Length" Style="{DynamicResource GeneralLabelStyle}" />
+            <Label  Content="Square Length [m]" Style="{DynamicResource GeneralLabelStyle}" />
             <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=SquareLength}" />
             <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
 
-            <Label  Content="Marker Length" Style="{DynamicResource GeneralLabelStyle}" />
+            <Label  Content="Marker Length [m]" Style="{DynamicResource GeneralLabelStyle}" />
             <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=MarkerLength}" />
             <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
 
-            <Button Grid.Row="1" Grid.ColumnSpan="1" Width="200" Content="print board" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=PrintBoardCommand}"/>
-
+            <Button Grid.Row="1" Grid.ColumnSpan="1" Width="200" Content="print board" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=PrintBoardCommand}" />
         </StackPanel>
 
-        <Button Grid.Row="1" Grid.ColumnSpan="1" Width="200" Content="start" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCalibrationCommand}"/>
+        <Button Grid.Row="1" Grid.ColumnSpan="1" Width="200" Content="start" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCalibrationCommand}" />
     </Grid>
 </UserControl>

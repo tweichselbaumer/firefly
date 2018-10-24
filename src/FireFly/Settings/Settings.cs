@@ -1,10 +1,9 @@
-﻿using System.Reflection;
-
-namespace FireFly.Settings
+﻿namespace FireFly.Settings
 {
     public class Settings : AbstractSettings
     {
         private CalibrationSettings _CalibrationSettings = new CalibrationSettings();
+        private CameraSettings _CameraSettings = new CameraSettings();
         private ConnectionSettings _ConnectionSettings = new ConnectionSettings();
         private GeneralSettings _GeneralSettings = new GeneralSettings();
         private ImuSettings _ImuSettings = new ImuSettings();
@@ -23,6 +22,19 @@ namespace FireFly.Settings
             }
         }
 
+        public CameraSettings CameraSettings
+        {
+            get
+            {
+                return _CameraSettings;
+            }
+
+            set
+            {
+                _CameraSettings = value;
+            }
+        }
+
         public ConnectionSettings ConnectionSettings
         {
             get
@@ -33,19 +45,6 @@ namespace FireFly.Settings
             set
             {
                 _ConnectionSettings = value;
-            }
-        }
-
-        public StreamingSettings StreamingSettings
-        {
-            get
-            {
-                return _StreamingSettings;
-            }
-
-            set
-            {
-                _StreamingSettings = value;
             }
         }
 
@@ -72,6 +71,19 @@ namespace FireFly.Settings
             set
             {
                 _ImuSettings = value;
+            }
+        }
+
+        public StreamingSettings StreamingSettings
+        {
+            get
+            {
+                return _StreamingSettings;
+            }
+
+            set
+            {
+                _StreamingSettings = value;
             }
         }
 

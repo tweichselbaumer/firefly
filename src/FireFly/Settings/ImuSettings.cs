@@ -14,6 +14,8 @@ namespace FireFly.Settings
         private double _TemperatureScale;
         private double _TemperatureOffset;
 
+        private int _UpdateRate;
+
         public double AccelerometerScale
         {
             get
@@ -76,6 +78,19 @@ namespace FireFly.Settings
             set
             {
                 _RecordRemote = value;
+            }
+        }
+
+        public int UpdateRate
+        {
+            get
+            {
+                return _UpdateRate;
+            }
+
+            set
+            {
+                _UpdateRate = value;
             }
         }
 

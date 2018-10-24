@@ -55,7 +55,7 @@ namespace FireFly.ViewModels
                 string expactString = string.Format("{0}@{1}:.{{0,}}[$]", Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Hostname);
 
                 RemoteDataStore remoteDataStore = new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Password);
-                remoteDataStore.ExecuteCommands(new List<string>() { string.Format("sudo shutdown -t 0\n{0}", Parent.SettingContainer.Settings.ConnectionSettings.Password) }, expactString);
+                remoteDataStore.ExecuteCommands(new List<string>() { string.Format("sudo shutdown -t 0\n{0}\n", Parent.SettingContainer.Settings.ConnectionSettings.Password) }, expactString);
             });
         }
 

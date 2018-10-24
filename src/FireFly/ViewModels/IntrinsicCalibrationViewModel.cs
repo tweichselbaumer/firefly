@@ -250,11 +250,11 @@ namespace FireFly.ViewModels
         {
             base.SettingsUpdated();
 
-            SquaresX = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresX;
-            SquaresY = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresY;
-            MarkerLength = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.MarkerLength;
-            SquareLength = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquareLength;
-            Dictionary = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Dictionary;
+            SquaresX = Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquaresX;
+            SquaresY = Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquaresY;
+            MarkerLength = Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.MarkerLength;
+            SquareLength = Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquareLength;
+            Dictionary = Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.Dictionary;
 
             bool changed = false;
             changed |= Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Fx != _Fx;
@@ -324,28 +324,28 @@ namespace FireFly.ViewModels
             switch (e.Property.Name)
             {
                 case "SquaresX":
-                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresX != icvm.SquaresX;
-                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresX = icvm.SquaresX;
+                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquaresX != icvm.SquaresX;
+                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquaresX = icvm.SquaresX;
                     break;
 
                 case "SquaresY":
-                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresY != icvm.SquaresY;
-                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquaresY = icvm.SquaresY;
+                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquaresY != icvm.SquaresY;
+                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquaresY = icvm.SquaresY;
                     break;
 
                 case "SquareLength":
-                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquareLength != icvm.SquareLength;
-                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.SquareLength = icvm.SquareLength;
+                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquareLength != icvm.SquareLength;
+                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquareLength = icvm.SquareLength;
                     break;
 
                 case "MarkerLength":
-                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.MarkerLength != icvm.MarkerLength;
-                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.MarkerLength = icvm.MarkerLength;
+                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.MarkerLength != icvm.MarkerLength;
+                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.MarkerLength = icvm.MarkerLength;
                     break;
 
                 case "Dictionary":
-                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Dictionary != icvm.Dictionary;
-                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Dictionary = icvm.Dictionary;
+                    changed = icvm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.Dictionary != icvm.Dictionary;
+                    icvm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.Dictionary = icvm.Dictionary;
                     break;
 
                 default:

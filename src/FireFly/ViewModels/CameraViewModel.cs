@@ -162,7 +162,7 @@ namespace FireFly.ViewModels
         {
             get
             {
-                return 512;
+                return Parent.SettingContainer.Settings.CameraSettings.Height;
             }
         }
 
@@ -170,7 +170,7 @@ namespace FireFly.ViewModels
         {
             get
             {
-                return 512;
+                return Parent.SettingContainer.Settings.CameraSettings.Width;
             }
         }
 

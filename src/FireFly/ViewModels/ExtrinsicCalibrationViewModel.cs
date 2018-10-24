@@ -55,7 +55,7 @@ namespace FireFly.ViewModels
 
         private void ShowResults(string path)
         {
-            Parent.SyncContext.Post(f =>
+            Parent.SyncContext.Send(f =>
             {
                 CustomDialog customDialog;
 
@@ -107,6 +107,9 @@ namespace FireFly.ViewModels
                             string remoteFolder = string.Format(@"/var/tmp/firefly/{0}", guid);
                             string expactString = string.Format("{0}@{1}:.{{0,}}[$]", Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Hostname);
 
+                            string imuModel = "scale-misalignment-size-effect";
+                            //imuModel = "calibrated";
+
                             Parent.SyncContext.Send(c =>
                             {
                                 localFile = replaySelectDialogModel.SelectedFile.FullPath;
@@ -120,24 +123,24 @@ namespace FireFly.ViewModels
                             remoteDataStore.ExecuteCommands(new List<string>() { string.Format("mkdir -p {0}", remoteFolder) }, expactString);
 
                             remoteDataStore.UploadFile(remoteFile, localFile);
-                            //TODO:
+
                             remoteDataStore.UploadContentToFile(string.Format(@"{0}/target.yaml", remoteFolder), YamlTranslator.ConvertToYaml(new CalibrationTarget()
                             {
                                 TargetType = CalibrationTargetType.Aprilgrid,
-                                TagSize = 0.11611,
-                                TagSpacing = 0.3,
-                                TagCols = 5,
-                                TagRows = 7
+                                TagSize = Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagSize,
+                                TagSpacing = Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagSpacingFactor,
+                                TagCols = Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagsX,
+                                TagRows = Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagsY
                             }));
 
                             remoteDataStore.UploadContentToFile(string.Format(@"{0}/imu.yaml", remoteFolder), YamlTranslator.ConvertToYaml(new Imu()
                             {
                                 RosTopic = "/imu0",
-                                UpdateRate = 200.0,
-                                AccelerometerNoiseDensity = 0.0028,
-                                AccelerometerRandomWalk = 0.00086,
-                                GyroscopeNoiseDensity = 0.00016,
-                                GyroscopeRandomWalk = 0.000022
+                                UpdateRate = Parent.SettingContainer.Settings.ImuSettings.UpdateRate,
+                                AccelerometerNoiseDensity = Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AccelerometerNoiseDensity * Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AccelerometerNoiseDensitySafetyScale,
+                                AccelerometerRandomWalk = Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AccelerometerRandomWalk * Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AccelerometerRandomWalkSafetyScale,
+                                GyroscopeNoiseDensity = Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.GyroscopeNoiseDensity * Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.GyroscopeNoiseDensitySafetyScale,
+                                GyroscopeRandomWalk = Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.GyroscopeRandomWalk * Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.GyroscopeRandomWalkSafetyScale
                             }));
 
                             remoteDataStore.UploadContentToFile(string.Format(@"{0}/cam.yaml", remoteFolder), YamlTranslator.ConvertToYaml(new CameraChain()
@@ -152,8 +155,8 @@ namespace FireFly.ViewModels
                                     Cx = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cx,
                                     Cy = Parent.SettingContainer.Settings.CalibrationSettings.IntrinsicCalibrationSettings.Cy,
                                     RosTopic = "/cam0/image_raw",
-                                    Height = 512,
-                                    Width = 512
+                                    Height = Parent.SettingContainer.Settings.CameraSettings.Height,
+                                    Width = Parent.SettingContainer.Settings.CameraSettings.Width
                                 }
                             }));
 
@@ -163,7 +166,7 @@ namespace FireFly.ViewModels
                                         string.Format(@"unzip {0} -d {1}",Path.GetFileName(localFile),Path.GetFileNameWithoutExtension(localFile)),
                                         @"source ~/kalibr_workspace/devel/setup.bash",
                                         string.Format(@"kalibr_bagcreater --folder {0} --output-bag {0}.bag", Path.GetFileNameWithoutExtension(localFile)),
-                                        string.Format(@"kalibr_calibrate_imu_camera --bag {0}.bag --cams cam.yaml --imu imu.yaml --imu-models {1} --target target.yaml --time-calibration --dont-show-report",Path.GetFileNameWithoutExtension(localFile),"scale-misalignment-size-effect"),
+                                        string.Format(@"kalibr_calibrate_imu_camera --bag {0}.bag --cams cam.yaml --imu imu.yaml --imu-models {1} --target target.yaml --time-calibration --dont-show-report",Path.GetFileNameWithoutExtension(localFile),imuModel),
                                         string.Format("pdftoppm report-imucam-{0}.pdf result -png",Path.GetFileNameWithoutExtension(localFile))
                                      }, expactString);
 
@@ -179,7 +182,8 @@ namespace FireFly.ViewModels
 
                             foreach (string file in remoteDataStore.GetAllFileNames(remoteFolder))
                             {
-                                remoteDataStore.DownloadFile(string.Format("{0}/{1}", remoteFolder, file), Path.Combine(outputPath, file));
+                                if (!file.Contains(".bag") && !file.Contains(".ffc"))
+                                    remoteDataStore.DownloadFile(string.Format("{0}/{1}", remoteFolder, file), Path.Combine(outputPath, file));
                             }
 
                             ShowResults(outputPath);
@@ -189,7 +193,7 @@ namespace FireFly.ViewModels
                                         string.Format(@"rm -r {0}",remoteFolder)
                                      }, expactString);
 
-                            Directory.Delete(outputPath, true);
+                            //Directory.Delete(outputPath, true);
 
                             await controller.CloseAsync();
                         }

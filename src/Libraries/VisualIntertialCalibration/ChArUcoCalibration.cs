@@ -57,53 +57,6 @@ namespace FireFly.VI.Calibration
             return (cameraMatrix, distCoeffs, rms);
         }
 
-        public static double ValidateCharuco(int squaresX, int squaresY, float squareLength, float markerLength, PredefinedDictionaryName dictionary, Size imageSize, VectorOfInt charucoIds, VectorOfPointF charucoCorners, VectorOfInt markerCounterPerFrame, bool fisheye, Func<byte[], byte[]> GetRemoteChessboardCorner, Mat cameraMatrix, Mat distCoeffs)
-        {
-            VectorOfVectorOfPoint3D32F processedObjectPoints = new VectorOfVectorOfPoint3D32F();
-            VectorOfVectorOfPointF processedImagePoints = new VectorOfVectorOfPointF();
-            VectorOfPoint3D32F rvecs = new VectorOfPoint3D32F();
-            VectorOfPoint3D32F tvecs = new VectorOfPoint3D32F();
-
-            int k = 0;
-
-            for (int i = 0; i < markerCounterPerFrame.Size; i++)
-            {
-                int nMarkersInThisFrame = markerCounterPerFrame[i];
-                VectorOfPointF currentImgPoints = new VectorOfPointF();
-                VectorOfPointF currentImgPointsUndistort = new VectorOfPointF();
-                VectorOfInt currentIds = new VectorOfInt();
-                VectorOfPoint3D32F currentObjPoints = new VectorOfPoint3D32F();
-                Mat tvec = new Mat();
-                Mat rvec = new Mat();
-
-                for (int j = 0; j < nMarkersInThisFrame; j++)
-                {
-                    currentImgPoints.Push(new PointF[] { charucoCorners[k] });
-                    currentIds.Push(new int[] { charucoIds[k] });
-                    currentObjPoints.Push(new MCvPoint3D32f[] { GetChessboardCorner(squaresX, squaresY, squareLength, markerLength, charucoIds[k], dictionary, GetRemoteChessboardCorner) });
-                    k++;
-                }
-
-                Mat distCoeffsNew = new Mat(1, 4, DepthType.Cv64F, 1);
-                distCoeffsNew.SetValue(0, 0, 0);
-                distCoeffsNew.SetValue(0, 1, 0);
-                distCoeffsNew.SetValue(0, 2, 0);
-                distCoeffsNew.SetValue(0, 3, 0);
-
-                Fisheye.UndistorPoints(currentImgPoints, currentImgPointsUndistort, cameraMatrix, distCoeffs, Mat.Eye(3, 3, DepthType.Cv64F, 1), Mat.Eye(3, 3, DepthType.Cv64F, 1));
-                if (ArucoInvoke.EstimatePoseCharucoBoard(currentImgPointsUndistort, currentIds, CreateBoard(squaresX, squaresY, squareLength, markerLength, new Dictionary(dictionary)), Mat.Eye(3, 3, DepthType.Cv64F, 1), distCoeffsNew, rvec, tvec))
-                {
-                    rvecs.Push(new MCvPoint3D32f[] { new MCvPoint3D32f((float)rvec.GetValue(0, 0), (float)rvec.GetValue(1, 0), (float)rvec.GetValue(2, 0)) });
-                    tvecs.Push(new MCvPoint3D32f[] { new MCvPoint3D32f((float)tvec.GetValue(0, 0), (float)tvec.GetValue(1, 0), (float)tvec.GetValue(2, 0)) });
-
-                    processedImagePoints.Push(currentImgPoints);
-                    processedObjectPoints.Push(currentObjPoints);
-                }
-            }
-
-            return Validate(processedObjectPoints, processedImagePoints, cameraMatrix, distCoeffs, rvecs, tvecs, fisheye);
-        }
-
         public static CharucoBoard CreateBoard(int squaresX, int squaresY, float squareLength, float markerLength, Dictionary dictionary)
         {
             return new CharucoBoard(squaresX, squaresY, squareLength, markerLength, dictionary);
@@ -150,6 +103,53 @@ namespace FireFly.VI.Calibration
             board.Draw(imageSize, boardImage, margin, 1);
 
             return boardImage.Mat;
+        }
+
+        public static double ValidateCharuco(int squaresX, int squaresY, float squareLength, float markerLength, PredefinedDictionaryName dictionary, Size imageSize, VectorOfInt charucoIds, VectorOfPointF charucoCorners, VectorOfInt markerCounterPerFrame, bool fisheye, Func<byte[], byte[]> GetRemoteChessboardCorner, Mat cameraMatrix, Mat distCoeffs)
+        {
+            VectorOfVectorOfPoint3D32F processedObjectPoints = new VectorOfVectorOfPoint3D32F();
+            VectorOfVectorOfPointF processedImagePoints = new VectorOfVectorOfPointF();
+            VectorOfPoint3D32F rvecs = new VectorOfPoint3D32F();
+            VectorOfPoint3D32F tvecs = new VectorOfPoint3D32F();
+
+            int k = 0;
+
+            for (int i = 0; i < markerCounterPerFrame.Size; i++)
+            {
+                int nMarkersInThisFrame = markerCounterPerFrame[i];
+                VectorOfPointF currentImgPoints = new VectorOfPointF();
+                VectorOfPointF currentImgPointsUndistort = new VectorOfPointF();
+                VectorOfInt currentIds = new VectorOfInt();
+                VectorOfPoint3D32F currentObjPoints = new VectorOfPoint3D32F();
+                Mat tvec = new Mat();
+                Mat rvec = new Mat();
+
+                for (int j = 0; j < nMarkersInThisFrame; j++)
+                {
+                    currentImgPoints.Push(new PointF[] { charucoCorners[k] });
+                    currentIds.Push(new int[] { charucoIds[k] });
+                    currentObjPoints.Push(new MCvPoint3D32f[] { GetChessboardCorner(squaresX, squaresY, squareLength, markerLength, charucoIds[k], dictionary, GetRemoteChessboardCorner) });
+                    k++;
+                }
+
+                Mat distCoeffsNew = new Mat(1, 4, DepthType.Cv64F, 1);
+                distCoeffsNew.SetValue(0, 0, 0);
+                distCoeffsNew.SetValue(0, 1, 0);
+                distCoeffsNew.SetValue(0, 2, 0);
+                distCoeffsNew.SetValue(0, 3, 0);
+
+                Fisheye.UndistorPoints(currentImgPoints, currentImgPointsUndistort, cameraMatrix, distCoeffs, Mat.Eye(3, 3, DepthType.Cv64F, 1), Mat.Eye(3, 3, DepthType.Cv64F, 1));
+                if (ArucoInvoke.EstimatePoseCharucoBoard(currentImgPointsUndistort, currentIds, CreateBoard(squaresX, squaresY, squareLength, markerLength, new Dictionary(dictionary)), Mat.Eye(3, 3, DepthType.Cv64F, 1), distCoeffsNew, rvec, tvec))
+                {
+                    rvecs.Push(new MCvPoint3D32f[] { new MCvPoint3D32f((float)rvec.GetValue(0, 0), (float)rvec.GetValue(1, 0), (float)rvec.GetValue(2, 0)) });
+                    tvecs.Push(new MCvPoint3D32f[] { new MCvPoint3D32f((float)tvec.GetValue(0, 0), (float)tvec.GetValue(1, 0), (float)tvec.GetValue(2, 0)) });
+
+                    processedImagePoints.Push(currentImgPoints);
+                    processedObjectPoints.Push(currentObjPoints);
+                }
+            }
+
+            return Validate(processedObjectPoints, processedImagePoints, cameraMatrix, distCoeffs, rvecs, tvecs, fisheye);
         }
 
         private static MCvPoint3D32f GetChessboardCorner(int squaresX, int squaresY, float squareLength, float markerLength, int markerId, PredefinedDictionaryName dictionary, Func<byte[], byte[]> getRemoteChessboardCorner)
