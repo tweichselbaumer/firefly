@@ -13,7 +13,14 @@
             <RowDefinition Height="10"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <Controls:FlipView Grid.Row="0" IsBannerEnabled="False" ItemsSource="{Binding Images}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Controls:FlipView Grid.Row="0" Grid.ColumnSpan="5" IsBannerEnabled="False" ItemsSource="{Binding Images}">
             <Controls:FlipView.ItemTemplate>
                 <DataTemplate>
                     <Viewbox>
@@ -24,6 +31,22 @@
         </Controls:FlipView>
         <Button Grid.Row="2"
                 Grid.Column="0"
+                MinWidth="80"
+                Margin="8 8 0 8"
+                HorizontalAlignment="Center"
+                Command="{Binding SaveCommand}"
+                Content="Save" />
+
+        <Button Grid.Row="2"
+                Grid.Column="2"
+                MinWidth="80"
+                Margin="8 8 0 8"
+                HorizontalAlignment="Center"
+                Command="{Binding ExportCommand}"
+                Content="Export" />
+
+        <Button Grid.Row="2"
+                Grid.Column="4"
                 MinWidth="80"
                 Margin="8 8 0 8"
                 HorizontalAlignment="Center"

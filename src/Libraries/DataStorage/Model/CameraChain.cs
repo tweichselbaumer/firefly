@@ -307,7 +307,7 @@ namespace FireFly.Data.Storage.Model
         }
 
         [YamlMember(Alias = "T_cam_imu", ApplyNamingConventions = false)]
-        public double[][] TCamImu
+        public double[][] T_Cam_Imu
         {
             get
             {

@@ -13,7 +13,8 @@ namespace FireFly.CustomDialogs
     public class ImageResultViewerDialogModel : DependencyObject
     {
         private readonly RelayCommand<object> _CloseCommand;
-
+        private readonly RelayCommand<object> _SaveCommand;
+        private readonly RelayCommand<object> _ExportCommand;
 
 
         public RangeObservableCollection<CvImageContainer> Images
@@ -26,7 +27,7 @@ namespace FireFly.CustomDialogs
             DependencyProperty.Register("Images", typeof(RangeObservableCollection<CvImageContainer>), typeof(ImageResultViewerDialogModel), new PropertyMetadata(null));
 
 
-        public ImageResultViewerDialogModel(Action<ImageResultViewerDialogModel> closeHandel, string directory, string pattern)
+        public ImageResultViewerDialogModel(Action<ImageResultViewerDialogModel> closeHandel, Action<ImageResultViewerDialogModel> saveHandel, Action<ImageResultViewerDialogModel> exportHandel, string directory, string pattern)
         {
             Images = new RangeObservableCollection<CvImageContainer>();
             foreach (string file in Directory.GetFiles(directory, pattern))
@@ -42,6 +43,24 @@ namespace FireFly.CustomDialogs
                         closeHandel(this);
                     });
                 });
+
+            _SaveCommand = new RelayCommand<object>(
+                async (object o) =>
+                {
+                    await Task.Factory.StartNew(() =>
+                    {
+                        saveHandel(this);
+                    });
+                });
+
+            _ExportCommand = new RelayCommand<object>(
+                async (object o) =>
+                {
+                    await Task.Factory.StartNew(() =>
+                    {
+                        exportHandel(this);
+                    });
+                });
         }
 
         public RelayCommand<object> CloseCommand
@@ -49,6 +68,22 @@ namespace FireFly.CustomDialogs
             get
             {
                 return _CloseCommand;
+            }
+        }
+
+        public RelayCommand<object> SaveCommand
+        {
+            get
+            {
+                return _SaveCommand;
+            }
+        }
+
+        public RelayCommand<object> ExportCommand
+        {
+            get
+            {
+                return _ExportCommand;
             }
         }
     }

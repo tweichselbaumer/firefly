@@ -24,7 +24,7 @@ namespace FireFly.Data.Storage
 
         public void DownloadFile(string remoteFileName, string localFileName, Action<double> downloadAction = null)
         {
-            using (FileStream stream = File.Open(localFileName, FileMode.CreateNew))
+            using (FileStream stream = File.Open(localFileName, FileMode.OpenOrCreate))
             {
                 try
                 {

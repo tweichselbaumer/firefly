@@ -3,18 +3,64 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:helix="http://helix-toolkit.org/wpf"
              xmlns:local="clr-namespace:FireFly.CustomControls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
+            <RowDefinition Height="10" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Button Grid.Row="1" Grid.ColumnSpan="1" Width="200" Content="start" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCalibrationCommand}"/>
+
+        <helix:HelixViewport3D Grid.Row="0">
+            <helix:HelixViewport3D.DefaultCamera>
+                <PerspectiveCamera Position="0,1,0.3" LookDirection="0,-1,-0.3" UpDirection="0,0,1" />
+            </helix:HelixViewport3D.DefaultCamera>
+            <helix:DefaultLights/>
+            <helix:CuttingPlaneGroup Operation="Intersect" IsEnabled="True">
+                <helix:CuttingPlaneGroup.CuttingPlanes>
+                    <helix:Plane3D Normal="0,-1,0" Position="0,0.01,0"/>
+                </helix:CuttingPlaneGroup.CuttingPlanes>
+                <helix:FileModelVisual3D Source="Models\Copter.obj">
+                    <helix:FileModelVisual3D.Transform>
+                        <Transform3DGroup>
+                            <TranslateTransform3D OffsetX="-0.032122" OffsetY="-0.012680" OffsetZ="-0.083279" />
+                            <RotateTransform3D>
+                                <RotateTransform3D.Rotation>
+                                    <AxisAngleRotation3D Angle="90" Axis="1,0,0" />
+                                </RotateTransform3D.Rotation>
+                            </RotateTransform3D>
+                            <RotateTransform3D>
+                                <RotateTransform3D.Rotation>
+                                    <AxisAngleRotation3D Angle="180" Axis="0,0,1"/>
+                                </RotateTransform3D.Rotation>
+                            </RotateTransform3D>
+                        </Transform3DGroup>
+                    </helix:FileModelVisual3D.Transform>
+                </helix:FileModelVisual3D>
+            </helix:CuttingPlaneGroup>
+            <helix:CoordinateSystemVisual3D>
+                <helix:CoordinateSystemVisual3D.Transform>
+                    <ScaleTransform3D ScaleX="0.02" ScaleY="0.02" ScaleZ="0.02" />
+                </helix:CoordinateSystemVisual3D.Transform>
+            </helix:CoordinateSystemVisual3D>
+            <helix:CoordinateSystemVisual3D>
+                <helix:CoordinateSystemVisual3D.Transform>
+                    <Transform3DGroup>
+                        <ScaleTransform3D ScaleX="0.02" ScaleY="0.02" ScaleZ="0.02" />
+                        <TranslateTransform3D OffsetX="{Binding Path=t_c.OffsetX}" OffsetY="{Binding Path=t_c.OffsetY}" OffsetZ="{Binding Path=t_c.OffsetZ}" />
+                        <MatrixTransform3D Matrix="{Binding Path=R_ci}" />
+                    </Transform3DGroup>
+                </helix:CoordinateSystemVisual3D.Transform>
+            </helix:CoordinateSystemVisual3D>
+        </helix:HelixViewport3D>
+
+        <Button Grid.Row="2" Grid.ColumnSpan="1" Width="200" Content="start" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCalibrationCommand}"/>
     </Grid>
 </UserControl>

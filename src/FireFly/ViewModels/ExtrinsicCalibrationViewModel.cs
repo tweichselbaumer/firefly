@@ -2,20 +2,34 @@
 using FireFly.CustomDialogs;
 using FireFly.Data.Storage;
 using FireFly.Data.Storage.Model;
+using FireFly.Utilities;
 using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media.Media3D;
 
 namespace FireFly.ViewModels
 {
     public class ExtrinsicCalibrationViewModel : AbstractViewModel
     {
+        public static readonly DependencyProperty R_ciProperty =
+            DependencyProperty.Register("R_ci", typeof(Matrix3D), typeof(ExtrinsicCalibrationViewModel), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty t_cProperty =
+            DependencyProperty.Register("t_c", typeof(Matrix3D), typeof(ExtrinsicCalibrationViewModel), new PropertyMetadata(null));
+
         public ExtrinsicCalibrationViewModel(MainViewModel parent) : base(parent)
         {
+        }
+
+        public Matrix3D R_ci
+        {
+            get { return (Matrix3D)GetValue(R_ciProperty); }
+            set { SetValue(R_ciProperty, value); }
         }
 
         public RelayCommand<object> StartCalibrationCommand
@@ -28,6 +42,25 @@ namespace FireFly.ViewModels
                         await DoStartCalibration(o);
                     });
             }
+        }
+
+        public Matrix3D t_c
+        {
+            get { return (Matrix3D)GetValue(t_cProperty); }
+            set { SetValue(t_cProperty, value); }
+        }
+
+        internal override void SettingsUpdated()
+        {
+            base.SettingsUpdated();
+            Parent.SyncContext.Post(c =>
+            {
+                Matrix3D rot = Matrix3DFactory.CreateMatrixRotationOnly(Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu);
+                Matrix3D trans = Matrix3DFactory.CreateMatrixTranslationOnly(Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu);
+                trans.Invert();
+                R_ci = rot;
+                t_c = trans;
+            }, null);
         }
 
         private Task DoStartCalibration(object o)
@@ -51,36 +84,6 @@ namespace FireFly.ViewModels
                     Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
                 }, null);
             });
-        }
-
-        private void ShowResults(string path)
-        {
-            Parent.SyncContext.Send(f =>
-            {
-                CustomDialog customDialog;
-
-                customDialog = new CustomDialog() { Title = "Calibration results" };
-
-                var dataContext = new ImageResultViewerDialogModel(OnShowResultDialogClose(customDialog), path, "result-*.png");
-                Parent.ReplayViewModel.Refresh();
-                customDialog.Content = new ImageResultViewerDialog
-                {
-                    DataContext = dataContext
-                };
-
-                Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
-            }, null);
-        }
-
-        private Action<ImageResultViewerDialogModel> OnShowResultDialogClose(CustomDialog customDialog)
-        {
-            return obj =>
-            {
-                Parent.SyncContext.Send(d =>
-                {
-                    Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
-                }, null);
-            };
         }
 
         private Action<ReplaySelectDialogModel> OnReplaySelectDialogClose(CustomDialog customDialog)
@@ -111,10 +114,10 @@ namespace FireFly.ViewModels
                             //imuModel = "calibrated";
 
                             Parent.SyncContext.Send(c =>
-                            {
-                                localFile = replaySelectDialogModel.SelectedFile.FullPath;
-                                remoteFile = string.Format(@"/var/tmp/firefly/{0}/{1}", guid, Path.GetFileName(localFile));
-                            }, null);
+                        {
+                            localFile = replaySelectDialogModel.SelectedFile.FullPath;
+                            remoteFile = string.Format(@"/var/tmp/firefly/{0}/{1}", guid, Path.GetFileName(localFile));
+                        }, null);
 
                             var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Calculating calibration parameter now!", settings: Parent.MetroDialogSettings);
                             controller.SetIndeterminate();
@@ -145,7 +148,7 @@ namespace FireFly.ViewModels
 
                             remoteDataStore.UploadContentToFile(string.Format(@"{0}/cam.yaml", remoteFolder), YamlTranslator.ConvertToYaml(new CameraChain()
                             {
-                                Cam0 = new Camera()
+                                Cam0 = new Data.Storage.Model.Camera()
                                 {
                                     CameraModel = CameraModel.Pinhole,
                                     DistortionModel = DistortionModel.Equidistant,
@@ -160,13 +163,16 @@ namespace FireFly.ViewModels
                                 }
                             }));
 
+                            string options = "--time-calibration --dont-show-report";
+                            // options = "--dont-show-report";
+
                             remoteDataStore.ExecuteCommands(new List<string>()
                                     {
                                         string.Format(@"cd {0}",remoteFolder),
                                         string.Format(@"unzip {0} -d {1}",Path.GetFileName(localFile),Path.GetFileNameWithoutExtension(localFile)),
                                         @"source ~/kalibr_workspace/devel/setup.bash",
                                         string.Format(@"kalibr_bagcreater --folder {0} --output-bag {0}.bag", Path.GetFileNameWithoutExtension(localFile)),
-                                        string.Format(@"kalibr_calibrate_imu_camera --bag {0}.bag --cams cam.yaml --imu imu.yaml --imu-models {1} --target target.yaml --time-calibration --dont-show-report",Path.GetFileNameWithoutExtension(localFile),imuModel),
+                                        string.Format(@"kalibr_calibrate_imu_camera --bag {0}.bag --cams cam.yaml --imu imu.yaml --imu-models {1} --target target.yaml {2}",Path.GetFileNameWithoutExtension(localFile),imuModel,options),
                                         string.Format("pdftoppm report-imucam-{0}.pdf result -png",Path.GetFileNameWithoutExtension(localFile))
                                      }, expactString);
 
@@ -186,20 +192,71 @@ namespace FireFly.ViewModels
                                     remoteDataStore.DownloadFile(string.Format("{0}/{1}", remoteFolder, file), Path.Combine(outputPath, file));
                             }
 
-                            ShowResults(outputPath);
+                            ShowResults(outputPath, cameraChain, imuChain);
 
                             remoteDataStore.ExecuteCommands(new List<string>()
                                     {
                                         string.Format(@"rm -r {0}",remoteFolder)
                                      }, expactString);
 
-                            //Directory.Delete(outputPath, true);
-
                             await controller.CloseAsync();
                         }
                     });
                 }, null);
             };
+        }
+
+        private Action<ImageResultViewerDialogModel> OnShowResultDialogClose(CustomDialog customDialog, string path)
+        {
+            return obj =>
+            {
+                Parent.SyncContext.Send(d =>
+                {
+                    Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                    //Directory.Delete(path, true);
+                }, null);
+            };
+        }
+
+        private Action<ImageResultViewerDialogModel> OnShowResultDialogExport(CustomDialog customDialog, string path)
+        {
+            return obj =>
+            {
+                Parent.SyncContext.Send(d =>
+                {
+                }, null);
+            };
+        }
+
+        private Action<ImageResultViewerDialogModel> OnShowResultDialogSave(CustomDialog customDialog, CameraChain cameraChain, ImuCain imuChain)
+        {
+            return obj =>
+            {
+                Parent.SyncContext.Send(d =>
+                {
+                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu = cameraChain.Cam0.T_Cam_Imu;
+                    Parent.UpdateSettings(false);
+                }, null);
+            };
+        }
+
+        private void ShowResults(string path, CameraChain cameraChain, ImuCain imuChain)
+        {
+            Parent.SyncContext.Send(f =>
+            {
+                CustomDialog customDialog;
+
+                customDialog = new CustomDialog() { Title = "Calibration results" };
+
+                var dataContext = new ImageResultViewerDialogModel(OnShowResultDialogClose(customDialog, path), OnShowResultDialogSave(customDialog, cameraChain, imuChain), OnShowResultDialogExport(customDialog, path), path, "result-*.png");
+                Parent.ReplayViewModel.Refresh();
+                customDialog.Content = new ImageResultViewerDialog
+                {
+                    DataContext = dataContext
+                };
+
+                Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
+            }, null);
         }
     }
 }
