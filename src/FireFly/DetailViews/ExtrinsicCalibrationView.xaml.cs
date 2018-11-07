@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace FireFly.CustomControls
+namespace FireFly.DetailViews
 {
     /// <summary>
-    /// Interaction logic for PhotometricCalibrationControl.xaml
+    /// Interaction logic for ExtrinsicCalibrationView.xaml
     /// </summary>
-    public partial class PhotometricCalibrationControl : UserControl
+    public partial class ExtrinsicCalibrationView : UserControl
     {
-        public PhotometricCalibrationControl()
+        public ExtrinsicCalibrationView()
         {
             InitializeComponent();
         }

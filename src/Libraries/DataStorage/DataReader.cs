@@ -221,7 +221,7 @@ namespace FireFly.Data.Storage
 
             _Timestamps = temp.Select(c => c.Key).ToList();
             _ReaderModes = temp.Select(c => c.Value).ToList();
-            var test = _Timestamps.Take(_Timestamps.Count - 1).Select((v, i) => _Timestamps[i + 1] - v);
+
             if (_Timestamps.Count >= 2)
                 _DeltaTimeMs = (int)Math.Round(_Timestamps.Take(_Timestamps.Count - 1).Select((v, i) => _Timestamps[i + 1] - v).Sum() / ((_Timestamps.Count - 1) * 1000 * 1000.0));
             else

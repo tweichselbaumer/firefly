@@ -75,6 +75,7 @@
     <Compile Include="DataReader.cs" />
     <Compile Include="DataWritter.cs" />
     <Compile Include="MatlabExporter.cs" />
+    <Compile Include="MatlabImporter.cs" />
     <Compile Include="MemoryImageExporter.cs" />
     <Compile Include="Model\CalibrationTarget.cs" />
     <Compile Include="Model\CameraChain.cs" />

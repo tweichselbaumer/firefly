@@ -167,18 +167,21 @@
     </Compile>
     <Compile Include="CustomControls\DragableItem.cs" />
     <Compile Include="CustomControls\DragItem.cs" />
-    <Compile Include="CustomControls\ExtrinsicCalibrationControl.xaml.cs">
-      <DependentUpon>ExtrinsicCalibrationControl.xaml</DependentUpon>
+    <Compile Include="DetailViews\ExtrinsicCalibrationView.xaml.cs">
+      <DependentUpon>ExtrinsicCalibrationView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CustomControls\IntrinsicResultControl.xaml.cs">
-      <DependentUpon>IntrinsicResultControl.xaml</DependentUpon>
+    <Compile Include="DetailViews\ImuCalibrationView.xaml.cs">
+      <DependentUpon>ImuCalibrationView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CustomControls\IntrinsicSnapshotsControl.xaml.cs">
-      <DependentUpon>IntrinsicSnapshotsControl.xaml</DependentUpon>
+    <Compile Include="DetailViews\IntrinsicResultView.xaml.cs">
+      <DependentUpon>IntrinsicResultView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DetailViews\IntrinsicSnapshotsView.xaml.cs">
+      <DependentUpon>IntrinsicSnapshotsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\MovedEventArgs.cs" />
-    <Compile Include="CustomControls\PhotometricCalibrationControl.xaml.cs">
-      <DependentUpon>PhotometricCalibrationControl.xaml</DependentUpon>
+    <Compile Include="DetailViews\PhotometricCalibrationView.xaml.cs">
+      <DependentUpon>PhotometricCalibrationView.xaml</DependentUpon>
     </Compile>
     <Compile Include="CustomControls\ResizableCanvas.cs" />
     <Compile Include="CustomControls\ResizingAdorner.cs" />
@@ -234,6 +237,7 @@
     <Compile Include="ViewModels\AbstractViewModel.cs" />
     <Compile Include="ViewModels\DebugViewModel.cs" />
     <Compile Include="ViewModels\ExtrinsicCalibrationViewModel.cs" />
+    <Compile Include="ViewModels\ImuCalibrationViewModel.cs" />
     <Compile Include="ViewModels\IntrinsicCalibrationViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\PhotometricCalibrationViewModel.cs" />
@@ -275,19 +279,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CustomControls\ExtrinsicCalibrationControl.xaml">
+    <Page Include="DetailViews\ExtrinsicCalibrationView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CustomControls\IntrinsicResultControl.xaml">
+    <Page Include="DetailViews\ImuCalibrationView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CustomControls\IntrinsicSnapshotsControl.xaml">
+    <Page Include="DetailViews\IntrinsicResultView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CustomControls\PhotometricCalibrationControl.xaml">
+    <Page Include="DetailViews\IntrinsicSnapshotsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DetailViews\PhotometricCalibrationView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

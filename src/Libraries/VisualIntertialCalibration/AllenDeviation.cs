@@ -6,11 +6,11 @@ namespace FireFly.VI.Calibration
 {
     public static class AllenDeviation
     {
-        public static (double[] time, double[] sigma) Calculate(double[] values, double sampleTime, int points = 1000)
+        public static (List<double> time, List<double> sigma) Calculate(List<double> values, double sampleTime, int points = 1000)
         {
-            int maxN = (int)Math.Pow(2, Math.Floor(Math.Log(values.Length, 2)));
+            int maxN = (int)Math.Pow(2, Math.Floor(Math.Log(values.Count / 2, 2)));
 
-            List<double> logSpace = LogSpace(0, Math.Log10(maxN), points).Distinct().ToList();
+            List<double> logSpace = LogSpace10(0, Math.Log10(maxN), points).Select(c => Math.Ceiling(c)).Distinct().ToList();
             List<double> times = logSpace.Select(c => c * 1 / sampleTime).ToList();
 
             List<double> sigmas2 = Enumerable.Range(1, logSpace.Count).Select(c => 0.0).ToList();
@@ -19,15 +19,15 @@ namespace FireFly.VI.Calibration
 
             for (int i = 0; i < logSpace.Count; i++)
             {
-                for (int k = 0; k < Math.Floor(values.Length - 2 * logSpace[i]); k++)
+                for (int k = 0; k < Math.Floor(values.Count - 2 * logSpace[i]); k++)
                 {
                     sigmas2[i] += Math.Pow(theta[(int)Math.Floor(k + 2 * logSpace[i])] - 2 * theta[(int)Math.Floor(k + logSpace[i])] + theta[k], 2);
                 }
             }
 
-            List<double> sigmas = sigmas2.Select((c, i) => Math.Sqrt(c / (2 * Math.Pow(times[i], 2) * (values.Length - 2 * logSpace[i])))).ToList();
+            List<double> sigmas = sigmas2.Select((c, i) => Math.Sqrt(c / (2 * Math.Pow(times[i], 2) * (values.Count - 2 * logSpace[i])))).ToList();
 
-            return (times.ToArray(), sigmas.ToArray());
+            return (times, sigmas);
         }
 
         private static IEnumerable<double> CumulativeSum(this IEnumerable<double> sequence)
@@ -40,10 +40,9 @@ namespace FireFly.VI.Calibration
             }
         }
 
-        private static IEnumerable<double> LogSpace(double start, double end, int count)
+        private static IEnumerable<double> LogSpace10(double start, double end, int count)
         {
-            double d = (double)count, p = end / start;
-            return Enumerable.Range(0, count).Select(i => start * Math.Pow(p, i / d));
+            return Enumerable.Range(0, count).Select(i => Math.Pow(10, start + (end - start) / (count - 1) * i));
         }
     }
 }

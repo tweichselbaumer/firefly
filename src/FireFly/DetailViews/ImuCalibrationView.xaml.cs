@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace FireFly.CustomControls
+namespace FireFly.DetailViews
 {
     /// <summary>
-    /// Interaction logic for IntrinsicResultControl.xaml
+    /// Interaction logic for ImuCalibrationView.xaml
     /// </summary>
-    public partial class IntrinsicResultControl : UserControl
+    public partial class ImuCalibrationView : UserControl
     {
-        public IntrinsicResultControl()
+        public ImuCalibrationView()
         {
             InitializeComponent();
         }
