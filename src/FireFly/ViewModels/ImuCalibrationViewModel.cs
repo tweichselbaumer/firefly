@@ -145,9 +145,12 @@ namespace FireFly.ViewModels
                 (double sigmaGyroWN, List<double> timesGyroWN, List<double> sigmasGyroWN) = CalculateSlope(times, sigmasGx, sigmasGy, sigmasGz, -0.5, 1 / fs, 1, 1);
                 (double sigmaGyroRW, List<double> timesGyroRW, List<double> sigmasGyroRW) = CalculateSlope(times, sigmasGx, sigmasGy, sigmasGz, +0.5, 1000, 6000, 3);
 
-                //(List<double> _, List<double> sigmasAx) = AllenDeviation.Calculate(accx.ToList(), fs);
-                //(List<double> _, List<double> sigmasAy) = AllenDeviation.Calculate(accy.ToList(), fs);
-                //(List<double> _, List<double> sigmasAz) = AllenDeviation.Calculate(accz.ToList(), fs);
+                (List<double> _, List<double> sigmasAx) = AllenDeviation.Calculate(accx.ToList(), fs);
+                (List<double> _, List<double> sigmasAy) = AllenDeviation.Calculate(accy.ToList(), fs);
+                (List<double> _, List<double> sigmasAz) = AllenDeviation.Calculate(accz.ToList(), fs);
+
+                (double sigmaAccWN, List<double> timesAccWN, List<double> sigmasAccWN) = CalculateSlope(times, sigmasGx, sigmasGy, sigmasGz, -0.5, 1 / fs, 1, 1);
+                (double sigmaAccRW, List<double> timesAccRW, List<double> sigmasAccRW) = CalculateSlope(times, sigmasAx, sigmasAy, sigmasAz, +0.5, 1000, 6000, 3);
 
                 Parent.SyncContext.Post(f =>
                 {

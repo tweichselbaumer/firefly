@@ -55,11 +55,14 @@ namespace FireFly.ViewModels
             base.SettingsUpdated();
             Parent.SyncContext.Post(c =>
             {
-                Matrix3D rot = Matrix3DFactory.CreateMatrixRotationOnly(Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu);
-                Matrix3D trans = Matrix3DFactory.CreateMatrixTranslationOnly(Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu);
-                trans.Invert();
-                R_ci = rot;
-                t_c = trans;
+                if (Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu != null)
+                {
+                    Matrix3D rot = Matrix3DFactory.CreateMatrixRotationOnly(Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu);
+                    Matrix3D trans = Matrix3DFactory.CreateMatrixTranslationOnly(Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu);
+                    trans.Invert();
+                    R_ci = rot;
+                    t_c = trans;
+                }
             }, null);
         }
 
