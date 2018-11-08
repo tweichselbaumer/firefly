@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FireFly.Settings
+﻿namespace FireFly.Settings
 {
     public class ImuSettings : AbstractSettings
     {
-        private bool _RecordRemote;
         private double _AccelerometerScale;
         private double _GyroscopeScale;
-        private double _TemperatureScale;
+        private bool _RecordRemote;
         private double _TemperatureOffset;
-
+        private double _TemperatureScale;
         private int _UpdateRate;
 
         public double AccelerometerScale
@@ -42,16 +35,16 @@ namespace FireFly.Settings
             }
         }
 
-        public double TemperatureScale
+        public bool RecordRemote
         {
             get
             {
-                return _TemperatureScale;
+                return _RecordRemote;
             }
 
             set
             {
-                _TemperatureScale = value;
+                _RecordRemote = value;
             }
         }
 
@@ -68,16 +61,16 @@ namespace FireFly.Settings
             }
         }
 
-        public bool RecordRemote
+        public double TemperatureScale
         {
             get
             {
-                return _RecordRemote;
+                return _TemperatureScale;
             }
 
             set
             {
-                _RecordRemote = value;
+                _TemperatureScale = value;
             }
         }
 

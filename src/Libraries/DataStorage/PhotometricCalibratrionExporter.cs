@@ -10,9 +10,9 @@ namespace FireFly.Data.Storage
     {
         private string _Config;
         private List<Tuple<long, double>> _ExposureTimes = new List<Tuple<long, double>>();
-        private string _OutputPath;
         private bool _IncreasingExposure;
-        List<double> _ResponseValues = new List<double>();
+        private string _OutputPath;
+        private List<double> _ResponseValues = new List<double>();
 
         public PhotometricCalibratrionExporter(double fxO, double fyO, double cxO, double cyO, double fxN, double fyN, double cxN, double cyN, int width, int height, double k1, double k2, double k3, double k4, string outputPath, bool increasingExposure, List<double> responseValues)
         {

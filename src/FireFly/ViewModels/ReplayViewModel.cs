@@ -126,6 +126,47 @@ namespace FireFly.ViewModels
             }
         }
 
+        public void Refresh()
+        {
+            if (!IsReplaying)
+            {
+                FilesForReplay.Clear();
+                if (Parent.SettingContainer.Settings.GeneralSettings.FileLocations != null && Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Count > 0)
+                {
+                    foreach (FileLocation loc in Parent.SettingContainer.Settings.GeneralSettings.FileLocations)
+                    {
+                        Tuple<FileLocation, List<ReplayFile>> tuple = new Tuple<FileLocation, List<ReplayFile>>(loc, new List<ReplayFile>());
+                        FilesForReplay.Add(tuple);
+                        string fullPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(loc.Path));
+                        if (Directory.Exists(fullPath))
+                        {
+                            foreach (string file in Directory.GetFiles(fullPath, "*.ffc"))
+                            {
+                                tuple.Item2.Add(new ReplayFile() { Name = Path.GetFileNameWithoutExtension(file), FullPath = file });
+                            }
+                        }
+                    }
+                }
+                if (Parent.ConnectivityState == LinkUp.Raw.LinkUpConnectivityState.Connected)
+                {
+                    RemoteDataStore remoteDataStore = new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Password);
+
+                    List<string> files = remoteDataStore.GetAllFileNames("/home/up/data");
+                    if (files.Count > 0)
+                    {
+                        Tuple<FileLocation, List<ReplayFile>> tuple = new Tuple<FileLocation, List<ReplayFile>>(new FileLocation() { Name = "Remote", Path = "/home/up/data", IsRemote = true }, new List<ReplayFile>());
+                        FilesForReplay.Add(tuple);
+
+                        foreach (string filename in files)
+                        {
+                            if (Path.GetExtension(filename) == ".csv")
+                                tuple.Item2.Add(new ReplayFile() { Name = filename, IsRemote = true, FullPath = string.Format("{0}/{1}", tuple.Item1.Path, filename) });
+                        }
+                    }
+                }
+            }
+        }
+
         internal override void SettingsUpdated()
         {
             base.SettingsUpdated();
@@ -325,47 +366,6 @@ namespace FireFly.ViewModels
                     IsStopping = true;
                 }, null);
             });
-        }
-
-        public void Refresh()
-        {
-            if (!IsReplaying)
-            {
-                FilesForReplay.Clear();
-                if (Parent.SettingContainer.Settings.GeneralSettings.FileLocations != null && Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Count > 0)
-                {
-                    foreach (FileLocation loc in Parent.SettingContainer.Settings.GeneralSettings.FileLocations)
-                    {
-                        Tuple<FileLocation, List<ReplayFile>> tuple = new Tuple<FileLocation, List<ReplayFile>>(loc, new List<ReplayFile>());
-                        FilesForReplay.Add(tuple);
-                        string fullPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(loc.Path));
-                        if (Directory.Exists(fullPath))
-                        {
-                            foreach (string file in Directory.GetFiles(fullPath, "*.ffc"))
-                            {
-                                tuple.Item2.Add(new ReplayFile() { Name = Path.GetFileNameWithoutExtension(file), FullPath = file });
-                            }
-                        }
-                    }
-                }
-                if (Parent.ConnectivityState == LinkUp.Raw.LinkUpConnectivityState.Connected)
-                {
-                    RemoteDataStore remoteDataStore = new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Password);
-
-                    List<string> files = remoteDataStore.GetAllFileNames("/home/up/data");
-                    if (files.Count > 0)
-                    {
-                        Tuple<FileLocation, List<ReplayFile>> tuple = new Tuple<FileLocation, List<ReplayFile>>(new FileLocation() { Name = "Remote", Path = "/home/up/data", IsRemote = true }, new List<ReplayFile>());
-                        FilesForReplay.Add(tuple);
-
-                        foreach (string filename in files)
-                        {
-                            if (Path.GetExtension(filename) == ".csv")
-                                tuple.Item2.Add(new ReplayFile() { Name = filename, IsRemote = true, FullPath = string.Format("{0}/{1}", tuple.Item1.Path, filename) });
-                        }
-                    }
-                }
-            }
         }
     }
 }

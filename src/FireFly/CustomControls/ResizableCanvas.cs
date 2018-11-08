@@ -240,20 +240,6 @@ namespace FireFly.CustomControls
             MouseMove += ResizableCanvas_MouseMove;
         }
 
-        private void ResizableCanvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            FrameworkElement source = GetRecursiveFirstWellKnownParent((FrameworkElement)e.OriginalSource);
-
-            if (_SelectedItem == source)
-            {
-                if (_SelectedItem != null)
-                {
-                    DeselectItem();
-                }
-            }
-
-        }
-
         private static bool IsRight(FrameworkElement element, FrameworkElement reference)
         {
             Point center1 = GetCenter(element);
@@ -358,6 +344,19 @@ namespace FireFly.CustomControls
                 SetTop(_SelectedItem, GetTop(selectedItem) - (_DragStartMousePosion.Y - currentMousePosition.Y));
                 selectedItem.NotifyMovement(0, -(_DragStartMousePosion.Y - currentMousePosition.Y));
                 _DragStartMousePosion.Y = Mouse.GetPosition(this).Y;
+            }
+        }
+
+        private void ResizableCanvas_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            FrameworkElement source = GetRecursiveFirstWellKnownParent((FrameworkElement)e.OriginalSource);
+
+            if (_SelectedItem == source)
+            {
+                if (_SelectedItem != null)
+                {
+                    DeselectItem();
+                }
             }
         }
 

@@ -1,14 +1,17 @@
-﻿using FireFly.Command;
+﻿using Emgu.CV;
+using FireFly.Command;
 using FireFly.CustomDialogs;
 using FireFly.Data.Storage;
 using FireFly.Settings;
 using FireFly.Utilities;
 using MahApps.Metro.Controls.Dialogs;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using static Emgu.CV.Aruco.Dictionary;
 
 namespace FireFly.ViewModels
 {
@@ -16,6 +19,9 @@ namespace FireFly.ViewModels
     {
         public static readonly DependencyProperty AccelerometerScaleProperty =
             DependencyProperty.Register("AccelerometerScale", typeof(double), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty DictionaryProperty =
+            DependencyProperty.Register("Dictionary", typeof(PredefinedDictionaryName), typeof(SettingViewModel), new FrameworkPropertyMetadata(PredefinedDictionaryName.Dict4X4_50, new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty FileLocationsProperty =
             DependencyProperty.Register("FileLocations", typeof(RangeObservableCollection<FileLocation>), typeof(SettingViewModel), new PropertyMetadata(null));
@@ -26,11 +32,35 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty IpAddressProperty =
             DependencyProperty.Register("IpAddress", typeof(string), typeof(SettingViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
 
+        public static readonly DependencyProperty MarkerLengthProperty =
+           DependencyProperty.Register("MarkerLength", typeof(float), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0f, new PropertyChangedCallback(OnPropertyChanged)));
+
         public static readonly DependencyProperty PasswordProperty =
             DependencyProperty.Register("Password", typeof(string), typeof(SettingViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty PortProperty =
             DependencyProperty.Register("Port", typeof(int), typeof(SettingViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty SquareLengthProperty =
+            DependencyProperty.Register("SquareLength", typeof(float), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0f, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty SquaresXProperty =
+            DependencyProperty.Register("SquaresX", typeof(int), typeof(SettingViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty SquaresYProperty =
+            DependencyProperty.Register("SquaresY", typeof(int), typeof(SettingViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty TagSizeProperty =
+            DependencyProperty.Register("TagSize", typeof(double), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty TagSpacingFactorProperty =
+            DependencyProperty.Register("TagSpacingFactor", typeof(double), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty TagsXProperty =
+            DependencyProperty.Register("TagsX", typeof(int), typeof(SettingViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty TagsYProperty =
+            DependencyProperty.Register("TagsY", typeof(int), typeof(SettingViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty TemperatureOffsetProperty =
             DependencyProperty.Register("TemperatureOffset", typeof(double), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
@@ -65,6 +95,12 @@ namespace FireFly.ViewModels
             }
         }
 
+        public PredefinedDictionaryName Dictionary
+        {
+            get { return (PredefinedDictionaryName)GetValue(DictionaryProperty); }
+            set { SetValue(DictionaryProperty, value); }
+        }
+
         public RangeObservableCollection<FileLocation> FileLocations
         {
             get { return (RangeObservableCollection<FileLocation>)GetValue(FileLocationsProperty); }
@@ -81,6 +117,12 @@ namespace FireFly.ViewModels
         {
             get { return (string)GetValue(IpAddressProperty); }
             set { SetValue(IpAddressProperty, value); }
+        }
+
+        public float MarkerLength
+        {
+            get { return (float)GetValue(MarkerLengthProperty); }
+            set { SetValue(MarkerLengthProperty, value); }
         }
 
         public RelayCommand<object> NewFileLocationCommand
@@ -105,6 +147,68 @@ namespace FireFly.ViewModels
         {
             get { return (int)GetValue(PortProperty); }
             set { SetValue(PortProperty, value); }
+        }
+
+        public IEnumerable<PredefinedDictionaryName> PredefinedDictionaryNames
+        {
+            get
+            {
+                return Enum.GetValues(typeof(PredefinedDictionaryName)).Cast<PredefinedDictionaryName>();
+            }
+        }
+
+        public RelayCommand<object> PrintBoardCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoPrintBoard(o);
+                    });
+            }
+        }
+
+        public float SquareLength
+        {
+            get { return (float)GetValue(SquareLengthProperty); }
+            set { SetValue(SquareLengthProperty, value); }
+        }
+
+        public int SquaresX
+        {
+            get { return (int)GetValue(SquaresXProperty); }
+            set { SetValue(SquaresXProperty, value); }
+        }
+
+        public int SquaresY
+        {
+            get { return (int)GetValue(SquaresYProperty); }
+            set { SetValue(SquaresYProperty, value); }
+        }
+
+        public double TagSize
+        {
+            get { return (double)GetValue(TagSizeProperty); }
+            set { SetValue(TagSizeProperty, value); }
+        }
+
+        public double TagSpacingFactor
+        {
+            get { return (double)GetValue(TagSpacingFactorProperty); }
+            set { SetValue(TagSpacingFactorProperty, value); }
+        }
+
+        public int TagsX
+        {
+            get { return (int)GetValue(TagsXProperty); }
+            set { SetValue(TagsXProperty, value); }
+        }
+
+        public int TagsY
+        {
+            get { return (int)GetValue(TagsYProperty); }
+            set { SetValue(TagsYProperty, value); }
         }
 
         public double TemperatureOffset
@@ -140,6 +244,17 @@ namespace FireFly.ViewModels
         internal override void SettingsUpdated()
         {
             base.SettingsUpdated();
+
+            SquaresX = Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquaresX;
+            SquaresY = Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquaresY;
+            MarkerLength = Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.MarkerLength;
+            SquareLength = Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquareLength;
+            Dictionary = Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.Dictionary;
+
+            TagSize = Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagSize;
+            TagSpacingFactor = Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagSpacingFactor;
+            TagsX = Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagsX;
+            TagsY = Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagsY;
 
             IpAddress = Parent.SettingContainer.Settings.ConnectionSettings.IpAddress;
             Port = Parent.SettingContainer.Settings.ConnectionSettings.Port;
@@ -220,6 +335,55 @@ namespace FireFly.ViewModels
                     connectionSettingsChanged = false;
                     break;
 
+                case "SquaresX":
+                    changed = svm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquaresX != svm.SquaresX;
+                    svm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquaresX = svm.SquaresX;
+                    break;
+
+                case "SquaresY":
+                    changed = svm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquaresY != svm.SquaresY;
+                    svm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquaresY = svm.SquaresY;
+                    break;
+
+                case "SquareLength":
+                    changed = svm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquareLength != svm.SquareLength;
+                    svm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.SquareLength = svm.SquareLength;
+                    break;
+
+                case "MarkerLength":
+                    changed = svm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.MarkerLength != svm.MarkerLength;
+                    svm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.MarkerLength = svm.MarkerLength;
+                    break;
+
+                case "Dictionary":
+                    changed = svm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.Dictionary != svm.Dictionary;
+                    svm.Parent.SettingContainer.Settings.CalibrationSettings.ChArucoCalibrationSettings.Dictionary = svm.Dictionary;
+                    break;
+
+                case "TagSize":
+                    changed = svm.Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagSize != svm.TagSize;
+                    svm.Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagSize = svm.TagSize;
+                    connectionSettingsChanged = false;
+                    break;
+
+                case "TagSpacingFactor":
+                    changed = svm.Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagSpacingFactor != svm.TagSpacingFactor;
+                    svm.Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagSpacingFactor = svm.TagSpacingFactor;
+                    connectionSettingsChanged = false;
+                    break;
+
+                case "TagsY":
+                    changed = svm.Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagsY != svm.TagsY;
+                    svm.Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagsY = svm.TagsY;
+                    connectionSettingsChanged = false;
+                    break;
+
+                case "TagsX":
+                    changed = svm.Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagsX != svm.TagsX;
+                    svm.Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagsX = svm.TagsX;
+                    connectionSettingsChanged = false;
+                    break;
+
                 default:
                     break;
             }
@@ -262,6 +426,34 @@ namespace FireFly.ViewModels
                         }, null);
                     });
                     customDialog.Content = new NewFileLocationDialog { DataContext = dataContext };
+
+                    Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
+                }, null);
+            });
+        }
+
+        private Task DoPrintBoard(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    CustomDialog customDialog = new CustomDialog() { Title = "Board Properties" };
+
+                    var dataContext = new PrintCharucoBoardDialogModel(obj =>
+                    {
+                        Parent.SyncContext.Post(d =>
+                        {
+                            Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+
+                            System.Windows.Forms.SaveFileDialog saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                            saveFileDialog.Filter = "Image (*.png) | *.png";
+
+                            if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                                CvInvoke.Imwrite(saveFileDialog.FileName, obj.Image.CvImage, new KeyValuePair<Emgu.CV.CvEnum.ImwriteFlags, int>() { });
+                        }, null);
+                    });
+                    customDialog.Content = new PrintCharucoBoardDialog { DataContext = dataContext };
 
                     Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
                 }, null);

@@ -1,12 +1,8 @@
 ﻿using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Util;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FireFly.Utilities
 {
@@ -24,18 +20,19 @@ namespace FireFly.Utilities
             var target = CreateElement(mat.Depth, value);
             Marshal.Copy(target, 0, mat.DataPointer + (row * mat.Cols + col) * mat.ElementSize, 1);
         }
-        private static dynamic CreateElement(DepthType depthType, dynamic value)
-        {
-            var element = CreateElement(depthType);
-            element[0] = value;
-            return element;
-        }
 
         public static byte[] ToPNGBinary(this Mat mat, int compression)
         {
             VectorOfByte buf = new VectorOfByte();
             CvInvoke.Imencode(".png", mat, buf, new KeyValuePair<ImwriteFlags, int>(ImwriteFlags.PngCompression, compression));
             return buf.ToArray();
+        }
+
+        private static dynamic CreateElement(DepthType depthType, dynamic value)
+        {
+            var element = CreateElement(depthType);
+            element[0] = value;
+            return element;
         }
 
         private static dynamic CreateElement(DepthType depthType)

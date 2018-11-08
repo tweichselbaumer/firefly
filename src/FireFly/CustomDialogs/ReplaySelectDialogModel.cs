@@ -19,7 +19,6 @@ namespace FireFly.CustomDialogs
 
         private ReplayFile _SelectedFile;
 
-
         public ReplaySelectDialogModel(Action<ReplaySelectDialogModel> closeHandel)
         {
             FilesForReplay = new RangeObservableCollection<Tuple<FileLocation, List<ReplayFile>>>();
@@ -43,18 +42,18 @@ namespace FireFly.CustomDialogs
                });
         }
 
-        public RangeObservableCollection<Tuple<FileLocation, List<ReplayFile>>> FilesForReplay
-        {
-            get { return (RangeObservableCollection<Tuple<FileLocation, List<ReplayFile>>>)GetValue(FilesForReplayProperty); }
-            set { SetValue(FilesForReplayProperty, value); }
-        }
-
         public RelayCommand<object> CloseCommand
         {
             get
             {
                 return _CloseCommand;
             }
+        }
+
+        public RangeObservableCollection<Tuple<FileLocation, List<ReplayFile>>> FilesForReplay
+        {
+            get { return (RangeObservableCollection<Tuple<FileLocation, List<ReplayFile>>>)GetValue(FilesForReplayProperty); }
+            set { SetValue(FilesForReplayProperty, value); }
         }
 
         public RelayCommand<object> SelectCommand

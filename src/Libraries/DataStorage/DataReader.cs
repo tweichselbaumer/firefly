@@ -17,6 +17,7 @@ namespace FireFly.Data.Storage
     public class DataReader
     {
         private Dictionary<long, double> _CamCache = new Dictionary<long, double>();
+        private int _DeltaTimeMs;
         private string _FileName;
         private Dictionary<long, Tuple<double, double, double, double, double, double>> _ImuCache = new Dictionary<long, Tuple<double, double, double, double, double, double>>();
         private int _Index = 0;
@@ -28,7 +29,6 @@ namespace FireFly.Data.Storage
         private List<long> _Timestamps = new List<long>();
         private ZipArchive _ZipArchive;
         private FileStream _ZipFile;
-        private int _DeltaTimeMs;
 
         public DataReader(string filename, ReaderMode mode, RemoteDataStore remoteDataStore = null)
         {
@@ -226,7 +226,6 @@ namespace FireFly.Data.Storage
                 _DeltaTimeMs = (int)Math.Round(_Timestamps.Take(_Timestamps.Count - 1).Select((v, i) => _Timestamps[i + 1] - v).Sum() / ((_Timestamps.Count - 1) * 1000 * 1000.0));
             else
                 _DeltaTimeMs = 1000 / 200;
-
         }
 
         private void ParseImu(string content, bool isOmega, Dictionary<long, ReaderMode> timestampDict)

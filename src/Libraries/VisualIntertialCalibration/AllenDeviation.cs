@@ -29,8 +29,8 @@ namespace FireFly.VI.Calibration
                       value += Math.Pow(theta[(int)Math.Floor(k + 2 * logSpace_i)] - 2 * theta[(int)Math.Floor(k + logSpace_i)] + theta[k], 2);
                   }
                   sigmas2[i] = value;
-                //}
-            });
+                  //}
+              });
 
             List<double> sigmas = sigmas2.Select((c, i) => Math.Sqrt(c / (2 * Math.Pow(times[i], 2) * (values.Count - 2 * logSpace[i])))).ToList();
 

@@ -34,7 +34,6 @@ namespace FireFly.Data.Storage
             IArray iaccy = (((matFile["data"].Value as IStructureArray)["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accy", 0];
             IArray iaccz = (((matFile["data"].Value as IStructureArray)["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accz", 0];
 
-
             List<double> time = itime.ConvertToDoubleArray().ToList();
 
             List<double> gyrox = igyrox.ConvertToDoubleArray().ToList();

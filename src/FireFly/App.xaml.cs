@@ -1,14 +1,8 @@
 ﻿using CommandLine;
-using CommandLine.Text;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace FireFly
@@ -19,11 +13,6 @@ namespace FireFly
     public partial class App : Application
     {
         private const int ATTACH_PARENT_PROCESS = -1;
-
-        [DllImport("kernel32", SetLastError = true)]
-        private static extern bool AttachConsole(int dwProcessId);
-        [DllImport("kernel32.dll")]
-        private static extern bool FreeConsole();
 
         private const int MINIMUM_SPLASH_TIME = 1500;
 
@@ -64,5 +53,11 @@ namespace FireFly
                 home.Show();
             }
         }
+
+        [DllImport("kernel32", SetLastError = true)]
+        private static extern bool AttachConsole(int dwProcessId);
+
+        [DllImport("kernel32.dll")]
+        private static extern bool FreeConsole();
     }
 }

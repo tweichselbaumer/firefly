@@ -1,11 +1,11 @@
 ﻿<UserControl x:Class="FireFly.CustomControls.PlotControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:oxy="http://oxyplot.org/wpf"
              xmlns:local="clr-namespace:FireFly.CustomControls"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
@@ -16,11 +16,11 @@
         <Label Grid.Row="0" Content="{Binding Path=Title}" Style="{DynamicResource GeneralLabelStyle}" />
         <oxy:Plot Grid.Row="2">
             <oxy:Plot.Axes>
-                <oxy:LinearAxis Position="Left" TickStyle="Inside" MajorGridlineStyle="Solid" MinorGridlineStyle="None" Minimum="{Binding Path=MinimumY}" Maximum="{Binding Path=MaximumY}" MajorStep="{Binding Path=MajorStepY}" MinorStep="{Binding Path=MinorStepY}" Title="{Binding Path=AxisTitleY}"/>
+                <oxy:LinearAxis Position="Left" TickStyle="Inside" MajorGridlineStyle="Solid" MinorGridlineStyle="None" Minimum="{Binding Path=MinimumY}" Maximum="{Binding Path=MaximumY}" MajorStep="{Binding Path=MajorStepY}" MinorStep="{Binding Path=MinorStepY}" Title="{Binding Path=AxisTitleY}" />
                 <oxy:LinearAxis Position="Bottom" TickStyle="Inside" MajorGridlineStyle="Solid" MinorGridlineStyle="None" Minimum="0" Maximum="10" Title="Time [s]" IsZoomEnabled="False" />
             </oxy:Plot.Axes>
             <oxy:Plot.Series>
-                <oxy:LineSeries ItemsSource="{Binding Path=Points}" StrokeThickness="1" Color="{DynamicResource AccentBaseColor}"/>
+                <oxy:LineSeries ItemsSource="{Binding Path=Points}" StrokeThickness="1" Color="{DynamicResource AccentBaseColor}" />
             </oxy:Plot.Series>
         </oxy:Plot>
     </Grid>

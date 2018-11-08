@@ -1,6 +1,5 @@
 ﻿using FireFly.Command;
 using FireFly.Data.Storage;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,6 +9,18 @@ namespace FireFly.ViewModels
     {
         public DebugViewModel(MainViewModel parent) : base(parent)
         {
+        }
+
+        public RelayCommand<object> ShutdownCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoShutdown(o);
+                    });
+            }
         }
 
         public RelayCommand<object> StartCommand
@@ -32,18 +43,6 @@ namespace FireFly.ViewModels
                     async (object o) =>
                     {
                         await DoStop(o);
-                    });
-            }
-        }
-
-        public RelayCommand<object> ShutdownCommand
-        {
-            get
-            {
-                return new RelayCommand<object>(
-                    async (object o) =>
-                    {
-                        await DoShutdown(o);
                     });
             }
         }

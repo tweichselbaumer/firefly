@@ -35,7 +35,7 @@
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0">
                 <Label  Content="Name" Style="{DynamicResource GeneralLabelStyle}" />
-                <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=FileName}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}"/>
+                <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=FileName}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}" />
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
                 <Label  Content="Location" Style="{DynamicResource GeneralLabelStyle}" />
                 <ComboBox ItemsSource="{Binding Path=Parent.SettingViewModel.FileLocations}" SelectedItem="{Binding Path=FileLocation}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}">
@@ -49,7 +49,7 @@
                 </ComboBox>
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
                 <Label  Content="Notes" Style="{DynamicResource GeneralLabelStyle}" />
-                <TextBox MaxLines="10" MinLines="10" TextWrapping="Wrap" Text="{Binding Path=Notes}" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}"/>
+                <TextBox MaxLines="10" MinLines="10" TextWrapping="Wrap" Text="{Binding Path=Notes}" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}" />
             </StackPanel>
             <StackPanel Grid.Row="2">
                 <Button  Width="200" Content="start" Style="{DynamicResource AccentedSquareButtonStyle}" Visibility="{Binding Path=IsRecording, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=inverse}" Margin="0 5 0 5" Command="{Binding Path=StartCommand}" />
@@ -59,14 +59,14 @@
 
         <DockPanel Grid.Column="3" Grid.Row="1" VerticalAlignment="Stretch">
             <StackPanel DockPanel.Dock="Top">
-                <Label  Content="Input Data" Style="{DynamicResource GeneralLabelStyle}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}"/>
+                <Label  Content="Input Data" Style="{DynamicResource GeneralLabelStyle}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}" />
                 <Controls:ToggleSwitch
                Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
 
-                <Label  Content="Output Data" Style="{DynamicResource GeneralLabelStyle}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}"/>
+                <Label  Content="Output Data" Style="{DynamicResource GeneralLabelStyle}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}" />
                 <Controls:ToggleSwitch
                 Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />

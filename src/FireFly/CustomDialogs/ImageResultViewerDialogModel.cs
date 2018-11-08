@@ -4,7 +4,6 @@ using FireFly.Models;
 using FireFly.Utilities;
 using System;
 using System.IO;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -12,20 +11,12 @@ namespace FireFly.CustomDialogs
 {
     public class ImageResultViewerDialogModel : DependencyObject
     {
-        private readonly RelayCommand<object> _CloseCommand;
-        private readonly RelayCommand<object> _SaveCommand;
-        private readonly RelayCommand<object> _ExportCommand;
-
-
-        public RangeObservableCollection<CvImageContainer> Images
-        {
-            get { return (RangeObservableCollection<CvImageContainer>)GetValue(ImagesProperty); }
-            set { SetValue(ImagesProperty, value); }
-        }
-
         public static readonly DependencyProperty ImagesProperty =
             DependencyProperty.Register("Images", typeof(RangeObservableCollection<CvImageContainer>), typeof(ImageResultViewerDialogModel), new PropertyMetadata(null));
 
+        private readonly RelayCommand<object> _CloseCommand;
+        private readonly RelayCommand<object> _ExportCommand;
+        private readonly RelayCommand<object> _SaveCommand;
 
         public ImageResultViewerDialogModel(Action<ImageResultViewerDialogModel> closeHandel, Action<ImageResultViewerDialogModel> saveHandel, Action<ImageResultViewerDialogModel> exportHandel, string directory, string pattern)
         {
@@ -71,19 +62,25 @@ namespace FireFly.CustomDialogs
             }
         }
 
-        public RelayCommand<object> SaveCommand
-        {
-            get
-            {
-                return _SaveCommand;
-            }
-        }
-
         public RelayCommand<object> ExportCommand
         {
             get
             {
                 return _ExportCommand;
+            }
+        }
+
+        public RangeObservableCollection<CvImageContainer> Images
+        {
+            get { return (RangeObservableCollection<CvImageContainer>)GetValue(ImagesProperty); }
+            set { SetValue(ImagesProperty, value); }
+        }
+
+        public RelayCommand<object> SaveCommand
+        {
+            get
+            {
+                return _SaveCommand;
             }
         }
     }

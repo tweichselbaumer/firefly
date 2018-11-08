@@ -25,29 +25,58 @@
         </Viewbox>
 
         <StackPanel Grid.Row="0" Grid.Column="2" Grid.RowSpan="2">
-            <Label  Content="Dictionary" Style="{DynamicResource GeneralLabelStyle}" />
-            <ComboBox SelectedItem="{Binding Dictionary}" ItemsSource="{Binding PredefinedDictionaryNames}" />
-            <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
+            <StackPanel.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Export to Clipboard..." Command="{Binding Path=ExportToClipboardCommand}" />
+                </ContextMenu>
+            </StackPanel.ContextMenu>
+            <Label Grid.Row="0" Grid.Column="0" Content="Camera Matrix" Style="{DynamicResource DescriptionHeaderStyle}" />
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-            <Label  Content="Squares X" Style="{DynamicResource GeneralLabelStyle}" />
-            <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=SquaresX}" />
-            <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="0" Content="{Binding Path=Fx}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="1" Content="0" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="2" Content="{Binding Path=Cx}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
 
-            <Label  Content="Squares Y" Style="{DynamicResource GeneralLabelStyle}" />
-            <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=SquaresY}" />
-            <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="1" Grid.Column="0" Content="0" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="1" Grid.Column="1" Content="{Binding Path=Fy}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="1" Grid.Column="2" Content="{Binding Path=Cy}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
 
-            <Label  Content="Square Length [m]" Style="{DynamicResource GeneralLabelStyle}" />
-            <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=SquareLength}" />
-            <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="2" Grid.Column="0" Content="0" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="2" Grid.Column="1" Content="0" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="2" Grid.Column="2" Content="1" Style="{DynamicResource GeneralLabelStyle}" />
+            </Grid>
+            <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
+            <Label Grid.Row="0" Grid.Column="0" Content="Distortion" Style="{DynamicResource DescriptionHeaderStyle}" />
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-            <Label  Content="Marker Length [m]" Style="{DynamicResource GeneralLabelStyle}" />
-            <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=MarkerLength}" />
-            <Label  Content="" Style="{DynamicResource GeneralLabelStyle}" />
-
-            <Button Grid.Row="1" Grid.ColumnSpan="1" Width="200" Content="print board" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=PrintBoardCommand}" />
+                <Label Grid.Row="0" Grid.Column="0" Content="{Binding Path=K1}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="1" Content="{Binding Path=K2}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="2" Content="{Binding Path=K3}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="3" Content="{Binding Path=K4}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+            </Grid>
         </StackPanel>
 
-        <Button Grid.Row="1" Grid.ColumnSpan="1" Width="200" Content="start" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCalibrationCommand}" />
+        <Button Grid.Row="1" Grid.Column="0" Width="200" Content="calibrate/validate ChAruco" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCalibrationChArucoCommand}" />
+
+        <Button Grid.Row="1" Grid.Column="2" Width="200" Content="calibrate AprilGrid" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCalibrationAprilGridCommand}" />
     </Grid>
 </UserControl>

@@ -1,5 +1,4 @@
-﻿using Emgu.CV.Aruco;
-using Emgu.CV.Util;
+﻿using Emgu.CV.Util;
 using FireFly.VI.Calibration;
 using System.Windows;
 using static Emgu.CV.Aruco.Dictionary;
@@ -16,13 +15,13 @@ namespace FireFly.Models
 
         private VectorOfPointF _CharucoCorners;
         private VectorOfInt _CharucoIds;
+        private PredefinedDictionaryName _Dictionary;
         private VectorOfVectorOfPointF _MarkerCorners;
         private VectorOfInt _MarkerIds;
         private float _MarkerLength;
         private float _SquareLength;
         private int _SquaresX;
         private int _SquaresY;
-        private PredefinedDictionaryName _Dictionary;
 
         public ChArUcoImageContainer(int squaresX, int squaresY, float squareLength, float markerLength, PredefinedDictionaryName dictionary)
         {
@@ -56,6 +55,19 @@ namespace FireFly.Models
             set
             {
                 _CharucoIds = value;
+            }
+        }
+
+        public PredefinedDictionaryName Dictionary
+        {
+            get
+            {
+                return _Dictionary;
+            }
+
+            set
+            {
+                _Dictionary = value;
             }
         }
 
@@ -126,19 +138,6 @@ namespace FireFly.Models
             get
             {
                 return _SquaresY;
-            }
-        }
-
-        public PredefinedDictionaryName Dictionary
-        {
-            get
-            {
-                return _Dictionary;
-            }
-
-            set
-            {
-                _Dictionary = value;
             }
         }
 

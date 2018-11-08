@@ -27,7 +27,6 @@
             <Style x:Key="GeneralTextBoxStyle" TargetType="TextBox">
                 <Setter Property="FontSize" Value="18" />
             </Style>
-
         </ResourceDictionary>
     </Application.Resources>
 </Application>

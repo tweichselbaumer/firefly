@@ -30,6 +30,7 @@
                 _Width = value;
             }
         }
+
         public override void SetDefaults()
         {
             base.SetDefaults();

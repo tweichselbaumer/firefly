@@ -70,6 +70,14 @@ namespace FireFly.Proxy
             }
         }
 
+        public int RawSize
+        {
+            get
+            {
+                return 23;
+            }
+        }
+
         public double Temperatur
         {
             get
@@ -94,17 +102,8 @@ namespace FireFly.Proxy
             }
         }
 
-        public int RawSize
-        {
-            get
-            {
-                return 23;
-            }
-        }
-
         public byte[] GetRaw(double gyroScale, double accScale, double tempScale, double tempOffset)
         {
-
             byte[] data = new byte[23];
 
             Array.Copy(BitConverter.GetBytes((UInt32)(TimeNanoSeconds / (1000 * 1000))), 0, data, 0, sizeof(UInt32));
@@ -123,7 +122,6 @@ namespace FireFly.Proxy
             Array.Copy(BitConverter.GetBytes(HasCameraImage), 0, data, 22, sizeof(bool));
 
             return data;
-
         }
 
         internal static ImuEventData Parse(byte[] data, int offset, double gyroScale, double accScale, double tempScale, double tempOffset)

@@ -31,7 +31,7 @@
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
-                
+
                 <Label  Content="Recorde (Remote)" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
                 IsChecked="{Binding Path=RecordRemote}" Margin="15,0,0,0"
@@ -53,9 +53,9 @@
                         <RowDefinition Height="10" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <CustomControls:PlotControl Grid.Row="0" DataContext="{Binding Path=GyroX}"/>
-                    <CustomControls:PlotControl Grid.Row="2" DataContext="{Binding Path=GyroY}"/>
-                    <CustomControls:PlotControl Grid.Row="4" DataContext="{Binding Path=GyroZ}"/>
+                    <CustomControls:PlotControl Grid.Row="0" DataContext="{Binding Path=GyroX}" />
+                    <CustomControls:PlotControl Grid.Row="2" DataContext="{Binding Path=GyroY}" />
+                    <CustomControls:PlotControl Grid.Row="4" DataContext="{Binding Path=GyroZ}" />
                 </Grid>
             </TabItem>
 
@@ -68,9 +68,9 @@
                         <RowDefinition Height="10" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <CustomControls:PlotControl Grid.Row="0" DataContext="{Binding Path=AccX}"/>
-                    <CustomControls:PlotControl Grid.Row="2" DataContext="{Binding Path=AccY}"/>
-                    <CustomControls:PlotControl Grid.Row="4" DataContext="{Binding Path=AccZ}"/>
+                    <CustomControls:PlotControl Grid.Row="0" DataContext="{Binding Path=AccX}" />
+                    <CustomControls:PlotControl Grid.Row="2" DataContext="{Binding Path=AccY}" />
+                    <CustomControls:PlotControl Grid.Row="4" DataContext="{Binding Path=AccZ}" />
                 </Grid>
             </TabItem>
 

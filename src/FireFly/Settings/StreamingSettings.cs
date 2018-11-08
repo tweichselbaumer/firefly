@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace FireFly.Settings
+﻿namespace FireFly.Settings
 {
     public class StreamingSettings : AbstractSettings
     {

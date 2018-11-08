@@ -14,9 +14,9 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" TextWrapping="Wrap" TextAlignment="Justify">
-                1) Take a sequence of pictures from the ChAruco-Board.<LineBreak/>
-                2) Calibrate with the recorded sequence.<LineBreak/>
-                3) Validate with a new sequence.<LineBreak/>
+                1) Take a sequence of pictures from the ChAruco-Board.<LineBreak />
+                2) Calibrate with the recorded sequence.<LineBreak />
+                3) Validate with a new sequence.<LineBreak />
         </TextBlock>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -37,12 +37,11 @@
                     </Border>
                 </Viewbox>
 
-                <Button Width="200" Content="load from file" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=LoadFromFileCommand}"/>
+                <Button Width="200" Content="load from file" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=LoadFromFileCommand}" />
 
-                <Button Width="200" Content="take snapshot" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=TakeSnapshotCommand}"/>
+                <Button Width="200" Content="take snapshot" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=TakeSnapshotCommand}" />
 
-                <ToggleButton Width="200" Content="Auto" Margin="0 5 0 5" IsChecked="{Binding Path=AutoSnapshot}"/>
-
+                <ToggleButton Width="200" Content="Auto" Margin="0 5 0 5" IsChecked="{Binding Path=AutoSnapshot}" />
             </StackPanel>
             <StackPanel Grid.Column="2" Grid.Row="0">
                 <Viewbox>
@@ -50,9 +49,9 @@
                         <Image Width="512" Height="512" Source="{Binding ElementName=ListBoxImages, Path=SelectedItem.ProgressedImage.ImageSource}" />
                     </Border>
                 </Viewbox>
-                <Button Width="200" Content="calibrate" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=CalibrateCommand}"/>
-                <Button Width="200" Content="validate" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=ValidateCommand}"/>
-                <Button Width="200" Content="close" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=CloseCommand}"/>
+                <Button Width="200" Content="calibrate" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=CalibrateCommand}" />
+                <Button Width="200" Content="validate" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=ValidateCommand}" />
+                <Button Width="200" Content="close" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=CloseCommand}" />
             </StackPanel>
             <Grid Grid.Column="4">
                 <Grid.RowDefinitions>
@@ -83,11 +82,11 @@
                                     </Style>
                                 </Grid.Resources>
                                 <Grid Height="88" Width="132">
-                                <Viewbox Margin="-22 0 0 0">
-                                    <Border BorderThickness="1" BorderBrush="Black">
-                                        <Image Source="{Binding Path=ProgressedImage.ImageSource}"/>
-                                    </Border>
-                                </Viewbox>
+                                    <Viewbox Margin="-22 0 0 0">
+                                        <Border BorderThickness="1" BorderBrush="Black">
+                                            <Image Source="{Binding Path=ProgressedImage.ImageSource}" />
+                                        </Border>
+                                    </Viewbox>
                                 </Grid>
                                 <Grid Panel.ZIndex="1000" Margin="0 0 -100 80">
                                     <Button Grid.Column="1" Width="20" Height="20" Margin="2"  Style="{StaticResource AccentCircleButtonStyle}" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.DeleteCommand}" CommandParameter="{Binding Path=.}">
@@ -99,12 +98,12 @@
                     </ListBox.ItemTemplate>
                     <ListBox.ItemContainerStyle>
                         <Style TargetType="ListBoxItem">
-                            <Setter Property="Padding" Value="0"/>
-                            <Setter Property="Margin" Value="6"/>
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Margin" Value="6" />
                         </Style>
                     </ListBox.ItemContainerStyle>
                 </ListBox>
-                <Button Width="200" Grid.Row="2" Content="clear" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=ClearCommand}"/>
+                <Button Width="200" Grid.Row="2" Content="clear" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=ClearCommand}" />
             </Grid>
         </Grid>
     </Grid>

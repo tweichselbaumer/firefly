@@ -2,21 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FireFly.Utilities
 {
     public class RangeObservableCollection<T> : ObservableCollection<T>
     {
         private bool _suppressNotification = false;
-
-        protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
-        {
-            if (!_suppressNotification)
-                base.OnCollectionChanged(e);
-        }
 
         public void AddRange(IEnumerable<T> list)
         {
@@ -31,6 +22,12 @@ namespace FireFly.Utilities
             }
             _suppressNotification = false;
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            if (!_suppressNotification)
+                base.OnCollectionChanged(e);
         }
     }
 }

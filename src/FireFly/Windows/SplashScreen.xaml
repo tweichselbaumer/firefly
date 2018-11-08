@@ -15,8 +15,7 @@
         </Grid.RowDefinitions>
 
         <Label Grid.Row="0" Content="FireFly - Visual Quardcopter Navigation" FontWeight="Bold" Foreground="White" FontSize="9pt" VerticalAlignment="Center" />
-        <Label Grid.Row="3" Content="Monitoring, Controlling and Debugging Tool" Foreground="White" FontSize="9pt" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-
+        <Label Grid.Row="3" Content="Monitoring, Controlling and Debugging Tool" Foreground="White" FontSize="9pt" VerticalAlignment="Center" HorizontalAlignment="Right" />
 
         <Path Grid.Row="1" Fill="White" HorizontalAlignment="Center" Stretch="Fill" Height="128" Width="128">
             <Path.Data>

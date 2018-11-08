@@ -44,7 +44,7 @@
                 IsChecked="{Binding Path=Enabled}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
-                <Separator Margin="0 10 0 10"/>
+                <Separator Margin="0 10 0 10" />
 
                 <Label  Content="FOV Scale" Style="{DynamicResource GeneralLabelStyle}" />
 
@@ -64,7 +64,7 @@
                         SmallChange="0.05"
                         Style="{DynamicResource MahApps.Metro.Styles.Slider.Win10}"
                         Value="{Binding Path=FOVScale}" />
-                    <Label Grid.Column="1" Content="{Binding Path=FOVScale}" ContentStringFormat="{}{0:F2}" Style="{DynamicResource GeneralLabelStyle}"/>
+                    <Label Grid.Column="1" Content="{Binding Path=FOVScale}" ContentStringFormat="{}{0:F2}" Style="{DynamicResource GeneralLabelStyle}" />
                 </Grid>
 
                 <Label  Content="Undistort" Style="{DynamicResource GeneralLabelStyle}" />
@@ -72,7 +72,7 @@
                 IsChecked="{Binding Path=Undistort}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
-                <Separator Margin="0 10 0 10"/>
+                <Separator Margin="0 10 0 10" />
 
                 <Label  Content="Exposure Time" Style="{DynamicResource GeneralLabelStyle}" />
                 <Grid>
@@ -97,7 +97,7 @@
                 IsChecked="{Binding Path=ExposureSweep}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
-                <Separator Margin="0 10 0 10"/>
+                <Separator Margin="0 10 0 10" />
 
                 <Label  Content="Gamma Correction" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
@@ -109,13 +109,12 @@
                 IsChecked="{Binding Path=VignetteCorretion}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
-                <Separator Margin="0 10 0 10"/>
+                <Separator Margin="0 10 0 10" />
 
                 <Label  Content="Show Inverse Depth" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
                 IsChecked="False" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
-
             </StackPanel>
             <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
                 <!--<Button Width="200" Content="calibrate" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" />

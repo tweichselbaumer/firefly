@@ -234,5 +234,4 @@
 
     <SolidColorBrush x:Key="MahApps.Metro.HamburgerMenu.PaneBackgroundBrush" Color="#FF444444" options:Freeze="True" />
     <SolidColorBrush x:Key="MahApps.Metro.HamburgerMenu.PaneForegroundBrush" Color="#FFFFFFFF" options:Freeze="True" />
-
 </ResourceDictionary>

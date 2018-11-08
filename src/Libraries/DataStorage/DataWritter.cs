@@ -9,9 +9,9 @@ namespace FireFly.Data.Storage
 {
     public class DataWritter
     {
+        private Dictionary<int, StreamWriter> _CameraStreams = new Dictionary<int, StreamWriter>();
         private string _FileName;
         private Dictionary<int, StreamWriter> _ImuStreams = new Dictionary<int, StreamWriter>();
-        private Dictionary<int, StreamWriter> _CameraStreams = new Dictionary<int, StreamWriter>();
         private ZipArchive _ZipArchive;
         private FileStream _ZipFile;
 
@@ -109,7 +109,6 @@ namespace FireFly.Data.Storage
             }
             _ZipArchive.Dispose();
             _ZipFile.Dispose();
-
         }
 
         public void Open()

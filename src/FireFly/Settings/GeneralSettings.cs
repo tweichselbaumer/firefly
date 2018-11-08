@@ -8,6 +8,19 @@ namespace FireFly.Settings
         private string _Name;
         private string _Path;
 
+        public bool IsRemote
+        {
+            get
+            {
+                return _IsRemote;
+            }
+
+            set
+            {
+                _IsRemote = value;
+            }
+        }
+
         public string Name
         {
             get
@@ -31,19 +44,6 @@ namespace FireFly.Settings
             set
             {
                 _Path = value;
-            }
-        }
-
-        public bool IsRemote
-        {
-            get
-            {
-                return _IsRemote;
-            }
-
-            set
-            {
-                _IsRemote = value;
             }
         }
     }

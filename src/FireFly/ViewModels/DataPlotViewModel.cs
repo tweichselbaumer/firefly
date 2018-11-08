@@ -172,6 +172,7 @@ namespace FireFly.ViewModels
                     }
                     catch (Exception) { }
                     break;
+
                 case "RecordRemote":
                     changed = dpvm.Parent.SettingContainer.Settings.ImuSettings.RecordRemote != dpvm.RecordRemote;
                     dpvm.Parent.SettingContainer.Settings.ImuSettings.RecordRemote = dpvm.RecordRemote;

@@ -60,7 +60,7 @@
                         <Label  Content="Password" Style="{DynamicResource GeneralLabelStyle}" />
                         <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=Password}" />
                     </StackPanel>
-                    <Button Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="7" Width="200" Content="update remote" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=UpdateSettingsRemoteCommand}"/>
+                    <Button Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="7" Width="200" Content="update remote" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=UpdateSettingsRemoteCommand}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Locations">
@@ -99,16 +99,16 @@
                                         <ColumnDefinition Width="3*" />
                                         <ColumnDefinition Width="auto" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="16"/>
+                                    <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="16" />
                                     <TextBlock Grid.Column="1" Text="{Binding Path}" FontSize="16" FontStyle="Italic" />
                                     <Button Grid.Column="2" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.DeleteFileLocationCommand}" CommandParameter="{Binding Path=.}">
-                                        <iconPacks:PackIconModern Width="12" Height="12" Kind="Delete"/>
+                                        <iconPacks:PackIconModern Width="12" Height="12" Kind="Delete" />
                                     </Button>
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <Button Grid.Row="3" Grid.Column="1" Width="200" Content="new" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=NewFileLocationCommand}"/>
+                    <Button Grid.Row="3" Grid.Column="1" Width="200" Content="new" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=NewFileLocationCommand}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Imu">
@@ -151,6 +151,100 @@
                         <Label  Content="Temperature Offset" Style="{DynamicResource GeneralLabelStyle}" />
                         <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=TemperatureOffset}" />
                     </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="AprilGrid">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Row="1" Grid.Column="1">
+                        <Label  Content="Tag Size" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=TagSize}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="3" Grid.Column="1">
+                        <Label  Content="Tag Spacing Factor" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=TagSpacingFactor}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="5" Grid.Column="1">
+                        <Label  Content="Tags X" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=TagsX}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="7" Grid.Column="1">
+                        <Label  Content="Tags Y" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=TagsY}" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="ChAruco">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Row="1" Grid.Column="1">
+                        <Label  Content="Dictionary" Style="{DynamicResource GeneralLabelStyle}" />
+                        <ComboBox SelectedItem="{Binding Dictionary}" ItemsSource="{Binding PredefinedDictionaryNames}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="3" Grid.Column="1">
+                        <Label  Content="Squares X" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=SquaresX}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="5" Grid.Column="1">
+                        <Label  Content="Squares Y" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=SquaresY}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="7" Grid.Column="1">
+                        <Label  Content="Square Length [m]" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=SquareLength}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="9" Grid.Column="1">
+                        <Label  Content="Marker Length [m]" Style="{DynamicResource GeneralLabelStyle}" />
+                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=MarkerLength}" />
+                    </StackPanel>
+
+                    <Button Grid.Row="11" Grid.ColumnSpan="7" Grid.Column="1" Width="200" Content="print board" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=PrintBoardCommand}" />
                 </Grid>
             </TabItem>
         </Controls:MetroTabControl>

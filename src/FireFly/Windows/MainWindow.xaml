@@ -272,7 +272,7 @@
         <Grid Panel.ZIndex="2000">
             <Canvas>
                 <!--<CustomControls:ResizableCanvas>-->
-                <CustomControls:DragableCameraControl Canvas.Bottom="0" Canvas.Right="0" Height="256" Width="256" DataContext="{Binding Source={StaticResource Data}, Path=CameraViewModel}" Visibility="{Binding ElementName=ToggleButtonCamera, Path=IsChecked,Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <CustomControls:DragableCameraControl Canvas.Bottom="0" Canvas.Right="0" Height="256" Width="256" DataContext="{Binding Source={StaticResource Data}, Path=CameraViewModel}" Visibility="{Binding ElementName=ToggleButtonCamera, Path=IsChecked,Converter={StaticResource BoolToVisibilityConverter}}" />
                 <!--</CustomControls:ResizableCanvas>-->
             </Canvas>
         </Grid>
@@ -290,12 +290,12 @@
                     <StackPanel Orientation="Horizontal" Visibility="{Binding Source={StaticResource Data}, Path=RecordViewModel.IsRecording,Converter={StaticResource BoolToVisibilityConverter}}">
                         <StatusBarItem Content="Recording" />
                         <Separator Style="{StaticResource MetroStatusBarSeparator}" />
-                        <StatusBarItem  Content="{Binding Source={StaticResource Data}, Path=RecordViewModel.RecordingTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}"/>
+                        <StatusBarItem  Content="{Binding Source={StaticResource Data}, Path=RecordViewModel.RecordingTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Visibility="{Binding Source={StaticResource Data}, Path=ReplayViewModel.IsReplaying,Converter={StaticResource BoolToVisibilityConverter}}">
                         <StatusBarItem Content="Replaying" />
                         <Separator Style="{StaticResource MetroStatusBarSeparator}" />
-                        <StatusBarItem  Content="{Binding Source={StaticResource Data}, Path=ReplayViewModel.ReplayTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}"/>
+                        <StatusBarItem  Content="{Binding Source={StaticResource Data}, Path=ReplayViewModel.ReplayTime}" ContentStringFormat="{}{0:hh}:{0:mm}:{0:ss}" />
                     </StackPanel>
                 </StackPanel>
             </StatusBarItem>

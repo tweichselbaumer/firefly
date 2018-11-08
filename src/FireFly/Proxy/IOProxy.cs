@@ -37,6 +37,8 @@ namespace FireFly.Proxy
         private LinkUpPropertyLabel<Double> _TemperatureScaleLabel;
         private LinkUpFunctionLabel _UpdateSettings;
 
+        private long lastTimestamp = 0;
+
         public IOProxy(SettingContainer settingContainer)
         {
             _SettingContainer = settingContainer;
@@ -342,8 +344,6 @@ namespace FireFly.Proxy
                 catch (Exception) { }
             }
         }
-
-        long lastTimestamp = 0;
 
         private void _CameraEventLabel_Fired(LinkUpEventLabel label, byte[] data)
         {
