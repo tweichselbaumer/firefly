@@ -164,6 +164,8 @@
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="10" />
                         <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="auto" />
                         <RowDefinition Height="10" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
@@ -193,6 +195,7 @@
                         <Label  Content="Tags Y" Style="{DynamicResource GeneralLabelStyle}" />
                         <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=TagsY}" />
                     </StackPanel>
+                    <Button Grid.Row="9" Grid.ColumnSpan="7" Grid.Column="1" Width="200" Content="print board (AprilGrid)" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=PrintBoardCommand}" CommandParameter="AprilGrid"/>
                 </Grid>
             </TabItem>
             <TabItem Header="ChAruco">
@@ -244,7 +247,7 @@
                         <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=MarkerLength}" />
                     </StackPanel>
 
-                    <Button Grid.Row="11" Grid.ColumnSpan="7" Grid.Column="1" Width="200" Content="print board" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=PrintBoardCommand}" />
+                    <Button Grid.Row="11" Grid.ColumnSpan="7" Grid.Column="1" Width="200" Content="print board (ChAruco)" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=PrintBoardCommand}" CommandParameter="ChAruco"/>
                 </Grid>
             </TabItem>
         </Controls:MetroTabControl>

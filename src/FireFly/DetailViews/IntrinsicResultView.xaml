@@ -38,22 +38,31 @@
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="40" />
                 </Grid.ColumnDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" Content="{Binding Path=Fx}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
-                <Label Grid.Row="0" Grid.Column="1" Content="0" Style="{DynamicResource GeneralLabelStyle}" />
-                <Label Grid.Row="0" Grid.Column="2" Content="{Binding Path=Cx}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="1" Content="{Binding Path=Fx}" ContentStringFormat="{}{0:F4}" HorizontalAlignment="Center" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="2" Content="0" HorizontalAlignment="Center" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="3" Content="{Binding Path=Cx}" ContentStringFormat="{}{0:F4}" HorizontalAlignment="Center" Style="{DynamicResource GeneralLabelStyle}" />
 
-                <Label Grid.Row="1" Grid.Column="0" Content="0" Style="{DynamicResource GeneralLabelStyle}" />
-                <Label Grid.Row="1" Grid.Column="1" Content="{Binding Path=Fy}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
-                <Label Grid.Row="1" Grid.Column="2" Content="{Binding Path=Cy}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="1" Grid.Column="1" Content="0" HorizontalAlignment="Center" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="1" Grid.Column="2" Content="{Binding Path=Fy}" ContentStringFormat="{}{0:F4}" HorizontalAlignment="Center" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="1" Grid.Column="3" Content="{Binding Path=Cy}" ContentStringFormat="{}{0:F4}" HorizontalAlignment="Center" Style="{DynamicResource GeneralLabelStyle}" />
 
-                <Label Grid.Row="2" Grid.Column="0" Content="0" Style="{DynamicResource GeneralLabelStyle}" />
-                <Label Grid.Row="2" Grid.Column="1" Content="0" Style="{DynamicResource GeneralLabelStyle}" />
-                <Label Grid.Row="2" Grid.Column="2" Content="1" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="2" Grid.Column="1" Content="0" HorizontalAlignment="Center" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="2" Grid.Column="2" Content="0" HorizontalAlignment="Center" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="2" Grid.Column="3" Content="1" HorizontalAlignment="Center" Style="{DynamicResource GeneralLabelStyle}" />
+
+                <Grid Grid.Row="0" Grid.RowSpan="3" HorizontalAlignment="Right">
+                    <Border BorderThickness="2.5 2.5 0 2.5" BorderBrush="Black" Width="8"/>
+                </Grid>
+                <Grid Grid.Row="0" Grid.RowSpan="3" Grid.Column="4" HorizontalAlignment="Left">
+                    <Border BorderThickness="0 2.5 2.5 2.5" BorderBrush="Black" Width="8"/>
+                </Grid>
             </Grid>
             <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
             <Label Grid.Row="0" Grid.Column="0" Content="Distortion" Style="{DynamicResource DescriptionHeaderStyle}" />
@@ -62,16 +71,26 @@
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="20" />
                 </Grid.ColumnDefinitions>
 
-                <Label Grid.Row="0" Grid.Column="0" Content="{Binding Path=K1}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
-                <Label Grid.Row="0" Grid.Column="1" Content="{Binding Path=K2}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
-                <Label Grid.Row="0" Grid.Column="2" Content="{Binding Path=K3}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
-                <Label Grid.Row="0" Grid.Column="3" Content="{Binding Path=K4}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="1" Content="{Binding Path=K1}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="2" Content="{Binding Path=K2}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="3" Content="{Binding Path=K3}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label Grid.Row="0" Grid.Column="4" Content="{Binding Path=K4}" ContentStringFormat="{}{0:F4}" Style="{DynamicResource GeneralLabelStyle}" />
+
+                <Grid Grid.Row="0" HorizontalAlignment="Right">
+                    <Border BorderThickness="2.5 2.5 0 2.5" BorderBrush="Black" Width="8"/>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="5" HorizontalAlignment="Left">
+                    <Border BorderThickness="0 2.5 2.5 2.5" BorderBrush="Black" Width="8"/>
+                </Grid>
+                
             </Grid>
         </StackPanel>
 

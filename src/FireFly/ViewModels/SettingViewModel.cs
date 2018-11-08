@@ -8,6 +8,8 @@ using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -438,24 +440,109 @@ namespace FireFly.ViewModels
             {
                 Parent.SyncContext.Post(c =>
                 {
-                    CustomDialog customDialog = new CustomDialog() { Title = "Board Properties" };
-
-                    var dataContext = new PrintCharucoBoardDialogModel(obj =>
+                    if (o is string && !string.IsNullOrEmpty(o as string))
                     {
-                        Parent.SyncContext.Post(d =>
+                        switch (o as string)
                         {
-                            Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                            case "AprilGrid":
+                                {
+                                    CustomDialog customDialog = new CustomDialog() { Title = "Board Properties" };
 
-                            System.Windows.Forms.SaveFileDialog saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-                            saveFileDialog.Filter = "Image (*.png) | *.png";
+                                    var dataContext = new PrintAprilGridDialogModel(obj =>
+                                    {
+                                        Parent.SyncContext.Post(d =>
+                                        {
+                                            Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
 
-                            if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                                CvInvoke.Imwrite(saveFileDialog.FileName, obj.Image.CvImage, new KeyValuePair<Emgu.CV.CvEnum.ImwriteFlags, int>() { });
-                        }, null);
-                    });
-                    customDialog.Content = new PrintCharucoBoardDialog { DataContext = dataContext };
+                                            System.Windows.Forms.SaveFileDialog saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                                            saveFileDialog.Filter = "Portable Document Format (*.pdf) | *.pdf";
 
-                    Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
+                                            if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                                            {
+                                                RemoteDataStore remoteDataStore = new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Password);
+
+                                                string expactString = string.Format("{0}@{1}:.{{0,}}[$]", Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Hostname);
+                                                string guid = Guid.NewGuid().ToString();
+                                                string remoteFolder = string.Format(@"/var/tmp/firefly/{0}", guid);
+
+                                                remoteDataStore.ExecuteCommands(new List<string>() { string.Format("mkdir -p {0}", remoteFolder) }, expactString);
+
+                                                string res = remoteDataStore.ExecuteCommands(new List<string>()
+                                                {
+                                                    string.Format(@"cd {0}",remoteFolder),
+                                                    @"source ~/kalibr_workspace/devel/setup.bash",
+                                                    string.Format(CultureInfo.InvariantCulture, @"kalibr_create_target_pdf --type apriltag --nx {2} --ny {3} --tsize {0} --tspace {1} {4}/{5}", obj.TagSize,obj.TagSpacingFactor,obj.TagsX, obj.TagsY, remoteFolder, Path.GetFileName(saveFileDialog.FileName)),
+                                                }, expactString);
+
+                                                remoteDataStore.DownloadFile(string.Format("{0}/{1}", remoteFolder, Path.GetFileName(saveFileDialog.FileName)), saveFileDialog.FileName);
+
+                                                remoteDataStore.ExecuteCommands(new List<string>()
+                                                {
+                                                    string.Format(@"rm -r {0}",remoteFolder)
+                                                }, expactString);
+                                            }
+                                        }, null);
+                                    },
+                                    obj =>
+                                    {
+                                        Parent.SyncContext.Post(d =>
+                                        {
+                                            Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                                        }, null);
+                                    });
+
+                                    dataContext.TagSize = TagSize;
+                                    dataContext.TagSpacingFactor = TagSpacingFactor;
+                                    dataContext.TagsX = TagsX;
+                                    dataContext.TagsY = TagsY;
+
+                                    customDialog.Content = new PrintAprilGridBoardDialog { DataContext = dataContext };
+
+                                    Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
+                                }
+                                break;
+
+                            case "ChAruco":
+                                {
+                                    CustomDialog customDialog = new CustomDialog() { Title = "Board Properties" };
+
+                                    var dataContext = new PrintCharucoBoardDialogModel(obj =>
+                                    {
+                                        Parent.SyncContext.Post(d =>
+                                        {
+                                            Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+
+                                            System.Windows.Forms.SaveFileDialog saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                                            saveFileDialog.Filter = "Portable Network Graphics (*.png) | *.png";
+
+                                            if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                                                CvInvoke.Imwrite(saveFileDialog.FileName, obj.Image.CvImage, new KeyValuePair<Emgu.CV.CvEnum.ImwriteFlags, int>() { });
+                                        }, null);
+                                    },
+                                    obj =>
+                                    {
+                                        Parent.SyncContext.Post(d =>
+                                        {
+                                            Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                                        }, null);
+                                    });
+
+                                    dataContext.SquareLength = (int)Math.Round(SquareLength / 0.0254 * 100);
+                                    dataContext.MarkerLength = (int)Math.Round(MarkerLength / 0.0254 * 100);
+                                    dataContext.Dictionary = Dictionary;
+                                    dataContext.SquaresX = SquaresX;
+                                    dataContext.SquaresY = SquaresY;
+
+                                    customDialog.Content = new PrintCharucoBoardDialog { DataContext = dataContext };
+
+                                    Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
+                                }
+                                break;
+
+                            default:
+                                break;
+                        }
+                    }
                 }, null);
             });
         }

@@ -167,6 +167,10 @@
     </Compile>
     <Compile Include="CustomControls\DragableItem.cs" />
     <Compile Include="CustomControls\DragItem.cs" />
+    <Compile Include="CustomDialogs\PrintAprilGridBoardDialog.xaml.cs">
+      <DependentUpon>PrintAprilGridBoardDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="CustomDialogs\PrintAprilGridDialogModel.cs" />
     <Compile Include="DetailViews\ExtrinsicCalibrationView.xaml.cs">
       <DependentUpon>ExtrinsicCalibrationView.xaml</DependentUpon>
     </Compile>
@@ -276,6 +280,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="CustomControls\DragableCameraControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomDialogs\PrintAprilGridBoardDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

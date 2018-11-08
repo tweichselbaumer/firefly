@@ -45,7 +45,7 @@
 
         <TextBlock Grid.Row="1"
                    Grid.Column="0"
-                   Text="Marker Length:" VerticalAlignment="Center" />
+                   Text="Marker Length [px]:" VerticalAlignment="Center" />
         <TextBox x:Name="NameTextBox"
                  Grid.Row="1"
                  Grid.Column="1"
@@ -55,7 +55,7 @@
         <TextBlock Grid.Row="2"
                    Grid.Column="0"
                    Margin="0 8 0 0"
-                   Text="Square Length:" VerticalAlignment="Center" />
+                   Text="Square Length [px]:" VerticalAlignment="Center" />
         <TextBox Grid.Row="2"
                  Grid.Column="1"
                  Margin="8 8 0 0"
@@ -79,13 +79,28 @@
                  Margin="8 8 0 0"
                  Text="{Binding Path=SquaresY}" />
 
-        <Button Grid.Row="6"
+        <Grid Grid.Row="6"
                 Grid.Column="0"
-                Grid.ColumnSpan="2"
+                Grid.ColumnSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button
+                Grid.Column="0"
+                MinWidth="80"
+                Margin="8 8 0 8"
+                HorizontalAlignment="Right"
+                Command="{Binding CreateCommand}"
+                Content="Create" />
+            <Button 
+                Grid.Column="1"
                 MinWidth="80"
                 Margin="8 8 0 8"
                 HorizontalAlignment="Right"
                 Command="{Binding CloseCommand}"
-                Content="Create" />
+                Content="Cancle" />
+        </Grid>
+
     </Grid>
 </UserControl>

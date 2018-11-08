@@ -31,8 +31,9 @@ namespace FireFly.CustomDialogs
             DependencyProperty.Register("SquaresY", typeof(int), typeof(PrintCharucoBoardDialogModel), new FrameworkPropertyMetadata(7, new PropertyChangedCallback(OnPropertyChanged)));
 
         private readonly RelayCommand<object> _CloseCommand;
+        private readonly RelayCommand<object> _CreateCommand;
 
-        public PrintCharucoBoardDialogModel(Action<PrintCharucoBoardDialogModel> closeHandel)
+        public PrintCharucoBoardDialogModel(Action<PrintCharucoBoardDialogModel> createHandel, Action<PrintCharucoBoardDialogModel> closeHandel)
         {
             Image = new CvImageContainer();
             _CloseCommand = new RelayCommand<object>(
@@ -43,6 +44,14 @@ namespace FireFly.CustomDialogs
                         closeHandel(this);
                     });
                 });
+            _CreateCommand = new RelayCommand<object>(
+                async (object o) =>
+                {
+                    await Task.Factory.StartNew(() =>
+                    {
+                        createHandel(this);
+                    });
+                });
         }
 
         public RelayCommand<object> CloseCommand
@@ -50,6 +59,14 @@ namespace FireFly.CustomDialogs
             get
             {
                 return _CloseCommand;
+            }
+        }
+
+        public RelayCommand<object> CreateCommand
+        {
+            get
+            {
+                return _CreateCommand;
             }
         }
 
@@ -99,8 +116,13 @@ namespace FireFly.CustomDialogs
 
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            PrintCharucoBoardDialogModel obj = d as PrintCharucoBoardDialogModel;
-            obj.Image.CvImage = ChArUcoCalibration.DrawBoard(obj.SquaresX, obj.SquaresY, obj.SquareLength, obj.MarkerLength, new System.Drawing.Size(obj.SquaresX * obj.SquareLength, obj.SquaresY * obj.SquareLength), 0, obj.Dictionary);
+            try
+            {
+                PrintCharucoBoardDialogModel obj = d as PrintCharucoBoardDialogModel;
+                obj.Image.CvImage = ChArUcoCalibration.DrawBoard(obj.SquaresX, obj.SquaresY, obj.SquareLength, obj.MarkerLength, new System.Drawing.Size(obj.SquaresX * obj.SquareLength, obj.SquaresY * obj.SquareLength), 0, obj.Dictionary);
+            }
+            catch (Exception)
+            { }
         }
     }
 }
