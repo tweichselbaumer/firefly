@@ -18,7 +18,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <helix:HelixViewport3D Grid.Row="0">
+        <helix:HelixViewport3D Grid.Row="0" IsEnabled="True">
             <helix:HelixViewport3D.DefaultCamera>
                 <PerspectiveCamera Position="0,1,0.3" LookDirection="0,-1,-0.3" UpDirection="0,0,1" />
             </helix:HelixViewport3D.DefaultCamera>

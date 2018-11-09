@@ -115,6 +115,7 @@ namespace FireFly.ViewModels
 
                             string imuModel = "scale-misalignment-size-effect";
                             //imuModel = "calibrated";
+                            //imuModel = "scale-misalignment";
 
                             Parent.SyncContext.Send(c =>
                         {
@@ -167,7 +168,8 @@ namespace FireFly.ViewModels
                             }));
 
                             string options = "--time-calibration --dont-show-report";
-                            // options = "--dont-show-report";
+                            options = "--dont-show-report";
+                            options = "--time-calibration --dont-show-report --reprojection-sigma 0.25";
 
                             remoteDataStore.ExecuteCommands(new List<string>()
                                     {

@@ -18,7 +18,7 @@ namespace FireFly.Data.Storage
             if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(pwd))
             {
                 _ConnectionInfo = new ConnectionInfo(host, user, new PasswordAuthenticationMethod(user, pwd));
-                _ConnectionInfo.Timeout = new TimeSpan(0, 0, 0, 0, 500);
+                _ConnectionInfo.Timeout = new TimeSpan(0, 0, 0, 1, 0);
             }
         }
 
