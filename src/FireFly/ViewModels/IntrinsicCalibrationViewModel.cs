@@ -798,13 +798,13 @@ namespace FireFly.ViewModels
                         ReplaySelectDialogModel replaySelectDialogModel = obj as ReplaySelectDialogModel;
                         if (replaySelectDialogModel.SelectedFile != null)
                         {
-                            RemoteDataStore remoteDataStore = new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Password);
+                            RemoteDataStore remoteDataStore = new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Username, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Password);
 
                             string guid = Guid.NewGuid().ToString();
                             string localFile = "";
                             string remoteFile = "";
                             string remoteFolder = string.Format(@"/var/tmp/firefly/{0}", guid);
-                            string expactString = string.Format("{0}@{1}:.{{0,}}[$]", Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Hostname);
+                            string expactString = string.Format("{0}@{1}:.{{0,}}[$]", Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Username, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Hostname);
 
                             Parent.SyncContext.Send(c =>
                             {

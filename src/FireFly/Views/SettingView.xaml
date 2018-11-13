@@ -23,10 +23,6 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="10" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="10" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="10" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="10" />
                         <RowDefinition Height="auto" />
@@ -38,29 +34,46 @@
                         <ColumnDefinition Width="10" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="10" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="10" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="10" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Row="1" Grid.Column="1">
-                        <Label  Content="IP Address" Style="{DynamicResource GeneralLabelStyle}" />
-                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=IpAddress}" />
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Grid.Column="3">
-                        <Label  Content="Port" Style="{DynamicResource GeneralLabelStyle}" />
-                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=Port}" />
-                    </StackPanel>
-
-                    <StackPanel Grid.Row="3" Grid.Column="1">
-                        <Label  Content="Username" Style="{DynamicResource GeneralLabelStyle}" />
-                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=Username}" />
-                    </StackPanel>
-                    <StackPanel Grid.Row="3" Grid.Column="3">
-                        <Label  Content="Password" Style="{DynamicResource GeneralLabelStyle}" />
-                        <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=Password}" />
-                    </StackPanel>
-                    <Button Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="7" Width="200" Content="update remote" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=UpdateSettingsRemoteCommand}" />
+                    <ListBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" HorizontalContentAlignment="Stretch" SelectionMode="Extended" ItemsSource="{Binding Path=Connections}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.Resources>
+                                        <Style x:Key="AccentCircleButtonStyle" BasedOn="{StaticResource MahApps.Metro.Styles.MetroCircleButtonStyle}" TargetType="{x:Type ButtonBase}">
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentColorBrush}" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentColorBrush}" />
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Foreground" Value="{DynamicResource GrayBrush7}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Resources>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding IpAddress}" FontSize="16" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Port}" FontSize="16" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Username}" FontSize="16" />
+                                    <TextBlock Grid.Column="3" Text="{Binding Password}" FontSize="16" />
+                                    <TextBlock Grid.Column="4" Text="{Binding Hostname}" FontSize="16" />
+                                    <Button Grid.Column="5" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.DeleteConnectionCommand}" CommandParameter="{Binding Path=.}">
+                                        <iconPacks:PackIconModern Width="12" Height="12" Kind="Delete" />
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Button Grid.Row="3" Grid.Column="1" Width="200" Content="new connection" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=NewConnectionCommand}" />
+                    <Button Grid.Row="3" Grid.Column="3" Width="200" Content="update remote" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=UpdateSettingsRemoteCommand}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Locations">
@@ -108,7 +121,7 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <Button Grid.Row="3" Grid.Column="1" Width="200" Content="new" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=NewFileLocationCommand}" />
+                    <Button Grid.Row="3" Grid.Column="1" Width="200" Content="new location" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=NewFileLocationCommand}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Imu">

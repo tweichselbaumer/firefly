@@ -2,6 +2,7 @@
 using FireFly.Command;
 using FireFly.CustomDialogs;
 using FireFly.Data.Storage;
+using FireFly.Models;
 using FireFly.Settings;
 using FireFly.Utilities;
 using MahApps.Metro.Controls.Dialogs;
@@ -22,6 +23,9 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty AccelerometerScaleProperty =
             DependencyProperty.Register("AccelerometerScale", typeof(double), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
 
+        public static readonly DependencyProperty ConnectionsProperty =
+            DependencyProperty.Register("Connections", typeof(RangeObservableCollection<Connection>), typeof(SettingViewModel), new PropertyMetadata(null));
+
         public static readonly DependencyProperty DictionaryProperty =
             DependencyProperty.Register("Dictionary", typeof(PredefinedDictionaryName), typeof(SettingViewModel), new FrameworkPropertyMetadata(PredefinedDictionaryName.Dict4X4_50, new PropertyChangedCallback(OnPropertyChanged)));
 
@@ -31,17 +35,11 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty GyroscopeScaleProperty =
             DependencyProperty.Register("GyroscopeScale", typeof(double), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
 
-        public static readonly DependencyProperty IpAddressProperty =
-            DependencyProperty.Register("IpAddress", typeof(string), typeof(SettingViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
-
         public static readonly DependencyProperty MarkerLengthProperty =
            DependencyProperty.Register("MarkerLength", typeof(float), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0f, new PropertyChangedCallback(OnPropertyChanged)));
 
-        public static readonly DependencyProperty PasswordProperty =
-            DependencyProperty.Register("Password", typeof(string), typeof(SettingViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
-
-        public static readonly DependencyProperty PortProperty =
-            DependencyProperty.Register("Port", typeof(int), typeof(SettingViewModel), new FrameworkPropertyMetadata(0, new PropertyChangedCallback(OnPropertyChanged)));
+        public static readonly DependencyProperty SelectedHostProperty =
+            DependencyProperty.Register("SelectedHost", typeof(Connection), typeof(SettingViewModel), new PropertyMetadata(null));
 
         public static readonly DependencyProperty SquareLengthProperty =
             DependencyProperty.Register("SquareLength", typeof(float), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0f, new PropertyChangedCallback(OnPropertyChanged)));
@@ -70,19 +68,30 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty TemperatureScaleProperty =
             DependencyProperty.Register("TemperatureScale", typeof(double), typeof(SettingViewModel), new FrameworkPropertyMetadata(0.0, new PropertyChangedCallback(OnPropertyChanged)));
 
-        public static readonly DependencyProperty UsernameProperty =
-            DependencyProperty.Register("Username", typeof(string), typeof(SettingViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
-
         public SettingViewModel(MainViewModel parent) : base(parent)
         {
+            SelectedHost = new Connection();
             FileLocations = new RangeObservableCollection<FileLocation>();
             FileLocations.CollectionChanged += FileLocations_CollectionChanged;
+            Connections = new RangeObservableCollection<Connection>();
+            Connections.CollectionChanged += Connections_CollectionChanged;
+        }
+
+        private void Connections_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+
         }
 
         public double AccelerometerScale
         {
             get { return (double)GetValue(AccelerometerScaleProperty); }
             set { SetValue(AccelerometerScaleProperty, value); }
+        }
+
+        public RangeObservableCollection<Connection> Connections
+        {
+            get { return (RangeObservableCollection<Connection>)GetValue(ConnectionsProperty); }
+            set { SetValue(ConnectionsProperty, value); }
         }
 
         public RelayCommand<object> DeleteFileLocationCommand
@@ -115,12 +124,6 @@ namespace FireFly.ViewModels
             set { SetValue(GyroscopeScaleProperty, value); }
         }
 
-        public string IpAddress
-        {
-            get { return (string)GetValue(IpAddressProperty); }
-            set { SetValue(IpAddressProperty, value); }
-        }
-
         public float MarkerLength
         {
             get { return (float)GetValue(MarkerLengthProperty); }
@@ -139,24 +142,44 @@ namespace FireFly.ViewModels
             }
         }
 
-        public string Password
-        {
-            get { return (string)GetValue(PasswordProperty); }
-            set { SetValue(PasswordProperty, value); }
-        }
-
-        public int Port
-        {
-            get { return (int)GetValue(PortProperty); }
-            set { SetValue(PortProperty, value); }
-        }
-
         public IEnumerable<PredefinedDictionaryName> PredefinedDictionaryNames
         {
             get
             {
                 return Enum.GetValues(typeof(PredefinedDictionaryName)).Cast<PredefinedDictionaryName>();
             }
+        }
+        public RelayCommand<object> ChangeConnectionCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoChangeConnection(o);
+                    });
+            }
+        }
+
+        private Task DoChangeConnection(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                if (o != null && o is Connection)
+                {
+                    Connection connection = o as Connection;
+
+                    bool changed = Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnectionGuid != connection.Id;
+                    if (changed)
+                    {
+                        Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnectionGuid = connection.Id;
+                        Parent.SyncContext.Post(d =>
+                        {
+                            Parent.UpdateSettings(true);
+                        }, null);
+                    }
+                }
+            });
         }
 
         public RelayCommand<object> PrintBoardCommand
@@ -169,6 +192,12 @@ namespace FireFly.ViewModels
                         await DoPrintBoard(o);
                     });
             }
+        }
+
+        public Connection SelectedHost
+        {
+            get { return (Connection)GetValue(SelectedHostProperty); }
+            set { SetValue(SelectedHostProperty, value); }
         }
 
         public float SquareLength
@@ -237,12 +266,6 @@ namespace FireFly.ViewModels
             }
         }
 
-        public string Username
-        {
-            get { return (string)GetValue(UsernameProperty); }
-            set { SetValue(UsernameProperty, value); }
-        }
-
         internal override void SettingsUpdated()
         {
             base.SettingsUpdated();
@@ -258,27 +281,35 @@ namespace FireFly.ViewModels
             TagsX = Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagsX;
             TagsY = Parent.SettingContainer.Settings.CalibrationSettings.AprilGridCalibration.TagsY;
 
-            IpAddress = Parent.SettingContainer.Settings.ConnectionSettings.IpAddress;
-            Port = Parent.SettingContainer.Settings.ConnectionSettings.Port;
-
-            Password = Parent.SettingContainer.Settings.ConnectionSettings.Password;
-            Username = Parent.SettingContainer.Settings.ConnectionSettings.Username;
+            SelectedHost = Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection;
 
             AccelerometerScale = Parent.SettingContainer.Settings.ImuSettings.AccelerometerScale;
             GyroscopeScale = Parent.SettingContainer.Settings.ImuSettings.GyroscopeScale;
             TemperatureScale = Parent.SettingContainer.Settings.ImuSettings.TemperatureScale;
             TemperatureOffset = Parent.SettingContainer.Settings.ImuSettings.TemperatureOffset;
 
-            var firstNotSecond = FileLocations.Except(Parent.SettingContainer.Settings.GeneralSettings.FileLocations).ToList();
-            var secondNotFirst = Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Except(FileLocations).ToList();
+            var firstNotSecondFile = FileLocations.Except(Parent.SettingContainer.Settings.GeneralSettings.FileLocations).ToList();
+            var secondNotFirstFile = Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Except(FileLocations).ToList();
 
-            bool changed = firstNotSecond.Any() || secondNotFirst.Any();
+            bool changed = firstNotSecondFile.Any() || secondNotFirstFile.Any();
 
             if (changed)
             {
                 List<FileLocation> l = Parent.SettingContainer.Settings.GeneralSettings.FileLocations.ToList();
                 FileLocations.Clear();
                 FileLocations.AddRange(l);
+            }
+
+            var firstNotSecondCon = Connections.Except(Parent.SettingContainer.Settings.ConnectionSettings.Connections).ToList();
+            var secondNotFirstCon = Parent.SettingContainer.Settings.ConnectionSettings.Connections.Except(Connections).ToList();
+
+            changed = firstNotSecondCon.Any() || secondNotFirstCon.Any();
+
+            if (changed)
+            {
+                List<Connection> l = Parent.SettingContainer.Settings.ConnectionSettings.Connections.ToList();
+                Connections.Clear();
+                Connections.AddRange(l);
             }
         }
 
@@ -289,30 +320,6 @@ namespace FireFly.ViewModels
             bool connectionSettingsChanged = false;
             switch (e.Property.Name)
             {
-                case "Port":
-                    changed = svm.Parent.SettingContainer.Settings.ConnectionSettings.Port != svm.Port;
-                    svm.Parent.SettingContainer.Settings.ConnectionSettings.Port = svm.Port;
-                    connectionSettingsChanged = true;
-                    break;
-
-                case "Username":
-                    changed = svm.Parent.SettingContainer.Settings.ConnectionSettings.Username != svm.Username;
-                    svm.Parent.SettingContainer.Settings.ConnectionSettings.Username = svm.Username;
-                    connectionSettingsChanged = false;
-                    break;
-
-                case "Password":
-                    changed = svm.Parent.SettingContainer.Settings.ConnectionSettings.Password != svm.Password;
-                    svm.Parent.SettingContainer.Settings.ConnectionSettings.Password = svm.Password;
-                    connectionSettingsChanged = false;
-                    break;
-
-                case "IpAddress":
-                    changed = svm.Parent.SettingContainer.Settings.ConnectionSettings.IpAddress != svm.IpAddress;
-                    svm.Parent.SettingContainer.Settings.ConnectionSettings.IpAddress = svm.IpAddress;
-                    connectionSettingsChanged = true;
-                    break;
-
                 case "GyroscopeScale":
                     changed = svm.Parent.SettingContainer.Settings.ImuSettings.GyroscopeScale != svm.GyroscopeScale;
                     svm.Parent.SettingContainer.Settings.ImuSettings.GyroscopeScale = svm.GyroscopeScale;
@@ -459,9 +466,9 @@ namespace FireFly.ViewModels
 
                                             if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                                             {
-                                                RemoteDataStore remoteDataStore = new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Password);
+                                                RemoteDataStore remoteDataStore = new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Username, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Password);
 
-                                                string expactString = string.Format("{0}@{1}:.{{0,}}[$]", Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Hostname);
+                                                string expactString = string.Format("{0}@{1}:.{{0,}}[$]", Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Username, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Hostname);
                                                 string guid = Guid.NewGuid().ToString();
                                                 string remoteFolder = string.Format(@"/var/tmp/firefly/{0}", guid);
 

@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace FireFly
@@ -21,7 +22,7 @@ namespace FireFly
             AttachConsole(ATTACH_PARENT_PROCESS);
 
             Windows.MainWindow home = null;
-            Windows.SplashScreen splash;
+            Windows.SplashScreen splash = null;
             Stopwatch timer;
 
             splash = new Windows.SplashScreen();

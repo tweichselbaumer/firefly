@@ -149,7 +149,7 @@ namespace FireFly.ViewModels
                 }
                 if (Parent.ConnectivityState == LinkUp.Raw.LinkUpConnectivityState.Connected)
                 {
-                    RemoteDataStore remoteDataStore = new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Password);
+                    RemoteDataStore remoteDataStore = new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Username, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Password);
 
                     List<string> files = remoteDataStore.GetAllFileNames("/home/up/data");
                     if (files.Count > 0)
@@ -172,9 +172,9 @@ namespace FireFly.ViewModels
             base.SettingsUpdated();
 
             bool changed = false;
-            changed |= Parent.SettingContainer.Settings.ConnectionSettings.IpAddress != _IpAddress;
-            changed |= Parent.SettingContainer.Settings.ConnectionSettings.Username != _Username;
-            changed |= Parent.SettingContainer.Settings.ConnectionSettings.Password != _Password;
+            changed |= Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.IpAddress != _IpAddress;
+            changed |= Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Username != _Username;
+            changed |= Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Password != _Password;
 
             var firstNotSecond = _FileLocations.Select(c => c.Name + c.Path).Except(Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Select(d => d.Name + d.Path)).ToList();
             var secondNotFirst = Parent.SettingContainer.Settings.GeneralSettings.FileLocations.Select(d => d.Name + d.Path).Except(_FileLocations.Select(c => c.Name + c.Path)).ToList();
@@ -183,9 +183,9 @@ namespace FireFly.ViewModels
 
             if (changed)
             {
-                _IpAddress = Parent.SettingContainer.Settings.ConnectionSettings.IpAddress;
-                _Username = Parent.SettingContainer.Settings.ConnectionSettings.Username;
-                _Password = Parent.SettingContainer.Settings.ConnectionSettings.Password;
+                _IpAddress = Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.IpAddress;
+                _Username = Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Username;
+                _Password = Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Password;
 
                 _FileLocations.Clear();
                 _FileLocations.AddRange(Parent.SettingContainer.Settings.GeneralSettings.FileLocations);
@@ -229,7 +229,7 @@ namespace FireFly.ViewModels
 
                     if (isRemote)
                     {
-                        reader = new DataReader(fullPath, ReaderMode.Imu0, new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Password));
+                        reader = new DataReader(fullPath, ReaderMode.Imu0, new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Username, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Password));
                         reader.Open(delegate (double percent)
                         {
                             double value = percent * 0.66;

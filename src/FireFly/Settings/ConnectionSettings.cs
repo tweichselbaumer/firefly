@@ -1,8 +1,14 @@
-﻿namespace FireFly.Settings
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace FireFly.Settings
 {
-    public class ConnectionSettings : AbstractSettings
+    public class Connection
     {
         private string _Hostname;
+        private Guid _Id;
         private string _IpAddress;
         private string _Password;
         private int _Port;
@@ -18,6 +24,19 @@
             set
             {
                 _Hostname = value;
+            }
+        }
+
+        public Guid Id
+        {
+            get
+            {
+                return _Id;
+            }
+
+            set
+            {
+                _Id = value;
             }
         }
 
@@ -72,13 +91,55 @@
                 _Username = value;
             }
         }
+    }
 
-        public override void SetDefaults()
+    public class ConnectionSettings : AbstractSettings
+    {
+        private List<Connection> _Connections = new List<Connection>();
+
+        private Guid _SelectedConnectionGuid;
+
+        public List<Connection> Connections
         {
-            base.SetDefaults();
+            get
+            {
+                return _Connections;
+            }
 
-            Port = 3000;
-            IpAddress = "0.0.0.0";
+            set
+            {
+                _Connections = value;
+            }
+        }
+
+        [JsonIgnore]
+        public Connection SelectedConnection
+        {
+            get
+            {
+                Connection connection = _Connections.FirstOrDefault(c => c.Id == SelectedConnectionGuid);
+                if (connection == null)
+                {
+                    return new Connection() { Id = Guid.Empty };
+                }
+                else
+                {
+                    return connection;
+                }
+            }
+        }
+
+        public Guid SelectedConnectionGuid
+        {
+            get
+            {
+                return _SelectedConnectionGuid;
+            }
+
+            set
+            {
+                _SelectedConnectionGuid = value;
+            }
         }
     }
 }

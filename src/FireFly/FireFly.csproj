@@ -167,6 +167,9 @@
     </Compile>
     <Compile Include="CustomControls\DragableItem.cs" />
     <Compile Include="CustomControls\DragItem.cs" />
+    <Compile Include="CustomDialogs\NewConnectionDialog.xaml.cs">
+      <DependentUpon>NewConnectionDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomDialogs\PrintAprilGridBoardDialog.xaml.cs">
       <DependentUpon>PrintAprilGridBoardDialog.xaml</DependentUpon>
     </Compile>
@@ -207,6 +210,7 @@
     <Compile Include="CustomDialogs\ReplaySelectDialogModel.cs" />
     <Compile Include="Models\ChArUcoImageContainer.cs" />
     <Compile Include="Models\CvImageContainer.cs" />
+    <Compile Include="Models\HostContainer.cs" />
     <Compile Include="Models\LineSeriesContainer.cs" />
     <Compile Include="Models\ReplayFile.cs" />
     <Compile Include="Options.cs" />
@@ -280,6 +284,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="CustomControls\DragableCameraControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomDialogs\NewConnectionDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

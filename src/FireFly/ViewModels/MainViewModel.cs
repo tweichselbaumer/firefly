@@ -37,7 +37,7 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("DebugViewModel", typeof(DebugViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
         public static readonly DependencyProperty NodeNameProperty =
-                    DependencyProperty.Register("NodeName", typeof(string), typeof(MainViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
+            DependencyProperty.Register("NodeName", typeof(string), typeof(MainViewModel), new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty NodeProperty =
             DependencyProperty.Register("Node", typeof(LinkUpNode), typeof(MainViewModel), new PropertyMetadata(null));
@@ -225,20 +225,23 @@ namespace FireFly.ViewModels
                     Node = null;
                 }
 
-                _Connector = new LinkUpTcpClientConnector(IPAddress.Parse(SettingViewModel.IpAddress), SettingViewModel.Port);
+                if (SettingViewModel.SelectedHost != null)
+                {
+                    _Connector = new LinkUpTcpClientConnector(IPAddress.Parse(SettingViewModel.SelectedHost.IpAddress), SettingViewModel.SelectedHost.Port);
 
-                _Connector.DebugDump = false;
+                    _Connector.DebugDump = false;
 
-                _Connector.ConnectivityChanged += Connector_ConnectivityChanged;
-                _Connector.ConnectivityChanged += IOProxy.Connector_ConnectivityChanged;
-                _Connector.MetricUpdate += Connector_MetricUpdate;
+                    _Connector.ConnectivityChanged += Connector_ConnectivityChanged;
+                    _Connector.ConnectivityChanged += IOProxy.Connector_ConnectivityChanged;
+                    _Connector.MetricUpdate += Connector_MetricUpdate;
 
-                Node = new LinkUpNode();
-                Node.Name = NodeName;
-                Node.AddSubNode(Connector);
-                IOProxy.Node = Node;
+                    Node = new LinkUpNode();
+                    Node.Name = NodeName;
+                    Node.AddSubNode(Connector);
+                    IOProxy.Node = Node;
 
-                IOProxy.UpdateLinkUpBindings();
+                    IOProxy.UpdateLinkUpBindings();
+                }
             }
 
             _SettingContainer.Save();
@@ -266,9 +269,9 @@ namespace FireFly.ViewModels
 
                     try
                     {
-                        if (!string.IsNullOrEmpty(mwvm.SettingViewModel.IpAddress))
+                        if (mwvm.SettingViewModel.SelectedHost != null && !string.IsNullOrEmpty(mwvm.SettingViewModel.SelectedHost.IpAddress))
                         {
-                            mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse(mwvm.SettingViewModel.IpAddress), mwvm.SettingViewModel.Port);
+                            mwvm._Connector = new LinkUpTcpClientConnector(IPAddress.Parse(mwvm.SettingViewModel.SelectedHost.IpAddress), mwvm.SettingViewModel.SelectedHost.Port);
 
                             mwvm._Connector.DebugDump = false;
 
