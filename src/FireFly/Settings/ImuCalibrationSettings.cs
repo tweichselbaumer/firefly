@@ -1,6 +1,10 @@
-﻿namespace FireFly.Settings
+﻿using FireFly.Data.Storage.Model;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace FireFly.Settings
 {
-    public class ImuCalibration : AbstractSettings
+    public class ImuCalibrationSettings : AbstractSettings
     {
         private double _AccelerometerNoiseDensity;
         private double _AccelerometerNoiseDensitySafetyScale;
@@ -10,6 +14,7 @@
         private double _GyroscopeNoiseDensitySafetyScale;
         private double _GyroscopeRandomWalk;
         private double _GyroscopeRandomWalkSafetyScale;
+        private ImuModel _ImuModel;
 
         public double AccelerometerNoiseDensity
         {
@@ -112,6 +117,20 @@
             set
             {
                 _GyroscopeRandomWalkSafetyScale = value;
+            }
+        }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ImuModel ImuModel
+        {
+            get
+            {
+                return _ImuModel;
+            }
+
+            set
+            {
+                _ImuModel = value;
             }
         }
     }

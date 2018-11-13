@@ -1,4 +1,6 @@
-﻿using static Emgu.CV.Aruco.Dictionary;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using static Emgu.CV.Aruco.Dictionary;
 
 namespace FireFly.Settings
 {
@@ -13,6 +15,7 @@ namespace FireFly.Settings
 
         private int _SquaresY;
 
+        [JsonConverter(typeof(StringEnumConverter))]
         public PredefinedDictionaryName Dictionary
         {
             get

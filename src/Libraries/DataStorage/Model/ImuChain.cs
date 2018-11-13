@@ -237,41 +237,12 @@ namespace FireFly.Data.Storage.Model
         {
             get
             {
-                switch (_ImuModel)
-                {
-                    case ImuModel.Calibrated:
-                        return "calibrated";
-
-                    case ImuModel.ScaleMisalignment:
-                        return "scale-misalignment";
-
-                    case ImuModel.ScaleMisalignmentSizeEffect:
-                        return "scale-misalignment-size-effect";
-
-                    default:
-                        return "calibrated";
-                }
+                return ConvertImuModelToString(_ImuModel);
             }
 
             set
             {
-                switch (value)
-                {
-                    case "calibrated":
-                        _ImuModel = ImuModel.Calibrated;
-                        break;
-
-                    case "scale-misalignment":
-                        _ImuModel = ImuModel.ScaleMisalignment;
-                        break;
-
-                    case "scale-misalignment-size-effect":
-                        _ImuModel = ImuModel.ScaleMisalignmentSizeEffect;
-                        break;
-
-                    default:
-                        break;
-                }
+                _ImuModel = ConvertStringToImuModel(value);
             }
         }
 
@@ -328,6 +299,42 @@ namespace FireFly.Data.Storage.Model
             set
             {
                 _UpdateRate = value;
+            }
+        }
+
+        public static string ConvertImuModelToString(ImuModel model)
+        {
+            switch (model)
+            {
+                case ImuModel.Calibrated:
+                    return "calibrated";
+
+                case ImuModel.ScaleMisalignment:
+                    return "scale-misalignment";
+
+                case ImuModel.ScaleMisalignmentSizeEffect:
+                    return "scale-misalignment-size-effect";
+
+                default:
+                    return "calibrated";
+            }
+        }
+
+        public static ImuModel ConvertStringToImuModel(string model)
+        {
+            switch (model)
+            {
+                case "calibrated":
+                    return ImuModel.Calibrated;
+
+                case "scale-misalignment":
+                    return ImuModel.ScaleMisalignment;
+
+                case "scale-misalignment-size-effect":
+                    return ImuModel.ScaleMisalignmentSizeEffect;
+
+                default:
+                    return ImuModel.Calibrated;
             }
         }
     }

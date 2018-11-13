@@ -6,6 +6,7 @@ using FireFly.Utilities;
 using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -113,7 +114,9 @@ namespace FireFly.ViewModels
                             string remoteFolder = string.Format(@"/var/tmp/firefly/{0}", guid);
                             string expactString = string.Format("{0}@{1}:.{{0,}}[$]", Parent.SettingContainer.Settings.ConnectionSettings.Username, Parent.SettingContainer.Settings.ConnectionSettings.Hostname);
 
-                            string imuModel = "scale-misalignment-size-effect";
+                            string imuModel = Imu.ConvertImuModelToString(Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.ImuModel);
+
+                            //imuModel = "scale-misalignment-size-effect";
                             //imuModel = "calibrated";
                             //imuModel = "scale-misalignment";
 
@@ -166,10 +169,13 @@ namespace FireFly.ViewModels
                                     Width = Parent.SettingContainer.Settings.CameraSettings.Width
                                 }
                             }));
-
+                            /*
                             string options = "--time-calibration --dont-show-report";
                             options = "--dont-show-report";
-                            options = "--time-calibration --dont-show-report --reprojection-sigma 0.25";
+                            options = "--time-calibration --dont-show-report --reprojection-sigma 0.5";
+                            */
+
+                            string options = string.Format(CultureInfo.InvariantCulture, "--dont-show-report --reprojection-sigma {0} {1}", Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.ReprojectionSigma, Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.TimeCalibration ? "----time-calibration" : "");
 
                             remoteDataStore.ExecuteCommands(new List<string>()
                                     {

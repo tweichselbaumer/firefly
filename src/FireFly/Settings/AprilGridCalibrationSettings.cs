@@ -5,7 +5,6 @@
         private double _TagSize;
         private double _TagSpacingFactor;
         private int _TagsX;
-
         private int _TagsY;
 
         public double TagSize

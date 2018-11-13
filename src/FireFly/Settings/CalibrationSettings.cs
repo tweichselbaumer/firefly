@@ -5,7 +5,7 @@
         private AprilGridCalibrationSettings _AprilGridCalibration = new AprilGridCalibrationSettings();
         private ChArucoCalibrationSettings _ChArucoCalibrationSettings = new ChArucoCalibrationSettings();
         private ExtrinsicCalibrationSettings _ExtrinsicCalibrationSettings = new ExtrinsicCalibrationSettings();
-        private ImuCalibration _ImuCalibration = new ImuCalibration();
+        private ImuCalibrationSettings _ImuCalibration = new ImuCalibrationSettings();
         private IntrinsicCalibrationSettings _IntrinsicCalibrationSettings = new IntrinsicCalibrationSettings();
         private PhotometricCalibrationSettings _PhotometricCalibrationSettings = new PhotometricCalibrationSettings();
 
@@ -48,7 +48,7 @@
             }
         }
 
-        public ImuCalibration ImuCalibration
+        public ImuCalibrationSettings ImuCalibration
         {
             get
             {

@@ -224,7 +224,7 @@
     <Compile Include="Settings\ConnectionSettings.cs" />
     <Compile Include="Settings\ExtrinsicCalibrationSettings.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
-    <Compile Include="Settings\ImuCalibration.cs" />
+    <Compile Include="Settings\ImuCalibrationSettings.cs" />
     <Compile Include="Settings\ImuSettings.cs" />
     <Compile Include="Settings\IntrinsicCalibrationSettings.cs" />
     <Compile Include="Settings\PhotometricCalibrationSettings.cs" />
