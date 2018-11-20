@@ -19,16 +19,16 @@ namespace FireFly.VI.Calibration
             List<double> theta = values.CumulativeSum().Select(c => c / sampleTime).ToList();
 
             //for (int i = 0; i < logSpace.Count; i++)
-            Parallel.For(0, logSpace.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount / 2 }, i =>
-              {
-                  double value = 0.0;
-                  double logSpace_i = logSpace[i];
-                  double end = Math.Floor(values.Count - 2 * logSpace_i);
-                  for (int k = 0; k < end; k++)
-                  {
-                      value += Math.Pow(theta[(int)Math.Floor(k + 2 * logSpace_i)] - 2 * theta[(int)Math.Floor(k + logSpace_i)] + theta[k], 2);
-                  }
-                  sigmas2[i] = value;
+            Parallel.For(0, logSpace.Count, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount / 4 * 3 }, i =>
+                {
+                    double value = 0.0;
+                    double logSpace_i = logSpace[i];
+                    double end = Math.Floor(values.Count - 2 * logSpace_i);
+                    for (int k = 0; k < end; k++)
+                    {
+                        value += Math.Pow(theta[(int)Math.Floor(k + 2 * logSpace_i)] - 2 * theta[(int)Math.Floor(k + logSpace_i)] + theta[k], 2);
+                    }
+                    sigmas2[i] = value;
                   //}
               });
 
