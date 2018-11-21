@@ -4,6 +4,7 @@
     {
         ImuEvent,
         CameraEvent,
-        CameraImuEvent
+        CameraImuEvent,
+        SlamMapEvent
     }
 }

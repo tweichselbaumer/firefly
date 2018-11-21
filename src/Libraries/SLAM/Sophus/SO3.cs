@@ -6,25 +6,46 @@ namespace FireFly.VI.SLAM.Sophus
     {
         private Quaternion _Quaternion = new Quaternion();
 
+        public Quaternion Quaternion
+        {
+            get
+            {
+                return _Quaternion;
+            }
+
+            set
+            {
+                _Quaternion = value;
+            }
+        }
+
         public SO3()
         {
         }
 
         public SO3(Quaternion q)
         {
-            _Quaternion = q;
+            Quaternion = q;
+        }
+
+        public Matrix<double> Matrix
+        {
+            get
+            {
+                return Quaternion.Matrix;
+            }
         }
 
         public SO3 Inverse()
         {
             SO3 result = new SO3();
-            result._Quaternion = _Quaternion.Inverse();
+            result.Quaternion = Quaternion.Inverse();
             return result;
         }
 
         public Vector<double> TransformVector(Vector<double> translation)
         {
-            return _Quaternion.Matrix.Multiply(translation);
+            return Matrix.Multiply(translation);
         }
     }
 }

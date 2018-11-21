@@ -56,6 +56,16 @@ namespace FireFly.VI.SLAM.Sophus
             }
         }
 
+        public Matrix<double> Matrix
+        {
+            get
+            {
+                Matrix<double> result = SE3.Matrix;
+                result[3, 3] = _Scale;
+                return result;
+            }
+        }
+
         public Sim3 Inverse()
         {
             Sim3 result = new Sim3();

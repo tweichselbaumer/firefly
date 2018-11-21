@@ -208,7 +208,7 @@ namespace FireFly.ViewModels
         {
             get
             {
-                Mat cameraMatrix = new Mat(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1);
+                Mat cameraMatrix = new Mat(3, 3, DepthType.Cv64F, 1);
 
                 cameraMatrix.SetValue(0, 0, _Fx);
                 cameraMatrix.SetValue(1, 1, _Fy);

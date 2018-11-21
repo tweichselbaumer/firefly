@@ -32,6 +32,10 @@ namespace FireFly.VI.SLAM
         {
             lock (_Frames)
             {
+                while (_Frames.Count < frame.Id)
+                {
+                    _Frames.Add(null);
+                }
                 _Frames.Insert((int)frame.Id, frame);
             }
         }

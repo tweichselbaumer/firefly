@@ -4,7 +4,7 @@ namespace FireFly.VI.SLAM
 {
     public class Frame
     {
-        private ulong _Id;
+        private uint _Id;
         private Sim3 _T_cam_world = new Sim3();
 
         public Sim3 T_cam_world
@@ -20,7 +20,7 @@ namespace FireFly.VI.SLAM
             }
         }
 
-        public ulong Id
+        public uint Id
         {
             get
             {
@@ -33,7 +33,7 @@ namespace FireFly.VI.SLAM
             }
         }
 
-        public static Frame CreateFrame(ulong id, double tx, double ty, double tz, double q1, double q2, double q3, double q4, double s)
+        public static Frame CreateFrame(uint id, double tx, double ty, double tz, double q1, double q2, double q3, double q4, double s)
         {
             Frame frame = new Frame();
 

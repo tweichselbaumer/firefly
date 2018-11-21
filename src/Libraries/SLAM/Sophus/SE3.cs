@@ -43,12 +43,24 @@ namespace FireFly.VI.SLAM.Sophus
             }
         }
 
+        public Matrix<double> Matrix
+        {
+
+            get
+            {
+                Matrix<double> result = Matrix<double>.Build.Dense(4, 4);
+                result.SetSubMatrix(0, 0, SO3.Matrix);
+                result.SetSubMatrix(0, 3, Translation.ToColumnMatrix());
+                return result;
+            }
+        }
+
         public SE3 Inverse()
         {
             SE3 result = new SE3();
 
             result.SO3 = SO3.Inverse();
-            result.Translation = SO3.TransformVector(Translation);
+            result.Translation = -SO3.TransformVector(Translation);
 
             return result;
         }

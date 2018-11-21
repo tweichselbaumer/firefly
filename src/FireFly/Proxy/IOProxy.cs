@@ -31,12 +31,12 @@ namespace FireFly.Proxy
         private LinkUpPropertyLabel<Boolean> _RecordRemoteLabel;
         private LinkUpFunctionLabel _ReplayDataSend;
         private SettingContainer _SettingContainer;
+        private LinkUpEventLabel _SlamMapEventLabel;
         private List<Tuple<IProxyEventSubscriber, ProxyEventType>> _Subscriptions = new List<Tuple<IProxyEventSubscriber, ProxyEventType>>();
         private List<Task> _Tasks = new List<Task>();
         private LinkUpPropertyLabel<Double> _TemperatureOffsetLabel;
         private LinkUpPropertyLabel<Double> _TemperatureScaleLabel;
         private LinkUpFunctionLabel _UpdateSettings;
-
         private long lastTimestamp = 0;
 
         public IOProxy(SettingContainer settingContainer)
@@ -262,6 +262,8 @@ namespace FireFly.Proxy
                 _ImuEventLabel = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/imu_event");
                 _CameraImuEventLabel = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/camera_imu_event");
 
+                _SlamMapEventLabel = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/slam_map_event");
+
                 _ExposureLabel = Node.GetLabelByName<LinkUpPropertyLabel<Int16>>("firefly/computer_vision/camera_exposure");
 
                 _ReplayDataSend = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/replay_data");
@@ -280,6 +282,8 @@ namespace FireFly.Proxy
                 _CameraEventLabel.Fired += _CameraEventLabel_Fired;
                 _ImuEventLabel.Fired += _CameraEventLabel_Fired;
                 _CameraImuEventLabel.Fired += _CameraEventLabel_Fired;
+
+                _SlamMapEventLabel.Fired += _SlamMapEventLabel_Fired;
 
                 Update();
             }
@@ -397,6 +401,21 @@ namespace FireFly.Proxy
             }
         }
 
+        private void _SlamMapEventLabel_Fired(LinkUpEventLabel label, byte[] data)
+        {
+            lock (_Subscriptions)
+            {
+                if (label == _SlamMapEventLabel)
+                {
+                    SlamEventData eventData = SlamEventData.Parse(data);
+                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.SlamMapEvent))
+                    {
+                        t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
+                    }
+                }
+            }
+        }
+
         private void Update()
         {
             try
@@ -506,6 +525,28 @@ namespace FireFly.Proxy
                         _CameraImuEventLabel.Unsubscribe();
                 }
                 catch (Exception) { }
+            }
+
+            if (_SlamMapEventLabel != null)
+            {
+                if (_Subscriptions.Any(c => c.Item2 == ProxyEventType.SlamMapEvent))
+                {
+                    try
+                    {
+                        if (ConnectivityState == LinkUpConnectivityState.Connected)
+                            _SlamMapEventLabel.Subscribe();
+                    }
+                    catch (Exception) { }
+                }
+                else
+                {
+                    try
+                    {
+                        if (ConnectivityState == LinkUpConnectivityState.Connected)
+                            _SlamMapEventLabel.Unsubscribe();
+                    }
+                    catch (Exception) { }
+                }
             }
         }
     }
