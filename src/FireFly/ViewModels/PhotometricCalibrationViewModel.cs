@@ -151,7 +151,7 @@ namespace FireFly.ViewModels
 
                     if (save)
                     {
-                        File.WriteAllBytes(saveFileDialog.FileName, Vignette.CvImage.ToPNGBinary(0));
+                        File.WriteAllBytes(saveFileDialog.FileName, Convert.FromBase64String(Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.VignetteFileBase64));
                     }
                 }, null);
             });
@@ -251,6 +251,9 @@ namespace FireFly.ViewModels
                             p.StartInfo.WorkingDirectory = outputPath;
                             p.StartInfo.CreateNoWindow = true;
                             p.EnableRaisingEvents = true;
+
+                            string options = "";
+
                             if (response)
                             {
                                 p.StartInfo.FileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Tools", "responseCalib.exe");
@@ -258,8 +261,9 @@ namespace FireFly.ViewModels
                             else
                             {
                                 p.StartInfo.FileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Tools", "vignetteCalib.exe");
+                                options = "facW=7 facH=7";
                             }
-                            p.StartInfo.Arguments = string.Format("{0}\\ -noGUI -showPercent", outputPath);
+                            p.StartInfo.Arguments = string.Format("{0}\\ -noGUI -showPercent {1}", outputPath, options);
 
                             p.OutputDataReceived += new DataReceivedEventHandler((s, e) =>
                             {

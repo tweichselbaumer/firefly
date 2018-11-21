@@ -252,6 +252,7 @@
     <Compile Include="ViewModels\RecordViewModel.cs" />
     <Compile Include="ViewModels\ReplayViewModel.cs" />
     <Compile Include="ViewModels\SettingViewModel.cs" />
+    <Compile Include="ViewModels\VisualisationViewModel.cs" />
     <Compile Include="Views\CalibrationView.xaml.cs">
       <DependentUpon>CalibrationView.xaml</DependentUpon>
     </Compile>
@@ -272,6 +273,9 @@
     </Compile>
     <Compile Include="Views\SettingView.xaml.cs">
       <DependentUpon>SettingView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VisualisationView.xaml.cs">
+      <DependentUpon>VisualisationView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -371,6 +375,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\VisualisationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -432,6 +440,10 @@
     <ProjectReference Include="..\Libraries\DataStorage\DataStorage.csproj">
       <Project>{9d48f561-0dc5-4981-8747-6c41402689f1}</Project>
       <Name>DataStorage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Libraries\SLAM\SLAM.csproj">
+      <Project>{c764d48e-a422-48b6-bb15-6a4ae26214da}</Project>
+      <Name>SLAM</Name>
     </ProjectReference>
     <ProjectReference Include="..\Libraries\Utilities\Utilities.csproj">
       <Project>{dd9822c1-00ba-46af-85e0-2889ef295918}</Project>

@@ -73,21 +73,6 @@
                     <CustomControls:PlotControl Grid.Row="4" DataContext="{Binding Path=AccZ}" />
                 </Grid>
             </TabItem>
-
-            <TabItem Header="Position">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="10" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="10" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <!--<CustomControls:PlotControl Grid.Row="0" />
-                    <CustomControls:PlotControl Grid.Row="2" />
-                    <CustomControls:PlotControl Grid.Row="4" />-->
-                </Grid>
-            </TabItem>
         </Controls:MetroTabControl>
     </Grid>
 </UserControl>

@@ -51,6 +51,9 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty SettingViewModelProperty =
             DependencyProperty.Register("SettingViewModel", typeof(SettingViewModel), typeof(MainViewModel), new PropertyMetadata(null));
 
+        public static readonly DependencyProperty VisualisationViewModelProperty =
+            DependencyProperty.Register("VisualisationViewModel", typeof(VisualisationViewModel), typeof(MainViewModel), new PropertyMetadata(null));
+
         private readonly SynchronizationContext _SyncContext;
 
         private LinkUpConnector _Connector;
@@ -74,6 +77,7 @@ namespace FireFly.ViewModels
             RecordViewModel = new RecordViewModel(this);
             ReplayViewModel = new ReplayViewModel(this);
             DebugViewModel = new DebugViewModel(this);
+            VisualisationViewModel = new VisualisationViewModel(this);
 
             _DialogCoordinator = MahApps.Metro.Controls.Dialogs.DialogCoordinator.Instance;
         }
@@ -206,6 +210,12 @@ namespace FireFly.ViewModels
             {
                 return _SyncContext;
             }
+        }
+
+        public VisualisationViewModel VisualisationViewModel
+        {
+            get { return (VisualisationViewModel)GetValue(VisualisationViewModelProperty); }
+            set { SetValue(VisualisationViewModelProperty, value); }
         }
 
         internal override void SettingsUpdated()

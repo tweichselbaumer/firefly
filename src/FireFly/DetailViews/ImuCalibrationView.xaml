@@ -23,36 +23,36 @@
         <oxy:Plot Grid.Row="0" Grid.Column="0" LegendBackground="White" LegendBorder="Black">
             <oxy:Plot.Axes>
                 <oxy:LogarithmicAxis Position="Bottom" TickStyle="Inside" UseSuperExponentialFormat="True"  MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Minimum="1e-3" Maximum="1e5" Title="τ [s]" />
-                <oxy:LogarithmicAxis Position="Left" TickStyle="Inside" UseSuperExponentialFormat="True" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Minimum="1e-7" Maximum="1e-1" Title="Allan Deviation [rad/s]" IsZoomEnabled="False" />
+                <oxy:LogarithmicAxis Position="Left" TickStyle="Inside" UseSuperExponentialFormat="True" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Title="Allan Deviation [rad/s]" IsZoomEnabled="False" />
             </oxy:Plot.Axes>
             <oxy:Plot.Series>
-                <oxy:LineSeries ItemsSource="{Binding Path=GyroX}" StrokeThickness="1" Title="Gyroscope X"/>
-                <oxy:LineSeries ItemsSource="{Binding Path=GyroY}" StrokeThickness="1" Title="Gyroscope Y"/>
-                <oxy:LineSeries ItemsSource="{Binding Path=GyroZ}" StrokeThickness="1" Title="Gyroscope Z"/>
+                <oxy:LineSeries ItemsSource="{Binding Path=GyroX}" StrokeThickness="1" Title="Gyroscope X" />
+                <oxy:LineSeries ItemsSource="{Binding Path=GyroY}" StrokeThickness="1" Title="Gyroscope Y" />
+                <oxy:LineSeries ItemsSource="{Binding Path=GyroZ}" StrokeThickness="1" Title="Gyroscope Z" />
 
-                <oxy:LineSeries ItemsSource="{Binding Path=WhiteNoiseSlopeGyro}" StrokeThickness="2" />
-                <oxy:LineSeries ItemsSource="{Binding Path=WhiteNoiseGyro}" MarkerType="Circle" MarkerSize="3" Title="Gyroscope White Noise"/>
+                <oxy:LineSeries ItemsSource="{Binding Path=WhiteNoiseSlopeGyro}" StrokeThickness="2" Color="Navy"/>
+                <oxy:LineSeries ItemsSource="{Binding Path=WhiteNoiseGyro}" MarkerType="Circle" MarkerSize="3" Title="Gyroscope White Noise" Color="Transparent" MarkerStroke="Navy" MarkerFill="Navy" />
 
-                <oxy:LineSeries ItemsSource="{Binding Path=RandomWalkSlopeGyro}" StrokeThickness="2" />
-                <oxy:LineSeries ItemsSource="{Binding Path=RandomWalkGyro}" MarkerType="Circle" MarkerSize="3" Title="Gyroscope Random Walk"/>
+                <oxy:LineSeries ItemsSource="{Binding Path=RandomWalkSlopeGyro}" StrokeThickness="2"  Color="DarkOrange" />
+                <oxy:LineSeries ItemsSource="{Binding Path=RandomWalkGyro}" MarkerType="Circle" MarkerSize="3" Title="Gyroscope Random Walk" Color="Transparent" MarkerStroke="DarkOrange" MarkerFill="DarkOrange" />
             </oxy:Plot.Series>
         </oxy:Plot>
 
         <oxy:Plot Grid.Row="0" Grid.Column="2" LegendBackground="White" LegendBorder="Black">
             <oxy:Plot.Axes>
                 <oxy:LogarithmicAxis Position="Bottom" TickStyle="Inside" UseSuperExponentialFormat="True"  MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Minimum="1e-3" Maximum="1e5" Title="τ [s]" />
-                <oxy:LogarithmicAxis Position="Left" TickStyle="Inside" UseSuperExponentialFormat="True" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Minimum="1e-7" Maximum="1e-1" Title="Allan Deviation [m/s²]" IsZoomEnabled="False"/>
+                <oxy:LogarithmicAxis Position="Left" TickStyle="Inside" UseSuperExponentialFormat="True" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Title="Allan Deviation [m/s²]" IsZoomEnabled="False" />
             </oxy:Plot.Axes>
             <oxy:Plot.Series>
-                <oxy:LineSeries ItemsSource="{Binding Path=AccelX}" StrokeThickness="1" Title="Accelerometer X"/>
-                <oxy:LineSeries ItemsSource="{Binding Path=AccelY}" StrokeThickness="1" Title="Accelerometer Y"/>
-                <oxy:LineSeries ItemsSource="{Binding Path=AccelZ}" StrokeThickness="1" Title="Accelerometer Z"/>
+                <oxy:LineSeries ItemsSource="{Binding Path=AccelX}" StrokeThickness="1" Title="Accelerometer X" />
+                <oxy:LineSeries ItemsSource="{Binding Path=AccelY}" StrokeThickness="1" Title="Accelerometer Y" />
+                <oxy:LineSeries ItemsSource="{Binding Path=AccelZ}" StrokeThickness="1" Title="Accelerometer Z" />
 
-                <oxy:LineSeries ItemsSource="{Binding Path=WhiteNoiseSlopeAccel}" StrokeThickness="2" />
-                <oxy:LineSeries ItemsSource="{Binding Path=WhiteNoiseAccel}" MarkerType="Circle" MarkerSize="3" Title="Accelerometer White Noise"/>
+                <oxy:LineSeries ItemsSource="{Binding Path=WhiteNoiseSlopeAccel}" StrokeThickness="2"  Color="Navy"/>
+                <oxy:LineSeries ItemsSource="{Binding Path=WhiteNoiseAccel}" MarkerType="Circle" MarkerSize="3" Title="Accelerometer White Noise" Color="Transparent" MarkerStroke="Navy" MarkerFill="Navy" />
 
-                <oxy:LineSeries ItemsSource="{Binding Path=RandomWalkSlopeAccel}" StrokeThickness="2" />
-                <oxy:LineSeries ItemsSource="{Binding Path=RandomWalkAccel}" MarkerType="Circle" MarkerSize="3" Title="Accelerometer Random Walk"/>
+                <oxy:LineSeries ItemsSource="{Binding Path=RandomWalkSlopeAccel}" StrokeThickness="2" Color="DarkOrange" />
+                <oxy:LineSeries ItemsSource="{Binding Path=RandomWalkAccel}" MarkerType="Circle" MarkerSize="3" Title="Accelerometer Random Walk" Color="Transparent" MarkerStroke="DarkOrange" MarkerFill="DarkOrange" />
             </oxy:Plot.Series>
         </oxy:Plot>
 

@@ -208,7 +208,7 @@
                     </Controls:HamburgerMenuIconItem>
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=Video3d}" Label="Visualisation">
                         <Controls:HamburgerMenuIconItem.Tag>
-                            <Grid></Grid>
+                            <Views:VisualisationView  DataContext="{Binding Source={StaticResource Data}, Path=VisualisationViewModel}" />
                         </Controls:HamburgerMenuIconItem.Tag>
                     </Controls:HamburgerMenuIconItem>
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=GoogleController}" Label="Control">
