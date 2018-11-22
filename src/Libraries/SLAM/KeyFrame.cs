@@ -1,5 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using HelixToolkit.Wpf;
+using MathNet.Numerics.LinearAlgebra;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Media.Media3D;
 
 namespace FireFly.VI.SLAM
 {
@@ -12,6 +17,7 @@ namespace FireFly.VI.SLAM
         private double _Fy;
         private uint _Id;
         private List<Point> _Points = new List<Point>();
+        private GeometryModel3D _PointCloud;
 
         public KeyFrame(uint id, double fx, double fy, double cx, double cy, int points, Frame frame)
         {
@@ -112,6 +118,39 @@ namespace FireFly.VI.SLAM
             {
                 _Points = value;
             }
+        }
+
+        public GeometryModel3D GetPointCloud()
+        {
+            if (_PointCloud == null)
+            {
+                MeshBuilder meshBuilder = new MeshBuilder();
+
+                foreach (Point p in _Points)
+                {
+                    if (p.InverseDepth > 0)
+                    {
+                        Point3D center = new Point3D();
+
+                        Vector<double> c_position = Vector<double>.Build.Dense(4);
+                        c_position[0] = (p.U - Cx) / (p.InverseDepth * Fx);
+                        c_position[1] = (p.V - Cy) / (p.InverseDepth * Fy);
+                        c_position[2] = 1 / p.InverseDepth;
+                        c_position[3] = 1;
+
+                        Vector<double> w_position = Frame.T_cam_world.Inverse().Matrix * c_position;
+
+                        center.X = w_position[0];
+                        center.Y = w_position[1];
+                        center.Z = w_position[2];
+
+                        meshBuilder.AddSphere(center, 0.01);
+                    }
+                }
+
+                _PointCloud = new GeometryModel3D(meshBuilder.ToMesh(), Materials.Black);
+            }
+            return _PointCloud;
         }
     }
 }

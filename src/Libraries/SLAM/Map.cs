@@ -1,6 +1,8 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Media.Media3D;
 
 namespace FireFly.VI.SLAM
 {
@@ -50,12 +52,29 @@ namespace FireFly.VI.SLAM
         {
             lock (_KeyFrames)
             {
-                while (_KeyFrames.Count < keyFrame.Id)
+                while (_KeyFrames.Count <= keyFrame.Id)
                 {
                     _KeyFrames.Add(null);
                 }
                 _KeyFrames[(int)keyFrame.Id] = keyFrame;
             }
+        }
+
+        internal List<GeometryModel3D> GetPointCloud()
+        {
+            List<GeometryModel3D> pointClouds = new List<GeometryModel3D>();
+            lock (_Frames)
+            {
+                foreach (KeyFrame keyFrame in _KeyFrames)
+                {
+                    if (keyFrame != null)
+                    {
+                        GeometryModel3D cloud = keyFrame.GetPointCloud();
+                        pointClouds.Add(cloud);
+                    }
+                }
+            }
+            return pointClouds;
         }
     }
 }

@@ -52,16 +52,28 @@ namespace FireFly.VI.SLAM.Visualisation
             _Map.AddNewKeyFrame(keyFrame);
             List<Vector<double>> points = _Map.GetTrajectory(TrajectoryType.Optimazation);
 
+            List<GeometryModel3D> pointClouds = _Map.GetPointCloud();
 
             MeshBuilder meshBuilder = new MeshBuilder();
             meshBuilder.AddTube(points.Select(c => new Point3D(c[0], c[1], c[2])).ToList(), 0.1, 10, false);
             GeometryModel3D geometryModel3D = new GeometryModel3D(meshBuilder.ToMesh(), Materials.Gold);
             geometryModel3D.Freeze();
 
+            foreach(GeometryModel3D pointCloud in pointClouds)
+            {
+                pointCloud.Freeze();
+            }
+
             _SyncContext.Post(d =>
             {
                 Model3DGroup modelGroup = new Model3DGroup();
                 modelGroup.Children.Add(geometryModel3D);
+
+                foreach (GeometryModel3D pointCloud in pointClouds)
+                {
+                    modelGroup.Children.Add(pointCloud);
+                }
+
                 Model = modelGroup;
             }, null);
         }
