@@ -7,17 +7,10 @@ namespace FireFly.VI.SLAM
         private uint _Id;
         private Sim3 _T_cam_world = new Sim3();
 
-        public Sim3 T_cam_world
+        public Frame(uint id, double tx, double ty, double tz, double q1, double q2, double q3, double q4, double s)
         {
-            get
-            {
-                return _T_cam_world;
-            }
-
-            set
-            {
-                _T_cam_world = value;
-            }
+            Id = id;
+            T_cam_world = new Sim3(s, tx, ty, tz, q1, q2, q3, q4);
         }
 
         public uint Id
@@ -33,14 +26,17 @@ namespace FireFly.VI.SLAM
             }
         }
 
-        public static Frame CreateFrame(uint id, double tx, double ty, double tz, double q1, double q2, double q3, double q4, double s)
+        public Sim3 T_cam_world
         {
-            Frame frame = new Frame();
+            get
+            {
+                return _T_cam_world;
+            }
 
-            frame.Id = id;
-            frame.T_cam_world = new Sim3(s, tx, ty, tz, q1, q2, q3, q4);
-
-            return frame;
+            set
+            {
+                _T_cam_world = value;
+            }
         }
     }
 }

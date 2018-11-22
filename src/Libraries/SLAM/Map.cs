@@ -6,7 +6,8 @@ namespace FireFly.VI.SLAM
 {
     public enum TrajectoryType
     {
-        PreOptimazation
+        PreOptimazation,
+        Optimazation
     }
 
     public class Map
@@ -23,6 +24,11 @@ namespace FireFly.VI.SLAM
                     {
                         return _Frames.Where(d => d != null).Select(c => c.T_cam_world.Inverse().SE3.Translation).ToList();
                     }
+                case TrajectoryType.Optimazation:
+                    lock (_Frames)
+                    {
+                        return _KeyFrames.Where(d => d != null).Select(c => c.Frame.T_cam_world.Inverse().SE3.Translation).ToList();
+                    }
                 default:
                     return new List<Vector<double>>();
             }
@@ -36,7 +42,19 @@ namespace FireFly.VI.SLAM
                 {
                     _Frames.Add(null);
                 }
-                _Frames.Insert((int)frame.Id, frame);
+                _Frames[(int)frame.Id] = frame;
+            }
+        }
+
+        public void AddNewKeyFrame(KeyFrame keyFrame)
+        {
+            lock (_KeyFrames)
+            {
+                while (_KeyFrames.Count < keyFrame.Id)
+                {
+                    _KeyFrames.Add(null);
+                }
+                _KeyFrames[(int)keyFrame.Id] = keyFrame;
             }
         }
     }

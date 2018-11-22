@@ -1,5 +1,6 @@
 ﻿using HelixToolkit.Wpf;
 using MathNet.Numerics.LinearAlgebra;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -29,8 +30,27 @@ namespace FireFly.VI.SLAM.Visualisation
 
         public void AddNewFrame(Frame frame)
         {
-            _Map.AddNewFrame(frame);
-            List<Vector<double>> points = _Map.GetTrajectory(TrajectoryType.PreOptimazation);
+            //_Map.AddNewFrame(frame);
+            //List<Vector<double>> points = _Map.GetTrajectory(TrajectoryType.PreOptimazation);
+
+
+            //MeshBuilder meshBuilder = new MeshBuilder();
+            //meshBuilder.AddTube(points.Select(c => new Point3D(c[0], c[1], c[2])).ToList(), 0.1, 10, false);
+            //GeometryModel3D geometryModel3D = new GeometryModel3D(meshBuilder.ToMesh(), Materials.Gold);
+            //geometryModel3D.Freeze();
+
+            //_SyncContext.Post(d =>
+            //{
+            //    Model3DGroup modelGroup = new Model3DGroup();
+            //    modelGroup.Children.Add(geometryModel3D);
+            //    Model = modelGroup;
+            //}, null);
+        }
+
+        public void AddNewKeyFrame(KeyFrame keyFrame)
+        {
+            _Map.AddNewKeyFrame(keyFrame);
+            List<Vector<double>> points = _Map.GetTrajectory(TrajectoryType.Optimazation);
 
 
             MeshBuilder meshBuilder = new MeshBuilder();
