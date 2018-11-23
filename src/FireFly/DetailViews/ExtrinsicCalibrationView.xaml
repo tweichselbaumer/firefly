@@ -54,8 +54,7 @@
                 <helix:CoordinateSystemVisual3D.Transform>
                     <Transform3DGroup>
                         <ScaleTransform3D ScaleX="0.02" ScaleY="0.02" ScaleZ="0.02" />
-                        <TranslateTransform3D OffsetX="{Binding Path=t_c.OffsetX}" OffsetY="{Binding Path=t_c.OffsetY}" OffsetZ="{Binding Path=t_c.OffsetZ}" />
-                        <MatrixTransform3D Matrix="{Binding Path=R_ci}" />
+                        <MatrixTransform3D Matrix="{Binding T_Imu_Cam}" />
                     </Transform3DGroup>
                 </helix:CoordinateSystemVisual3D.Transform>
             </helix:CoordinateSystemVisual3D>

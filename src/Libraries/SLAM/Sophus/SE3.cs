@@ -11,6 +11,14 @@ namespace FireFly.VI.SLAM.Sophus
         {
         }
 
+        public SE3(double[][] matrix)
+        {
+            _Translation[0] = matrix[0][3];
+            _Translation[1] = matrix[1][3];
+            _Translation[2] = matrix[2][3];
+            _SO3 = new SO3(matrix);
+        }
+
         public SE3(Vector<double> translation, SO3 so3)
         {
             Translation = translation;
@@ -60,7 +68,7 @@ namespace FireFly.VI.SLAM.Sophus
             SE3 result = new SE3();
 
             result.SO3 = SO3.Inverse();
-            result.Translation = -SO3.TransformVector(Translation);
+            result.Translation = -result.SO3.TransformVector(Translation);
 
             return result;
         }

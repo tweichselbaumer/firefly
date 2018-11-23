@@ -2,7 +2,7 @@
 using FireFly.CustomDialogs;
 using FireFly.Data.Storage;
 using FireFly.Data.Storage.Model;
-using FireFly.Utilities;
+using FireFly.VI.SLAM.Sophus;
 using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -17,20 +17,11 @@ namespace FireFly.ViewModels
 {
     public class ExtrinsicCalibrationViewModel : AbstractViewModel
     {
-        public static readonly DependencyProperty R_ciProperty =
-            DependencyProperty.Register("R_ci", typeof(Matrix3D), typeof(ExtrinsicCalibrationViewModel), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty t_cProperty =
-            DependencyProperty.Register("t_c", typeof(Matrix3D), typeof(ExtrinsicCalibrationViewModel), new PropertyMetadata(null));
+        public static readonly DependencyProperty T_Imu_CamProperty =
+            DependencyProperty.Register("T_Imu_Cam", typeof(Matrix3D), typeof(ExtrinsicCalibrationViewModel), new PropertyMetadata(null));
 
         public ExtrinsicCalibrationViewModel(MainViewModel parent) : base(parent)
         {
-        }
-
-        public Matrix3D R_ci
-        {
-            get { return (Matrix3D)GetValue(R_ciProperty); }
-            set { SetValue(R_ciProperty, value); }
         }
 
         public RelayCommand<object> StartCalibrationCommand
@@ -45,10 +36,10 @@ namespace FireFly.ViewModels
             }
         }
 
-        public Matrix3D t_c
+        public Matrix3D T_Imu_Cam
         {
-            get { return (Matrix3D)GetValue(t_cProperty); }
-            set { SetValue(t_cProperty, value); }
+            get { return (Matrix3D)GetValue(T_Imu_CamProperty); }
+            set { SetValue(T_Imu_CamProperty, value); }
         }
 
         internal override void SettingsUpdated()
@@ -58,11 +49,10 @@ namespace FireFly.ViewModels
             {
                 if (Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu != null)
                 {
-                    Matrix3D rot = Matrix3DFactory.CreateMatrixRotationOnly(Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu);
-                    Matrix3D trans = Matrix3DFactory.CreateMatrixTranslationOnly(Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu);
-                    trans.Invert();
-                    R_ci = rot;
-                    t_c = trans;
+                    Sim3 sim_cam_imu = new Sim3(Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu);
+                    Sim3 sim_imu_cam = sim_cam_imu.Inverse();
+                    string b = sim_cam_imu.Matrix.ToMatrixString() + "\n\n" + sim_imu_cam.Matrix.ToMatrixString();
+                    T_Imu_Cam = sim_imu_cam.Matrix3D;
                 }
             }, null);
         }
