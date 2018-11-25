@@ -1,6 +1,5 @@
 ﻿using HelixToolkit.Wpf;
 using MathNet.Numerics.LinearAlgebra;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -33,7 +32,6 @@ namespace FireFly.VI.SLAM.Visualisation
             //_Map.AddNewFrame(frame);
             //List<Vector<double>> points = _Map.GetTrajectory(TrajectoryType.PreOptimazation);
 
-
             //MeshBuilder meshBuilder = new MeshBuilder();
             //meshBuilder.AddTube(points.Select(c => new Point3D(c[0], c[1], c[2])).ToList(), 0.1, 10, false);
             //GeometryModel3D geometryModel3D = new GeometryModel3D(meshBuilder.ToMesh(), Materials.Gold);
@@ -47,7 +45,7 @@ namespace FireFly.VI.SLAM.Visualisation
             //}, null);
         }
 
-        public void AddNewKeyFrame(KeyFrame keyFrame)
+        public MatrixTransform3D AddNewKeyFrame(KeyFrame keyFrame)
         {
             _Map.AddNewKeyFrame(keyFrame);
             List<Vector<double>> points = _Map.GetTrajectory(TrajectoryType.Optimazation);
@@ -58,11 +56,6 @@ namespace FireFly.VI.SLAM.Visualisation
             meshBuilder.AddTube(points.Select(c => new Point3D(c[0], c[1], c[2])).ToList(), 0.1, 10, false);
             GeometryModel3D geometryModel3D = new GeometryModel3D(meshBuilder.ToMesh(), Materials.Gold);
             geometryModel3D.Freeze();
-
-            foreach(GeometryModel3D pointCloud in pointClouds)
-            {
-                pointCloud.Freeze();
-            }
 
             _SyncContext.Post(d =>
             {
@@ -75,7 +68,18 @@ namespace FireFly.VI.SLAM.Visualisation
                 }
 
                 Model = modelGroup;
+
             }, null);
+
+
+            MatrixTransform3D transform3D = null;
+            _SyncContext.Send(d =>
+            {
+                transform3D = new MatrixTransform3D(_Map.LastTransformation().Matrix3D);
+
+            }, null);
+
+            return transform3D;
         }
     }
 }

@@ -1,6 +1,8 @@
-﻿using HelixToolkit.Wpf;
+﻿using FireFly.VI.SLAM.Sophus;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
 namespace FireFly.VI.SLAM
@@ -121,27 +123,101 @@ namespace FireFly.VI.SLAM
         {
             if (_PointCloud == null)
             {
-                MeshBuilder meshBuilder = new MeshBuilder();
+                MeshGeometry3D meshGeometry3D = new MeshGeometry3D();
+                Matrix3D matrix3D = Frame.T_cam_world.Inverse().Matrix3D;
 
+                Debug.WriteLine("T_w_c");
+                Debug.WriteLine(matrix3D.ToString());
+                Debug.WriteLine("\n\n");
                 foreach (Point p in _Points)
                 {
+                    int offset = meshGeometry3D.Positions.Count;
                     if (p.InverseDepth > 0)
                     {
-                        Point3D center = new Point3D();
+                        Point3D point3D = new Point3D();
 
-                        center.X = (p.U - Cx) / (p.InverseDepth * Fx);
-                        center.Y = (p.V - Cy) / (p.InverseDepth * Fy);
-                        center.Z = 1 / p.InverseDepth;
+                        point3D.X = (p.U - Cx) / (p.InverseDepth * Fx);
+                        point3D.Y = (p.V - Cy) / (p.InverseDepth * Fy);
+                        point3D.Z = 1 / p.InverseDepth;
 
-                        meshBuilder.AddSphere(center, 0.01, 8, 8);
+                        double x = point3D.X;
+                        double y = point3D.Y;
+                        double z = point3D.Z;
+
+                        AddCubeToMesh(meshGeometry3D, point3D, 0.002);
                     }
                 }
+                Material material = new DiffuseMaterial(new SolidColorBrush(Colors.Black) { Opacity = 1 });
 
-                _PointCloud = new GeometryModel3D(meshBuilder.ToMesh(), Materials.Black);
-
-                _PointCloud.Transform = new MatrixTransform3D(Frame.T_cam_world.Inverse().Matrix3D);
+                _PointCloud = new GeometryModel3D(meshGeometry3D, material);
+                _PointCloud.Transform = new MatrixTransform3D(matrix3D);
+                _PointCloud.Freeze();
             }
             return _PointCloud;
+        }
+        private void AddCubeToMesh(MeshGeometry3D mesh, Point3D center, double size)
+        {
+            if (mesh != null)
+            {
+                int offset = mesh.Positions.Count;
+
+                mesh.Positions.Add(new Point3D(center.X - size, center.Y + size, center.Z - size));
+                mesh.Positions.Add(new Point3D(center.X + size, center.Y + size, center.Z - size));
+                mesh.Positions.Add(new Point3D(center.X + size, center.Y + size, center.Z + size));
+                mesh.Positions.Add(new Point3D(center.X - size, center.Y + size, center.Z + size));
+                mesh.Positions.Add(new Point3D(center.X - size, center.Y - size, center.Z - size));
+                mesh.Positions.Add(new Point3D(center.X + size, center.Y - size, center.Z - size));
+                mesh.Positions.Add(new Point3D(center.X + size, center.Y - size, center.Z + size));
+                mesh.Positions.Add(new Point3D(center.X - size, center.Y - size, center.Z + size));
+
+                mesh.TriangleIndices.Add(offset + 3);
+                mesh.TriangleIndices.Add(offset + 2);
+                mesh.TriangleIndices.Add(offset + 6);
+
+                mesh.TriangleIndices.Add(offset + 3);
+                mesh.TriangleIndices.Add(offset + 6);
+                mesh.TriangleIndices.Add(offset + 7);
+
+                mesh.TriangleIndices.Add(offset + 2);
+                mesh.TriangleIndices.Add(offset + 1);
+                mesh.TriangleIndices.Add(offset + 5);
+
+                mesh.TriangleIndices.Add(offset + 2);
+                mesh.TriangleIndices.Add(offset + 5);
+                mesh.TriangleIndices.Add(offset + 6);
+
+                mesh.TriangleIndices.Add(offset + 1);
+                mesh.TriangleIndices.Add(offset + 0);
+                mesh.TriangleIndices.Add(offset + 4);
+
+                mesh.TriangleIndices.Add(offset + 1);
+                mesh.TriangleIndices.Add(offset + 4);
+                mesh.TriangleIndices.Add(offset + 5);
+
+                mesh.TriangleIndices.Add(offset + 0);
+                mesh.TriangleIndices.Add(offset + 3);
+                mesh.TriangleIndices.Add(offset + 7);
+
+                mesh.TriangleIndices.Add(offset + 0);
+                mesh.TriangleIndices.Add(offset + 7);
+                mesh.TriangleIndices.Add(offset + 4);
+
+                mesh.TriangleIndices.Add(offset + 7);
+                mesh.TriangleIndices.Add(offset + 6);
+                mesh.TriangleIndices.Add(offset + 5);
+
+                mesh.TriangleIndices.Add(offset + 7);
+                mesh.TriangleIndices.Add(offset + 5);
+                mesh.TriangleIndices.Add(offset + 4);
+
+                mesh.TriangleIndices.Add(offset + 2);
+                mesh.TriangleIndices.Add(offset + 3);
+                mesh.TriangleIndices.Add(offset + 0);
+
+                mesh.TriangleIndices.Add(offset + 2);
+                mesh.TriangleIndices.Add(offset + 0);
+                mesh.TriangleIndices.Add(offset + 1);
+            }
         }
     }
 }

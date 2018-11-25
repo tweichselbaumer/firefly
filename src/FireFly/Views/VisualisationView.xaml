@@ -34,7 +34,9 @@
             </helix:HelixViewport3D.DefaultCamera>
             <helix:DefaultLights />
             <ModelVisual3D Content="{Binding SlamModel3D.Model}" />
-            <helix:CoordinateSystemVisual3D ArrowLengths="0.01" />
+            <helix:CoordinateSystemVisual3D ArrowLengths="0.1" />
+            <helix:CoordinateSystemVisual3D ArrowLengths="0.1" Transform="{Binding Transform3D}"/>
+
         </helix:HelixViewport3D>
 
         <Grid Grid.Column="1" Grid.Row="3">

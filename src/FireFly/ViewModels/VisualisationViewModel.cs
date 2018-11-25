@@ -1,10 +1,9 @@
 ﻿using FireFly.Proxy;
 using FireFly.VI.SLAM;
-using FireFly.VI.SLAM.Sophus;
 using FireFly.VI.SLAM.Visualisation;
-using MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Media.Media3D;
 
 namespace FireFly.ViewModels
 {
@@ -12,6 +11,9 @@ namespace FireFly.ViewModels
     {
         public static readonly DependencyProperty SlamModel3DProperty =
             DependencyProperty.Register("SlamModel3D", typeof(SlamModel3D), typeof(VisualisationViewModel), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty Transform3DProperty =
+            DependencyProperty.Register("Transform3D", typeof(MatrixTransform3D), typeof(VisualisationViewModel), new PropertyMetadata(null));
 
         public VisualisationViewModel(MainViewModel parent) : base(parent)
         {
@@ -24,6 +26,12 @@ namespace FireFly.ViewModels
         {
             get { return (SlamModel3D)GetValue(SlamModel3DProperty); }
             set { SetValue(SlamModel3DProperty, value); }
+        }
+
+        public MatrixTransform3D Transform3D
+        {
+            get { return (MatrixTransform3D)GetValue(Transform3DProperty); }
+            set { SetValue(Transform3DProperty, value); }
         }
 
         public void Fired(IOProxy proxy, List<AbstractProxyEventData> eventData)
@@ -44,8 +52,14 @@ namespace FireFly.ViewModels
                 }
                 else
                 {
-                    slamModel3D.AddNewKeyFrame(data.KeyFrame);
+                    MatrixTransform3D t = slamModel3D.AddNewKeyFrame(data.KeyFrame);
+                    Parent.SyncContext.Post(d =>
+                    {
+                        Transform3D = t;
+                    }, null);
                 }
+
+
             }
         }
     }

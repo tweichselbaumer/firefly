@@ -1,4 +1,6 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using FireFly.VI.SLAM.Sophus;
+using HelixToolkit.Wpf;
+using MathNet.Numerics.LinearAlgebra;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +29,7 @@ namespace FireFly.VI.SLAM
                         return _Frames.Where(d => d != null).Select(c => c.T_cam_world.Inverse().SE3.Translation).ToList();
                     }
                 case TrajectoryType.Optimazation:
-                    lock (_Frames)
+                    lock (_KeyFrames)
                     {
                         return _KeyFrames.Where(d => d != null).Select(c => c.Frame.T_cam_world.Inverse().SE3.Translation).ToList();
                     }
@@ -52,6 +54,14 @@ namespace FireFly.VI.SLAM
         {
             lock (_KeyFrames)
             {
+                if (keyFrame.Id == 0)
+                {
+                    if (_KeyFrames.Max(c => c != null ? c.Id : 0) > 10)
+                    {
+                        _KeyFrames.Clear();
+                    }
+                }
+
                 while (_KeyFrames.Count <= keyFrame.Id)
                 {
                     _KeyFrames.Add(null);
@@ -60,10 +70,10 @@ namespace FireFly.VI.SLAM
             }
         }
 
-        internal List<GeometryModel3D> GetPointCloud()
+        public List<GeometryModel3D> GetPointCloud()
         {
             List<GeometryModel3D> pointClouds = new List<GeometryModel3D>();
-            lock (_Frames)
+            lock (_KeyFrames)
             {
                 foreach (KeyFrame keyFrame in _KeyFrames)
                 {
@@ -75,6 +85,14 @@ namespace FireFly.VI.SLAM
                 }
             }
             return pointClouds;
+        }
+
+        public Sim3 LastTransformation()
+        {
+            lock (_KeyFrames)
+            {
+                return _KeyFrames.Where(c => c != null).Last().Frame.T_cam_world.Inverse();
+            }
         }
     }
 }
