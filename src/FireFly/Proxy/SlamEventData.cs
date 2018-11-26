@@ -6,13 +6,15 @@ namespace FireFly.Proxy
     public enum SlamPublishType : byte
     {
         Frame = 1,
-        KeyframeWithPoints = 2
+        KeyframeWithPoints = 2,
+        Reset = 3
     }
 
     public class SlamEventData : AbstractProxyEventData
     {
         private Frame _Frame;
         private KeyFrame _KeyFrame;
+        private SlamPublishType _PublishType;
 
         public Frame Frame
         {
@@ -40,22 +42,39 @@ namespace FireFly.Proxy
             }
         }
 
+        public SlamPublishType PublishType
+        {
+            get
+            {
+                return _PublishType;
+            }
+
+            set
+            {
+                _PublishType = value;
+            }
+        }
+
         internal static SlamEventData Parse(byte[] data)
         {
             SlamEventData obj = new SlamEventData();
 
-            SlamPublishType type = (SlamPublishType)data[0];
-            int sizeFrame = ParseFrame(data, 1, obj);
-            if (type == SlamPublishType.KeyframeWithPoints)
+            obj.PublishType = (SlamPublishType)data[0];
+
+            if (obj.PublishType == SlamPublishType.Frame || obj.PublishType == SlamPublishType.KeyframeWithPoints)
             {
-                int sizeKeyFrame = ParseKeyFrame(data, 1 + sizeFrame, obj);
-                obj.KeyFrame.Frame = obj.Frame;
-                int sizePoint = 0;
-                for (int i = 0; i < obj.KeyFrame.Points.Count; i++)
+                int sizeFrame = ParseFrame(data, 1, obj);
+                if (obj.PublishType == SlamPublishType.KeyframeWithPoints)
                 {
-                    Point p = new Point();
-                    sizePoint = ParsePoint(data, 1 + sizeFrame + sizeKeyFrame + sizePoint * i, p);
-                    obj.KeyFrame.Points[i] = p;
+                    int sizeKeyFrame = ParseKeyFrame(data, 1 + sizeFrame, obj);
+                    obj.KeyFrame.Frame = obj.Frame;
+                    int sizePoint = 0;
+                    for (int i = 0; i < obj.KeyFrame.Points.Count; i++)
+                    {
+                        Point p = new Point();
+                        sizePoint = ParsePoint(data, 1 + sizeFrame + sizeKeyFrame + sizePoint * i, p);
+                        obj.KeyFrame.Points[i] = p;
+                    }
                 }
             }
 

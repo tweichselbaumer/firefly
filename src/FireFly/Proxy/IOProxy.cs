@@ -3,6 +3,7 @@ using FireFly.Settings;
 using LinkUp.Node;
 using LinkUp.Raw;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace FireFly.Proxy
     public class IOProxy : IDisposable
     {
         private LinkUpPropertyLabel<Double> _AccelerometerScaleLabel;
+        private BlockingCollection<Tuple<ImuEventData, CameraEventData>> _BackgroundQueue = new BlockingCollection<Tuple<ImuEventData, CameraEventData>>();
+        private Task _BackgroundTask;
         private LinkUpEventLabel _CameraEventLabel;
         private LinkUpEventLabel _CameraImuEventLabel;
         private LinkUpPropertyLabel<Int16> _ExposureLabel;
@@ -30,6 +33,7 @@ namespace FireFly.Proxy
         private IOProxyMode _ProxyMode = IOProxyMode.Live;
         private LinkUpPropertyLabel<Boolean> _RecordRemoteLabel;
         private LinkUpFunctionLabel _ReplayDataSend;
+        private bool _Running;
         private SettingContainer _SettingContainer;
         private LinkUpEventLabel _SlamMapEventLabel;
         private List<Tuple<IProxyEventSubscriber, ProxyEventType>> _Subscriptions = new List<Tuple<IProxyEventSubscriber, ProxyEventType>>();
@@ -42,6 +46,11 @@ namespace FireFly.Proxy
         public IOProxy(SettingContainer settingContainer)
         {
             _SettingContainer = settingContainer;
+            _Running = true;
+            _BackgroundTask = Task.Factory.StartNew(() =>
+            {
+                DoWork();
+            }, TaskCreationOptions.LongRunning);
         }
 
         public LinkUpConnectivityState ConnectivityState
@@ -104,6 +113,9 @@ namespace FireFly.Proxy
 
         public void Dispose()
         {
+            _Running = false;
+            _BackgroundTask.Wait();
+            _Tasks.ForEach(c => c.Wait());
             //TODO: wait for tasks
         }
 
@@ -182,28 +194,7 @@ namespace FireFly.Proxy
                             _ReplayDataSend.AsyncCall(data);
                         }
 
-                        foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraImuEvent))
-                        {
-                            if (cameraEventData != null)
-                                t.Item1.Fired(this, new List<AbstractProxyEventData>() { cameraEventData, imuEventData });
-                            else
-                            {
-                                if (imuEventData != null)
-                                    t.Item1.Fired(this, new List<AbstractProxyEventData>() { imuEventData });
-                            }
-                        }
-
-                        foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraEvent))
-                        {
-                            if (cameraEventData != null)
-                                t.Item1.Fired(this, new List<AbstractProxyEventData>() { cameraEventData });
-                        }
-
-                        foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuEvent))
-                        {
-                            if (imuEventData != null)
-                                t.Item1.Fired(this, new List<AbstractProxyEventData>() { imuEventData });
-                        }
+                        _BackgroundQueue.Add(new Tuple<ImuEventData, CameraEventData>(imuEventData, cameraEventData));
                     }
                     currentTime += reader.DeltaTimeMs;
                     int sleep = (int)(currentTime - watch.ElapsedMilliseconds);
@@ -411,6 +402,42 @@ namespace FireFly.Proxy
                     foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.SlamMapEvent))
                     {
                         t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
+                    }
+                }
+            }
+        }
+
+        private void DoWork()
+        {
+            while (_Running)
+            {
+                Tuple<ImuEventData, CameraEventData> next;
+
+                if (_BackgroundQueue.TryTake(out next, 200))
+                {
+                    ImuEventData imuEventData = next.Item1;
+                    CameraEventData cameraEventData = next.Item2;
+                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraImuEvent))
+                    {
+                        if (cameraEventData != null)
+                            t.Item1.Fired(this, new List<AbstractProxyEventData>() { cameraEventData, imuEventData });
+                        else
+                        {
+                            if (imuEventData != null)
+                                t.Item1.Fired(this, new List<AbstractProxyEventData>() { imuEventData });
+                        }
+                    }
+
+                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraEvent))
+                    {
+                        if (cameraEventData != null)
+                            t.Item1.Fired(this, new List<AbstractProxyEventData>() { cameraEventData });
+                    }
+
+                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuEvent))
+                    {
+                        if (imuEventData != null)
+                            t.Item1.Fired(this, new List<AbstractProxyEventData>() { imuEventData });
                     }
                 }
             }

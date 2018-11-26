@@ -50,18 +50,23 @@ namespace FireFly.VI.SLAM
             }
         }
 
+        public void Reset()
+        {
+            lock (_Frames)
+            {
+                _Frames.Clear();
+            }
+            lock (_KeyFrames)
+            {
+
+                _KeyFrames.Clear();
+            }
+        }
+
         public void AddNewKeyFrame(KeyFrame keyFrame)
         {
             lock (_KeyFrames)
             {
-                if (keyFrame.Id == 0)
-                {
-                    if (_KeyFrames.Max(c => c != null ? c.Id : 0) > 10)
-                    {
-                        _KeyFrames.Clear();
-                    }
-                }
-
                 while (_KeyFrames.Count <= keyFrame.Id)
                 {
                     _KeyFrames.Add(null);
