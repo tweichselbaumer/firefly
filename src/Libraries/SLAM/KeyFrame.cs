@@ -119,16 +119,15 @@ namespace FireFly.VI.SLAM
             }
         }
 
-        public GeometryModel3D GetPointCloud()
+        public GeometryModel3D GetPointCloud(bool onlyNew = false)
         {
+            bool newPointCloud = false;
             if (_PointCloud == null)
             {
+                newPointCloud = true;
                 MeshGeometry3D meshGeometry3D = new MeshGeometry3D();
                 Matrix3D matrix3D = Frame.T_cam_world.Inverse().Matrix3D;
 
-                Debug.WriteLine("T_w_c");
-                Debug.WriteLine(matrix3D.ToString());
-                Debug.WriteLine("\n\n");
                 foreach (Point p in _Points)
                 {
                     int offset = meshGeometry3D.Positions.Count;
@@ -153,7 +152,10 @@ namespace FireFly.VI.SLAM
                 _PointCloud.Transform = new MatrixTransform3D(matrix3D);
                 _PointCloud.Freeze();
             }
-            return _PointCloud;
+            if (onlyNew && newPointCloud)
+                return _PointCloud;
+            else
+                return null;
         }
         private void AddCubeToMesh(MeshGeometry3D mesh, Point3D center, double size)
         {

@@ -413,7 +413,7 @@ namespace FireFly.Proxy
             {
                 Tuple<ImuEventData, CameraEventData> next;
 
-                if (_BackgroundQueue.TryTake(out next, 200))
+                if (_BackgroundQueue.TryTake(out next, 100))
                 {
                     ImuEventData imuEventData = next.Item1;
                     CameraEventData cameraEventData = next.Item2;
@@ -439,6 +439,10 @@ namespace FireFly.Proxy
                         if (imuEventData != null)
                             t.Item1.Fired(this, new List<AbstractProxyEventData>() { imuEventData });
                     }
+                }
+                else
+                {
+                    Thread.Sleep(1);
                 }
             }
         }

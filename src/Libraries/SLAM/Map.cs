@@ -50,6 +50,22 @@ namespace FireFly.VI.SLAM
             }
         }
 
+        public bool HasFrames()
+        {
+            lock (_Frames)
+            {
+                return _Frames.Count > 0;
+            }
+        }
+
+        public bool HasKeyFrames()
+        {
+            lock (_KeyFrames)
+            {
+                return _KeyFrames.Count > 0;
+            }
+        }
+
         public void Reset()
         {
             lock (_Frames)
@@ -75,7 +91,7 @@ namespace FireFly.VI.SLAM
             }
         }
 
-        public List<GeometryModel3D> GetPointCloud()
+        public List<GeometryModel3D> GetPointCloud(bool onlyNew = false)
         {
             List<GeometryModel3D> pointClouds = new List<GeometryModel3D>();
             lock (_KeyFrames)
@@ -84,8 +100,9 @@ namespace FireFly.VI.SLAM
                 {
                     if (keyFrame != null)
                     {
-                        GeometryModel3D cloud = keyFrame.GetPointCloud();
-                        pointClouds.Add(cloud);
+                        GeometryModel3D cloud = keyFrame.GetPointCloud(onlyNew);
+                        if (cloud != null)
+                            pointClouds.Add(cloud);
                     }
                 }
             }
@@ -96,7 +113,10 @@ namespace FireFly.VI.SLAM
         {
             lock (_KeyFrames)
             {
-                return _KeyFrames.Where(c => c != null).Last().Frame.T_cam_world.Inverse();
+                if (_KeyFrames.Count > 0)
+                    return _KeyFrames.Where(c => c != null).Last().Frame.T_cam_world.Inverse();
+                else
+                    return new Sim3();
             }
         }
     }

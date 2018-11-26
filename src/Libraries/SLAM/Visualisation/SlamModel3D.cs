@@ -1,5 +1,4 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -20,13 +19,44 @@ namespace FireFly.VI.SLAM.Visualisation
                 DependencyProperty.Register("Transform3D", typeof(MatrixTransform3D), typeof(SlamModel3D), new PropertyMetadata(null));
 
         private Map _Map = new Map();
-
+        private System.Timers.Timer _Timer;
         private SynchronizationContext _SyncContext;
 
         public SlamModel3D(SynchronizationContext synchronizationContext)
         {
             _SyncContext = synchronizationContext;
             Trajectory = new Point3DCollection();
+            _Timer = new System.Timers.Timer(200);
+            _Timer.Elapsed += _Timer_Elapsed;
+            _Timer.Start();
+        }
+
+        private void _Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (_Map.HasFrames() || _Map.HasKeyFrames())
+            {
+                bool onlyNew = true;
+                List<Vector<double>> points = _Map.GetTrajectory(TrajectoryType.Optimazation);
+
+                List<GeometryModel3D> pointClouds = _Map.GetPointCloud(onlyNew);
+
+                _SyncContext.Post(d =>
+                {
+                    Trajectory = new Point3DCollection(points.SelectMany(c => new List<Point3D>() { new Point3D(c[0], c[1], c[2]), new Point3D(c[0], c[1], c[2]) }));
+                    if (Trajectory.Count > 0)
+                        Trajectory.RemoveAt(0);
+
+                    Transform3D = new MatrixTransform3D(_Map.LastTransformation().Matrix3D);
+                    if (!(onlyNew && Model != null))
+                    {
+                        Model = new Model3DGroup();
+                    }
+                    foreach (GeometryModel3D pointCloud in pointClouds)
+                    {
+                        (Model as Model3DGroup).Children.Add(pointCloud);
+                    }
+                }, null);
+            }
         }
 
         public Model3D Model
@@ -39,11 +69,6 @@ namespace FireFly.VI.SLAM.Visualisation
         {
             get { return (Point3DCollection)GetValue(TrajectoryProperty); }
             set { SetValue(TrajectoryProperty, value); }
-        }
-
-        public void Reset()
-        {
-            _Map.Reset();
         }
 
         public MatrixTransform3D Transform3D
@@ -72,23 +97,16 @@ namespace FireFly.VI.SLAM.Visualisation
 
         public void AddNewKeyFrame(KeyFrame keyFrame)
         {
+
             _Map.AddNewKeyFrame(keyFrame);
-            List<Vector<double>> points = _Map.GetTrajectory(TrajectoryType.Optimazation);
+        }
 
-            //List<GeometryModel3D> pointClouds = _Map.GetPointCloud();
-
-            _SyncContext.Post(d =>
+        public void Reset()
+        {
+            _Map.Reset();
+            _SyncContext.Send(d =>
             {
-                Model3DGroup modelGroup = new Model3DGroup();
-                Trajectory = new Point3DCollection(points.SelectMany(c => new List<Point3D>() { new Point3D(c[0], c[1], c[2]), new Point3D(c[0], c[1], c[2]) }));
-                Trajectory.RemoveAt(0);
-                //foreach (GeometryModel3D pointCloud in pointClouds)
-                //{
-                //    modelGroup.Children.Add(pointCloud);
-                //}
-
-                Transform3D = new MatrixTransform3D(_Map.LastTransformation().Matrix3D);
-                Model = modelGroup;
+                Model = new Model3DGroup();
             }, null);
         }
     }
