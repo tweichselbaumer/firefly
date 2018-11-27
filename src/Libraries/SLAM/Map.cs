@@ -42,7 +42,7 @@ namespace FireFly.VI.SLAM
         {
             lock (_Frames)
             {
-                while (_Frames.Count < frame.Id)
+                while (_Frames.Count <= frame.Id)
                 {
                     _Frames.Add(null);
                 }
@@ -111,10 +111,10 @@ namespace FireFly.VI.SLAM
 
         public Sim3 LastTransformation()
         {
-            lock (_KeyFrames)
+            lock (_Frames)
             {
-                if (_KeyFrames.Count > 0)
-                    return _KeyFrames.Where(c => c != null).Last().Frame.T_cam_world.Inverse();
+                if (_Frames.Count > 0)
+                    return _Frames.Where(c => c != null).Last().T_cam_world.Inverse();
                 else
                     return new Sim3();
             }

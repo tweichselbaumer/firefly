@@ -1,6 +1,4 @@
-﻿using FireFly.VI.SLAM.Sophus;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -143,10 +141,12 @@ namespace FireFly.VI.SLAM
                         double y = point3D.Y;
                         double z = point3D.Z;
 
-                        AddCubeToMesh(meshGeometry3D, point3D, 0.002);
+                        AddCubeToMesh(meshGeometry3D, point3D, 0.002, p.Colors[0]);
                     }
                 }
-                Material material = new DiffuseMaterial(new SolidColorBrush(Colors.Black) { Opacity = 1 });
+                //Material material = new DiffuseMaterial(new SolidColorBrush(Colors.Black) { Opacity = 1 });
+                Material material = new DiffuseMaterial(new LinearGradientBrush(Colors.Black, Colors.White, 0.0));
+
 
                 _PointCloud = new GeometryModel3D(meshGeometry3D, material);
                 _PointCloud.Transform = new MatrixTransform3D(matrix3D);
@@ -157,7 +157,8 @@ namespace FireFly.VI.SLAM
             else
                 return null;
         }
-        private void AddCubeToMesh(MeshGeometry3D mesh, Point3D center, double size)
+
+        private void AddCubeToMesh(MeshGeometry3D mesh, Point3D center, double size, byte color = 0)
         {
             if (mesh != null)
             {
@@ -171,6 +172,11 @@ namespace FireFly.VI.SLAM
                 mesh.Positions.Add(new Point3D(center.X + size, center.Y - size, center.Z - size));
                 mesh.Positions.Add(new Point3D(center.X + size, center.Y - size, center.Z + size));
                 mesh.Positions.Add(new Point3D(center.X - size, center.Y - size, center.Z + size));
+
+                for (int i = 0; i < 12; i++)
+                {
+                    mesh.TextureCoordinates.Add(new System.Windows.Point(((double)color) / 255.0, 0));
+                }
 
                 mesh.TriangleIndices.Add(offset + 3);
                 mesh.TriangleIndices.Add(offset + 2);
