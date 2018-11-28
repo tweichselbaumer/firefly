@@ -221,6 +221,7 @@
     <Compile Include="Options.cs" />
     <Compile Include="Proxy\AbstractProxyEventData.cs" />
     <Compile Include="Proxy\CameraEventData.cs" />
+    <Compile Include="Proxy\ImuFilteredEventData.cs" />
     <Compile Include="Proxy\ImuEventData.cs" />
     <Compile Include="Proxy\IOProxy.cs" />
     <Compile Include="Proxy\IProxyEventSubscriber.cs" />

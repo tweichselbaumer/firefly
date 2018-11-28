@@ -28,7 +28,11 @@ namespace FireFly.Proxy
         private LinkUpPropertyLabel<Int16> _ExposureLabel;
         private LinkUpFunctionLabel _GetRemoteChessboardCorner;
         private LinkUpPropertyLabel<Double> _GyroscopeScaleLabel;
+        private LinkUpEventLabel _ImuDerivedEvent;
         private LinkUpEventLabel _ImuEventLabel;
+        private LinkUpPropertyLabel_Binary _ImuFilterALabel;
+        private LinkUpPropertyLabel_Binary _ImuFilterBLabel;
+        private LinkUpPropertyLabel<Int32> _ImuFilterSizeLabel;
         private LinkUpNode _Node;
         private IOProxyMode _ProxyMode = IOProxyMode.Live;
         private LinkUpPropertyLabel<Boolean> _RecordRemoteLabel;
@@ -270,6 +274,13 @@ namespace FireFly.Proxy
 
                 _RecordRemoteLabel = Node.GetLabelByName<LinkUpPropertyLabel<Boolean>>("firefly/computer_vision/record_remote");
 
+                _ImuFilterSizeLabel = Node.GetLabelByName<LinkUpPropertyLabel<Int32>>("firefly/computer_vision/imu_filter_n");
+                _ImuFilterALabel = Node.GetLabelByName<LinkUpPropertyLabel_Binary>("firefly/computer_vision/imu_filter_a");
+                _ImuFilterBLabel = Node.GetLabelByName<LinkUpPropertyLabel_Binary>("firefly/computer_vision/imu_filter_b");
+                _ImuDerivedEvent = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/imu_derived_event");
+
+                _ImuDerivedEvent.Fired += _ImuFilterEvent_Fired;
+
                 _CameraEventLabel.Fired += _CameraEventLabel_Fired;
                 _ImuEventLabel.Fired += _CameraEventLabel_Fired;
                 _CameraImuEventLabel.Fired += _CameraEventLabel_Fired;
@@ -342,67 +353,104 @@ namespace FireFly.Proxy
 
         private void _CameraEventLabel_Fired(LinkUpEventLabel label, byte[] data)
         {
+            IEnumerable<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriberImu = null;
+            IEnumerable<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriberCamImu = null;
+            IEnumerable<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriberCam = null;
+
             lock (_Subscriptions)
             {
-                if (label == _CameraEventLabel)
-                {
-                    CameraEventData eventData = CameraEventData.Parse(data, 0, true);
-                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraEvent))
-                    {
-                        t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
-                    }
-                }
-                else if (label == _ImuEventLabel)
-                {
-                    ImuEventData eventData = ImuEventData.Parse(data, 0, _SettingContainer.Settings.ImuSettings.GyroscopeScale, _SettingContainer.Settings.ImuSettings.AccelerometerScale, _SettingContainer.Settings.ImuSettings.TemperatureScale, _SettingContainer.Settings.ImuSettings.TemperatureOffset);
-                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuEvent))
-                    {
-                        t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
-                    }
-                }
-                else if (label == _CameraImuEventLabel)
-                {
-                    ImuEventData imuEventData = ImuEventData.Parse(data, 0, _SettingContainer.Settings.ImuSettings.GyroscopeScale, _SettingContainer.Settings.ImuSettings.AccelerometerScale, _SettingContainer.Settings.ImuSettings.TemperatureScale, _SettingContainer.Settings.ImuSettings.TemperatureOffset);
-                    CameraEventData cameraEventData = null;
+                subscriberCam = _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraEvent);
+                subscriberImu = _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuEvent);
+                subscriberCamImu = _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraImuEvent);
+            }
 
-                    if (imuEventData.HasCameraImage)
-                        cameraEventData = CameraEventData.Parse(data, 23, true);
+            if (label == _CameraEventLabel && subscriberCam != null && subscriberCam.Count() > 0)
+            {
+                CameraEventData eventData = CameraEventData.Parse(data, 0, true);
+                foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriberCam)
+                {
+                    t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
+                }
+            }
+            else if (label == _ImuEventLabel && subscriberImu != null && subscriberImu.Count() > 0)
+            {
+                ImuEventData eventData = ImuEventData.Parse(data, 0, _SettingContainer.Settings.ImuSettings.GyroscopeScale, _SettingContainer.Settings.ImuSettings.AccelerometerScale, _SettingContainer.Settings.ImuSettings.TemperatureScale, _SettingContainer.Settings.ImuSettings.TemperatureOffset);
+                foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriberImu)
+                {
+                    t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
+                }
+            }
+            else if (label == _CameraImuEventLabel)
+            {
+                ImuEventData imuEventData = ImuEventData.Parse(data, 0, _SettingContainer.Settings.ImuSettings.GyroscopeScale, _SettingContainer.Settings.ImuSettings.AccelerometerScale, _SettingContainer.Settings.ImuSettings.TemperatureScale, _SettingContainer.Settings.ImuSettings.TemperatureOffset);
+                CameraEventData cameraEventData = null;
 
-                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraImuEvent))
+                if (imuEventData.HasCameraImage)
+                    cameraEventData = CameraEventData.Parse(data, 23, true);
+
+                if (subscriberCamImu != null && subscriberCamImu.Count() > 0)
+                {
+                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriberCamImu)
                     {
                         if (cameraEventData != null)
                             t.Item1.Fired(this, new List<AbstractProxyEventData>() { cameraEventData, imuEventData });
                         else
                             t.Item1.Fired(this, new List<AbstractProxyEventData>() { imuEventData });
                     }
-
-                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraEvent))
+                }
+                if (subscriberCam != null && subscriberCam.Count() > 0)
+                {
+                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriberCam)
                     {
                         if (cameraEventData != null)
                             t.Item1.Fired(this, new List<AbstractProxyEventData>() { cameraEventData });
                     }
-
-                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuEvent))
+                }
+                if (subscriberImu != null && subscriberImu.Count() > 0)
+                {
+                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriberImu)
                     {
                         t.Item1.Fired(this, new List<AbstractProxyEventData>() { imuEventData });
                     }
+                }
+                lastTimestamp = imuEventData.TimeNanoSeconds;
+            }
+        }
 
-                    lastTimestamp = imuEventData.TimeNanoSeconds;
+        private void _ImuFilterEvent_Fired(LinkUpEventLabel label, byte[] data)
+        {
+            IEnumerable<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriber = null;
+
+            lock (_Subscriptions)
+            {
+                subscriber = _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuDerivedEvent);
+            }
+
+            if (label == _ImuDerivedEvent && subscriber != null && subscriber.Count() > 0)
+            {
+                ImuDerivedEventData eventData = ImuDerivedEventData.Parse(data, 0);
+                foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriber)
+                {
+                    t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
                 }
             }
         }
 
         private void _SlamMapEventLabel_Fired(LinkUpEventLabel label, byte[] data)
         {
+            IEnumerable<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriber = null;
+
             lock (_Subscriptions)
             {
-                if (label == _SlamMapEventLabel)
+                subscriber = _Subscriptions.Where(c => c.Item2 == ProxyEventType.SlamMapEvent);
+            }
+
+            if (label == _SlamMapEventLabel && subscriber != null && subscriber.Count() > 0)
+            {
+                SlamEventData eventData = SlamEventData.Parse(data);
+                foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriber)
                 {
-                    SlamEventData eventData = SlamEventData.Parse(data);
-                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.SlamMapEvent))
-                    {
-                        t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
-                    }
+                    t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
                 }
             }
         }
@@ -575,6 +623,28 @@ namespace FireFly.Proxy
                     {
                         if (ConnectivityState == LinkUpConnectivityState.Connected)
                             _SlamMapEventLabel.Unsubscribe();
+                    }
+                    catch (Exception) { }
+                }
+            }
+
+            if (_ImuDerivedEvent != null)
+            {
+                if (_Subscriptions.Any(c => c.Item2 == ProxyEventType.ImuDerivedEvent))
+                {
+                    try
+                    {
+                        if (ConnectivityState == LinkUpConnectivityState.Connected)
+                            _ImuDerivedEvent.Subscribe();
+                    }
+                    catch (Exception) { }
+                }
+                else
+                {
+                    try
+                    {
+                        if (ConnectivityState == LinkUpConnectivityState.Connected)
+                            _ImuDerivedEvent.Unsubscribe();
                     }
                     catch (Exception) { }
                 }

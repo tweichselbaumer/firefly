@@ -4,26 +4,72 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:FireFly.Views"
+             xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:CustomControls="clr-namespace:FireFly.CustomControls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="10" />
-            <RowDefinition Height="auto" />
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="3*" />
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="10" />
-            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Button Width="200" Grid.Row="2" Grid.Column="0" Content="start (computer-vision)" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCommand}" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="10" />
+        </Grid.RowDefinitions>
 
-        <Button Width="200" Grid.Row="2" Grid.Column="2" Content="stop (computer-vision)" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StopCommand}" />
+        <DockPanel Grid.Column="3" Grid.Row="1" VerticalAlignment="Stretch">
+            <StackPanel DockPanel.Dock="Top">
+                <Label  Content="Enable" Style="{DynamicResource GeneralLabelStyle}" />
+                <Controls:ToggleSwitch
+                IsChecked="{Binding Path=Enabled}" Margin="15,0,0,0"
+                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
+                
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+                <Button Width="200" Grid.Row="2" Grid.Column="0" Content="start (computer-vision)" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCommand}" />
 
-        <Button Width="200" Grid.Row="2" Grid.Column="4" Content="shutdown (linux)" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=ShutdownCommand}" />
+                <Button Width="200" Grid.Row="2" Grid.Column="2" Content="stop (computer-vision)" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StopCommand}" />
+
+                <Button Width="200" Grid.Row="2" Grid.Column="4" Content="shutdown (linux)" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=ShutdownCommand}" />
+            </StackPanel>
+        </DockPanel>
+
+        <Controls:MetroTabControl Controls:TabControlHelper.IsUnderlined="True" Controls:TabControlHelper.Underlined="TabPanel"   Grid.Column="1" Grid.Row="1">
+            <TabItem Header="Gyro">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <CustomControls:PlotControl Grid.Row="0" DataContext="{Binding Path=GyroX}" />
+                    <CustomControls:PlotControl Grid.Row="2" DataContext="{Binding Path=GyroY}" />
+                    <CustomControls:PlotControl Grid.Row="4" DataContext="{Binding Path=GyroZ}" />
+                </Grid>
+            </TabItem>
+
+            <TabItem  Header="Accelerometer">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <CustomControls:PlotControl Grid.Row="0" DataContext="{Binding Path=AccX}" />
+                    <CustomControls:PlotControl Grid.Row="2" DataContext="{Binding Path=AccY}" />
+                    <CustomControls:PlotControl Grid.Row="4" DataContext="{Binding Path=AccZ}" />
+                </Grid>
+            </TabItem>
+        </Controls:MetroTabControl>
     </Grid>
 </UserControl>

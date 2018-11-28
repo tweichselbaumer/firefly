@@ -147,7 +147,6 @@ namespace FireFly.VI.SLAM
                 //Material material = new DiffuseMaterial(new SolidColorBrush(Colors.Black) { Opacity = 1 });
                 Material material = new DiffuseMaterial(new LinearGradientBrush(Colors.Black, Colors.White, 0.0));
 
-
                 _PointCloud = new GeometryModel3D(meshGeometry3D, material);
                 _PointCloud.Transform = new MatrixTransform3D(matrix3D);
                 _PointCloud.Freeze();

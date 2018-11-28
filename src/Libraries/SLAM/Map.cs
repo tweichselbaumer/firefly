@@ -1,7 +1,5 @@
 ﻿using FireFly.VI.SLAM.Sophus;
-using HelixToolkit.Wpf;
 using MathNet.Numerics.LinearAlgebra;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media.Media3D;
@@ -19,25 +17,6 @@ namespace FireFly.VI.SLAM
         private List<Frame> _Frames = new List<Frame>();
         private List<KeyFrame> _KeyFrames = new List<KeyFrame>();
 
-        public List<Vector<double>> GetTrajectory(TrajectoryType trajectoryType = TrajectoryType.PreOptimazation)
-        {
-            switch (trajectoryType)
-            {
-                case TrajectoryType.PreOptimazation:
-                    lock (_Frames)
-                    {
-                        return _Frames.Where(d => d != null).Select(c => c.T_cam_world.Inverse().SE3.Translation).ToList();
-                    }
-                case TrajectoryType.Optimazation:
-                    lock (_KeyFrames)
-                    {
-                        return _KeyFrames.Where(d => d != null).Select(c => c.Frame.T_cam_world.Inverse().SE3.Translation).ToList();
-                    }
-                default:
-                    return new List<Vector<double>>();
-            }
-        }
-
         public void AddNewFrame(Frame frame)
         {
             lock (_Frames)
@@ -47,35 +26,6 @@ namespace FireFly.VI.SLAM
                     _Frames.Add(null);
                 }
                 _Frames[(int)frame.Id] = frame;
-            }
-        }
-
-        public bool HasFrames()
-        {
-            lock (_Frames)
-            {
-                return _Frames.Count > 0;
-            }
-        }
-
-        public bool HasKeyFrames()
-        {
-            lock (_KeyFrames)
-            {
-                return _KeyFrames.Count > 0;
-            }
-        }
-
-        public void Reset()
-        {
-            lock (_Frames)
-            {
-                _Frames.Clear();
-            }
-            lock (_KeyFrames)
-            {
-
-                _KeyFrames.Clear();
             }
         }
 
@@ -109,6 +59,41 @@ namespace FireFly.VI.SLAM
             return pointClouds;
         }
 
+        public List<Vector<double>> GetTrajectory(TrajectoryType trajectoryType = TrajectoryType.PreOptimazation)
+        {
+            switch (trajectoryType)
+            {
+                case TrajectoryType.PreOptimazation:
+                    lock (_Frames)
+                    {
+                        return _Frames.Where(d => d != null).Select(c => c.T_cam_world.Inverse().SE3.Translation).ToList();
+                    }
+                case TrajectoryType.Optimazation:
+                    lock (_KeyFrames)
+                    {
+                        return _KeyFrames.Where(d => d != null).Select(c => c.Frame.T_cam_world.Inverse().SE3.Translation).ToList();
+                    }
+                default:
+                    return new List<Vector<double>>();
+            }
+        }
+
+        public bool HasFrames()
+        {
+            lock (_Frames)
+            {
+                return _Frames.Count > 0;
+            }
+        }
+
+        public bool HasKeyFrames()
+        {
+            lock (_KeyFrames)
+            {
+                return _KeyFrames.Count > 0;
+            }
+        }
+
         public Sim3 LastTransformation()
         {
             lock (_Frames)
@@ -117,6 +102,18 @@ namespace FireFly.VI.SLAM
                     return _Frames.Where(c => c != null).Last().T_cam_world.Inverse();
                 else
                     return new Sim3();
+            }
+        }
+
+        public void Reset()
+        {
+            lock (_Frames)
+            {
+                _Frames.Clear();
+            }
+            lock (_KeyFrames)
+            {
+                _KeyFrames.Clear();
             }
         }
     }

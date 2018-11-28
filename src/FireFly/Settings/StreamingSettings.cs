@@ -3,7 +3,7 @@
     public class StreamingSettings : AbstractSettings
     {
         private bool _CameraRawStreamEnabled;
-
+        private bool _ImuDerivedStreamEnabled;
         private bool _ImuRawStreamEnabled;
 
         public bool CameraRawStreamEnabled
@@ -16,6 +16,19 @@
             set
             {
                 _CameraRawStreamEnabled = value;
+            }
+        }
+
+        public bool ImuDerivedStreamEnabled
+        {
+            get
+            {
+                return _ImuDerivedStreamEnabled;
+            }
+
+            set
+            {
+                _ImuDerivedStreamEnabled = value;
             }
         }
 

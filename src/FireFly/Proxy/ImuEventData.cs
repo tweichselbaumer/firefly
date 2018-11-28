@@ -104,7 +104,7 @@ namespace FireFly.Proxy
 
         public byte[] GetRaw(double gyroScale, double accScale, double tempScale, double tempOffset)
         {
-            byte[] data = new byte[23];
+            byte[] data = new byte[RawSize];
 
             Array.Copy(BitConverter.GetBytes((UInt32)(TimeNanoSeconds / (1000 * 1000))), 0, data, 0, sizeof(UInt32));
             Array.Copy(BitConverter.GetBytes((UInt32)(TimeNanoSeconds / (1000))), 0, data, 4, sizeof(UInt32));
