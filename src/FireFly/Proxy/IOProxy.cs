@@ -32,7 +32,6 @@ namespace FireFly.Proxy
         private LinkUpEventLabel _ImuEventLabel;
         private LinkUpPropertyLabel_Binary _ImuFilterALabel;
         private LinkUpPropertyLabel_Binary _ImuFilterBLabel;
-        private LinkUpPropertyLabel<Int32> _ImuFilterSizeLabel;
         private LinkUpNode _Node;
         private IOProxyMode _ProxyMode = IOProxyMode.Live;
         private LinkUpPropertyLabel<Boolean> _RecordRemoteLabel;
@@ -274,7 +273,6 @@ namespace FireFly.Proxy
 
                 _RecordRemoteLabel = Node.GetLabelByName<LinkUpPropertyLabel<Boolean>>("firefly/computer_vision/record_remote");
 
-                _ImuFilterSizeLabel = Node.GetLabelByName<LinkUpPropertyLabel<Int32>>("firefly/computer_vision/imu_filter_n");
                 _ImuFilterALabel = Node.GetLabelByName<LinkUpPropertyLabel_Binary>("firefly/computer_vision/imu_filter_a");
                 _ImuFilterBLabel = Node.GetLabelByName<LinkUpPropertyLabel_Binary>("firefly/computer_vision/imu_filter_b");
                 _ImuDerivedEvent = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/imu_derived_event");

@@ -29,7 +29,6 @@
                 <Controls:ToggleSwitch
                 IsChecked="{Binding Path=Enabled}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
-                
             </StackPanel>
             <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
                 <Button Width="200" Grid.Row="2" Grid.Column="0" Content="start (computer-vision)" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCommand}" />
@@ -40,8 +39,8 @@
             </StackPanel>
         </DockPanel>
 
-        <Controls:MetroTabControl Controls:TabControlHelper.IsUnderlined="True" Controls:TabControlHelper.Underlined="TabPanel"   Grid.Column="1" Grid.Row="1">
-            <TabItem Header="Gyro">
+        <Controls:MetroTabControl Controls:TabControlHelper.IsUnderlined="True" Controls:TabControlHelper.Underlined="TabPanel" Grid.Column="1" Grid.Row="1">
+            <TabItem Header="Gyro Derived">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -56,7 +55,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem  Header="Accelerometer">
+            <TabItem  Header="Accelerometer Derived">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
