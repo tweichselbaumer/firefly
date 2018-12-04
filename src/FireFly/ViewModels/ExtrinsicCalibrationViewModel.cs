@@ -165,7 +165,7 @@ namespace FireFly.ViewModels
                             options = "--time-calibration --dont-show-report --reprojection-sigma 0.5";
                             */
 
-                            string options = string.Format(CultureInfo.InvariantCulture, "--dont-show-report --reprojection-sigma {0} {1}", Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.ReprojectionSigma, Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.TimeCalibration ? "----time-calibration" : "");
+                            string options = string.Format(CultureInfo.InvariantCulture, "--dont-show-report --reprojection-sigma {0} {1}", Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.ReprojectionSigma, Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.TimeCalibration ? "--time-calibration" : "");
 
                             remoteDataStore.ExecuteCommands(new List<string>()
                                     {
