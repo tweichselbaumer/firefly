@@ -6,6 +6,7 @@
         CameraEvent,
         CameraImuEvent,
         SlamMapEvent,
-        ImuDerivedEvent
+        ImuDerivedEvent,
+        SlamStatusEvent,
     }
 }

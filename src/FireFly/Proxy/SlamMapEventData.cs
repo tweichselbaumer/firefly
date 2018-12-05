@@ -10,7 +10,7 @@ namespace FireFly.Proxy
         Reset = 3
     }
 
-    public class SlamEventData : AbstractProxyEventData
+    public class SlamMapEventData : AbstractProxyEventData
     {
         private Frame _Frame;
         private KeyFrame _KeyFrame;
@@ -55,9 +55,9 @@ namespace FireFly.Proxy
             }
         }
 
-        internal static SlamEventData Parse(byte[] data)
+        public static SlamMapEventData Parse(byte[] data)
         {
-            SlamEventData obj = new SlamEventData();
+            SlamMapEventData obj = new SlamMapEventData();
 
             obj.PublishType = (SlamPublishType)data[0];
 
@@ -81,7 +81,7 @@ namespace FireFly.Proxy
             return obj;
         }
 
-        private static int ParseFrame(byte[] data, int offset, SlamEventData obj)
+        private static int ParseFrame(byte[] data, int offset, SlamMapEventData obj)
         {
             int index = offset;
             uint id = BitConverter.ToUInt32(data, index);
@@ -107,7 +107,7 @@ namespace FireFly.Proxy
             return index - offset;
         }
 
-        private static int ParseKeyFrame(byte[] data, int offset, SlamEventData obj)
+        private static int ParseKeyFrame(byte[] data, int offset, SlamMapEventData obj)
         {
             int index = offset;
             uint id = BitConverter.ToUInt32(data, index);

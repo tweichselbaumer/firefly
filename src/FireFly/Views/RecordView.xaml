@@ -59,17 +59,13 @@
 
         <DockPanel Grid.Column="3" Grid.Row="1" VerticalAlignment="Stretch">
             <StackPanel DockPanel.Dock="Top">
-                <Label  Content="Input Data" Style="{DynamicResource GeneralLabelStyle}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}" />
-                <Controls:ToggleSwitch
-               Margin="15,0,0,0"
-                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
+                <Label  Content="Imu Data"  Style="{DynamicResource GeneralLabelStyle}" />
+                <Controls:ToggleSwitch IsChecked="{Binding RecordImuData}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}" Margin="15,0,0,0" Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
 
-                <Label  Content="Output Data" Style="{DynamicResource GeneralLabelStyle}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}" />
-                <Controls:ToggleSwitch
-                Margin="15,0,0,0"
-                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
+                <Label  Content="Camera Data" Style="{DynamicResource GeneralLabelStyle}" />
+                <Controls:ToggleSwitch IsChecked="{Binding RecordCamData}" IsEnabled="{Binding Path=IsRecording, Converter={StaticResource InverseBooleanConverter}}" Margin="15,0,0,0" Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
                 <Label Content="" Style="{DynamicResource GeneralLabelStyle}" />
             </StackPanel>

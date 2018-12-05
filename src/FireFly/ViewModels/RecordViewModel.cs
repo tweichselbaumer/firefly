@@ -28,6 +28,12 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty NotesProperty =
             DependencyProperty.Register("Notes", typeof(string), typeof(RecordViewModel), new PropertyMetadata(""));
 
+        public static readonly DependencyProperty RecordCamDataProperty =
+            DependencyProperty.Register("RecordCamData", typeof(bool), typeof(RecordViewModel), new PropertyMetadata(true));
+
+        public static readonly DependencyProperty RecordImuDataProperty =
+            DependencyProperty.Register("RecordImuData", typeof(bool), typeof(RecordViewModel), new PropertyMetadata(true));
+
         public static readonly DependencyProperty RecordingTimeProperty =
             DependencyProperty.Register("RecordingTime", typeof(TimeSpan), typeof(RecordViewModel), new PropertyMetadata(null));
 
@@ -67,6 +73,18 @@ namespace FireFly.ViewModels
         {
             get { return (string)GetValue(NotesProperty); }
             set { SetValue(NotesProperty, value); }
+        }
+
+        public bool RecordCamData
+        {
+            get { return (bool)GetValue(RecordCamDataProperty); }
+            set { SetValue(RecordCamDataProperty, value); }
+        }
+
+        public bool RecordImuData
+        {
+            get { return (bool)GetValue(RecordImuDataProperty); }
+            set { SetValue(RecordImuDataProperty, value); }
         }
 
         public TimeSpan RecordingTime
@@ -142,6 +160,12 @@ namespace FireFly.ViewModels
                         return;
                     }
 
+                    if (!RecordImuData && !RecordCamData)
+                    {
+                        var controller = await Parent.DialogCoordinator.ShowMessageAsync(Parent, "No source is selected!", "Please select at least one source!", MahApps.Metro.Controls.Dialogs.MessageDialogStyle.Affirmative, null);
+                        return;
+                    }
+
                     if (FileLocation == null)
                     {
                         var controller = await Parent.DialogCoordinator.ShowMessageAsync(Parent, "Location is missing!", "Please select a location!", MahApps.Metro.Controls.Dialogs.MessageDialogStyle.Affirmative, null);
@@ -163,7 +187,12 @@ namespace FireFly.ViewModels
                     }
                     _DataWritter = new DataWritter(fullPath);
                     _DataWritter.Open();
-                    Parent.IOProxy.Subscribe(this, ProxyEventType.CameraImuEvent);
+                    if(RecordCamData && RecordImuData)
+                        Parent.IOProxy.Subscribe(this, ProxyEventType.CameraImuEvent);
+                    else if (RecordCamData)
+                        Parent.IOProxy.Subscribe(this, ProxyEventType.CameraEvent);
+                    else if (RecordImuData)
+                        Parent.IOProxy.Subscribe(this, ProxyEventType.ImuEvent);
                     _StopWatch.Restart();
                     IsRecording = true;
                 }, null);
@@ -176,7 +205,12 @@ namespace FireFly.ViewModels
             {
                 Parent.SyncContext.Post(c =>
                 {
-                    Parent.IOProxy.Unsubscribe(this, ProxyEventType.CameraImuEvent);
+                    if (RecordCamData && RecordImuData)
+                        Parent.IOProxy.Unsubscribe(this, ProxyEventType.CameraImuEvent);
+                    else if (RecordCamData)
+                        Parent.IOProxy.Unsubscribe(this, ProxyEventType.CameraEvent);
+                    else if (RecordImuData)
+                        Parent.IOProxy.Unsubscribe(this, ProxyEventType.ImuEvent);
                     _DataWritter.Close();
                     _StopWatch.Restart();
                     IsRecording = false;

@@ -235,11 +235,12 @@ namespace FireFly.ViewModels
 
         public void Fired(IOProxy proxy, List<AbstractProxyEventData> eventData)
         {
-            if (eventData.Count == 1 && eventData[0] is CameraEventData)
+            CameraEventData cameraEventData = (CameraEventData)eventData.FirstOrDefault(c => c is CameraEventData);
+            if (cameraEventData != null)
             {
                 Task.Factory.StartNew(() =>
                 {
-                    Mat mat = (eventData[0] as CameraEventData).Image;
+                    Mat mat = cameraEventData.Image;
 
                     bool undistort = false;
 

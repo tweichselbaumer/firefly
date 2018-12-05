@@ -6,8 +6,13 @@
              xmlns:helix="http://helix-toolkit.org/wpf"
              xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:local="clr-namespace:FireFly.Views"
+             xmlns:Converter="clr-namespace:FireFly.Converter"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Converter:ToStringEqualConverter x:Key="ToStringEqualConverter" />
+        <Converter:ToStringEqualInverseConverter x:Key="ToStringEqualInverseConverter" />
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10" />
@@ -34,7 +39,7 @@
                     <PerspectiveCamera Position="0,1,0.3" LookDirection="0,-1,-0.3" UpDirection="0,0,1" />
                 </helix:HelixViewport3D.DefaultCamera>
                 <helix:DefaultLights />
-                <ModelVisual3D Content="{Binding SlamModel3D.Model}" />
+                <ModelVisual3D Content="{Binding SlamModel3D.Model}"/>
                 <helix:CoordinateSystemVisual3D ArrowLengths="0.1" />
                 <helix:CoordinateSystemVisual3D ArrowLengths="0.1" Transform="{Binding SlamModel3D.Transform3D}" />
                 <helix:LinesVisual3D Points="{Binding SlamModel3D.TrajectoryKeyFrame}" Color="Gold" Thickness="3" />
@@ -71,95 +76,57 @@
                 </Border>
             </Viewbox>
         </Grid>
-
+        -->
         <Grid Grid.Column="4" Grid.Row="3">
-            <Viewbox>
-                <Border BorderThickness="1" BorderBrush="Black">
-                    <Image Width="{Binding Path=ImageWidth}" Height="{Binding Path=ImageHeight}" Source="{Binding Path=Parent.CameraViewModel.Image.ImageSource}" />
-                </Border>
-            </Viewbox>
-        </Grid>-->
+            <Border BorderThickness="2" BorderBrush="Black">
+                <StackPanel>
+                    <Label  Content="Status" Style="{DynamicResource GeneralLabelStyle}" />
+                    <Separator Margin="0 1 0 1" />
+                    <Label  Content="{Binding Path=Status}" FontSize="14" FontStyle="Italic"/>
+                </StackPanel>
+            </Border>
+        </Grid>
 
         <DockPanel Grid.Column="6" Grid.Row="1" Grid.RowSpan="3" VerticalAlignment="Stretch">
             <StackPanel DockPanel.Dock="Top">
-                <Label  Content="Enable" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Enable Point Cloud" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
-                IsChecked="{Binding Path=Enabled}" Margin="15,0,0,0"
+                IsChecked="{Binding SlamModel3D.ShowPointCloud}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
-                <!--<Separator Margin="0 10 0 10" />
-
-                <Label  Content="FOV Scale" Style="{DynamicResource GeneralLabelStyle}" />
-
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*" />
-                        <ColumnDefinition Width="2*" />
-                    </Grid.ColumnDefinitions>
-                    <Slider Width="120" Grid.Column="0"
-                        AutoToolTipPlacement="TopLeft"
-                        LargeChange="10"
-                        Maximum="1"
-                        Minimum="0.05"
-                        IsSnapToTickEnabled="True"
-                        TickFrequency="0.05"
-                        Orientation="Horizontal"
-                        SmallChange="0.05"
-                        Style="{DynamicResource MahApps.Metro.Styles.Slider.Win10}"
-                        Value="{Binding Path=FOVScale}" />
-                    <Label Grid.Column="1" Content="{Binding Path=FOVScale}" ContentStringFormat="{}{0:F2}" Style="{DynamicResource GeneralLabelStyle}" />
-                </Grid>
-
-                <Label  Content="Undistort" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Enable Trajectory" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
-                IsChecked="{Binding Path=Undistort}" Margin="15,0,0,0"
+                IsChecked="{Binding SlamModel3D.ShowFrameTrajectory}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
-                <Separator Margin="0 10 0 10" />
-
-                <Label  Content="Exposure Time" Style="{DynamicResource GeneralLabelStyle}" />
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*" />
-                        <ColumnDefinition Width="2*" />
-                    </Grid.ColumnDefinitions>
-                    <Slider Width="120" Grid.Column="0"
-                        AutoToolTipPlacement="TopLeft"
-                        LargeChange="10"
-                        Maximum="{Binding Path=MaxExposureTime}"
-                        Minimum="-1"
-                        Orientation="Horizontal"
-                        SmallChange="1"
-                        Style="{DynamicResource MahApps.Metro.Styles.Slider.Win10}"
-                        Value="{Binding Path=ExposureTimeSetting}" />
-                    <Label Grid.Column="1" Content="{Binding Path=ExposureTime}" ContentStringFormat="{}{0:F3} ms" Style="{DynamicResource GeneralLabelStyle}" />
-                </Grid>
-
-                <Label  Content="Exposure Sweep" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Enable Trajectory (Optimized)" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
-                IsChecked="{Binding Path=ExposureSweep}" Margin="15,0,0,0"
+                IsChecked="{Binding SlamModel3D.ShowKeyFrameTrajectory}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
-                <Separator Margin="0 10 0 10" />
+                <Separator Margin="0 20 0 20" />
 
-                <Label  Content="Gamma Correction" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Enable Imu Integration" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
-                IsChecked="{Binding Path=GammaCorretion}" Margin="15,0,0,0"
+                IsChecked="{Binding Path=EnabledTrajectory}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
-                <Label  Content="Vignette Correction" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Enable Loop Closing" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
-                IsChecked="{Binding Path=VignetteCorretion}" Margin="15,0,0,0"
+                IsChecked="{Binding Path=EnabledTrajectory}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
-                <Separator Margin="0 10 0 10" />
-
-                <Label  Content="Show Inverse Depth" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Sequential Execution" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
                 IsChecked="False" Margin="15,0,0,0"
-                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />-->
+                Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
+
             </StackPanel>
             <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+                <Button Width="200" Grid.Row="2" Grid.Column="4" Content="export" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=ExportCommand}" />
+
+                <Button Width="200" Grid.Row="2" Grid.Column="0" Content="start" IsEnabled="{Binding Path=Status, Converter={StaticResource ToStringEqualConverter}, ConverterParameter=Stopped}" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCommand}" />
+                <Button Width="200" Grid.Row="2" Grid.Column="2" Content="stop" Style="{DynamicResource AccentedSquareButtonStyle}" IsEnabled="{Binding Path=Status, Converter={StaticResource ToStringEqualInverseConverter}, ConverterParameter=Stopped}" Margin="0 5 0 5" Command="{Binding Path=StopCommand}" />
             </StackPanel>
         </DockPanel>
     </Grid>

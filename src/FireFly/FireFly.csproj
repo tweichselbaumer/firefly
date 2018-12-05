@@ -165,6 +165,9 @@
     <Compile Include="Command\RelayCommand.cs" />
     <Compile Include="Converter\BoolToVisibilityConverter.cs" />
     <Compile Include="Converter\BytesPerSecondConverter.cs" />
+    <Compile Include="Converter\MultiValueOrBoolConverter.cs" />
+    <Compile Include="Converter\ToStringEqualInverseConverter.cs" />
+    <Compile Include="Converter\ToStringEqualConverter.cs" />
     <Compile Include="Converter\InverseBooleanConverter.cs" />
     <Compile Include="Converter\MultiValueReplayBoolConverter.cs" />
     <Compile Include="CustomControls\DragableCameraControl.xaml.cs">
@@ -226,7 +229,8 @@
     <Compile Include="Proxy\IOProxy.cs" />
     <Compile Include="Proxy\IProxyEventSubscriber.cs" />
     <Compile Include="Proxy\ProxyEventType.cs" />
-    <Compile Include="Proxy\SlamEventData.cs" />
+    <Compile Include="Proxy\SlamMapEventData.cs" />
+    <Compile Include="Proxy\SlamStatusEventData.cs" />
     <Compile Include="Settings\AbstractSettings.cs" />
     <Compile Include="Settings\AprilGridCalibrationSettings.cs" />
     <Compile Include="Settings\CalibrationSettings.cs" />

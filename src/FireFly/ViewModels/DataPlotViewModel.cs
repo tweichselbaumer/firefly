@@ -2,6 +2,7 @@
 using FireFly.Proxy;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Timers;
 using System.Windows;
 
@@ -135,15 +136,16 @@ namespace FireFly.ViewModels
 
         public void Fired(IOProxy proxy, List<AbstractProxyEventData> eventData)
         {
-            if (eventData.Count == 1 && eventData[0] is ImuEventData)
+
+            ImuEventData imuEventData = (ImuEventData)eventData.FirstOrDefault(c => c is ImuEventData);
+            if (imuEventData != null)
             {
-                ImuEventData data = eventData[0] as ImuEventData;
-                GyroX.AddDataPoint(data.Time, data.GyroX);
-                GyroY.AddDataPoint(data.Time, data.GyroY);
-                GyroZ.AddDataPoint(data.Time, data.GyroZ);
-                AccX.AddDataPoint(data.Time, data.AccelX);
-                AccY.AddDataPoint(data.Time, data.AccelY);
-                AccZ.AddDataPoint(data.Time, data.AccelZ);
+                GyroX.AddDataPoint(imuEventData.Time, imuEventData.GyroX);
+                GyroY.AddDataPoint(imuEventData.Time, imuEventData.GyroY);
+                GyroZ.AddDataPoint(imuEventData.Time, imuEventData.GyroZ);
+                AccX.AddDataPoint(imuEventData.Time, imuEventData.AccelX);
+                AccY.AddDataPoint(imuEventData.Time, imuEventData.AccelY);
+                AccZ.AddDataPoint(imuEventData.Time, imuEventData.AccelZ);
             }
         }
 

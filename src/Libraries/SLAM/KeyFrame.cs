@@ -151,7 +151,7 @@ namespace FireFly.VI.SLAM
                 _PointCloud.Transform = new MatrixTransform3D(matrix3D);
                 _PointCloud.Freeze();
             }
-            if (onlyNew && newPointCloud)
+            if (onlyNew && newPointCloud || !onlyNew)
                 return _PointCloud;
             else
                 return null;

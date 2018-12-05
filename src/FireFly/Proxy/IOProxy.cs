@@ -26,9 +26,9 @@ namespace FireFly.Proxy
         private LinkUpEventLabel _CameraEventLabel;
         private LinkUpEventLabel _CameraImuEventLabel;
         private LinkUpPropertyLabel<Int16> _ExposureLabel;
-        private LinkUpFunctionLabel _GetRemoteChessboardCorner;
+        private LinkUpFunctionLabel _GetRemoteChessboardCornerLabel;
         private LinkUpPropertyLabel<Double> _GyroscopeScaleLabel;
-        private LinkUpEventLabel _ImuDerivedEvent;
+        private LinkUpEventLabel _ImuDerivedEventLabel;
         private LinkUpEventLabel _ImuEventLabel;
         private LinkUpPropertyLabel_Binary _ImuFilterALabel;
         private LinkUpPropertyLabel_Binary _ImuFilterBLabel;
@@ -38,12 +38,14 @@ namespace FireFly.Proxy
         private LinkUpFunctionLabel _ReplayDataSend;
         private bool _Running;
         private SettingContainer _SettingContainer;
+        private LinkUpFunctionLabel _SlamChangeStatusLabel;
         private LinkUpEventLabel _SlamMapEventLabel;
+        private LinkUpEventLabel _SlamStatusEventLabel;
         private List<Tuple<IProxyEventSubscriber, ProxyEventType>> _Subscriptions = new List<Tuple<IProxyEventSubscriber, ProxyEventType>>();
         private List<Task> _Tasks = new List<Task>();
         private LinkUpPropertyLabel<Double> _TemperatureOffsetLabel;
         private LinkUpPropertyLabel<Double> _TemperatureScaleLabel;
-        private LinkUpFunctionLabel _UpdateSettings;
+        private LinkUpFunctionLabel _UpdateSettingsLabel;
         private long lastTimestamp = 0;
 
         public IOProxy(SettingContainer settingContainer)
@@ -124,9 +126,9 @@ namespace FireFly.Proxy
 
         public byte[] GetRemoteChessboardCorner(byte[] input)
         {
-            if (_GetRemoteChessboardCorner != null)
+            if (_GetRemoteChessboardCornerLabel != null)
             {
-                return _GetRemoteChessboardCorner.Call(input);
+                return _GetRemoteChessboardCornerLabel.Call(input);
             }
             return null;
         }
@@ -262,9 +264,9 @@ namespace FireFly.Proxy
 
                 _ReplayDataSend = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/replay_data");
 
-                _GetRemoteChessboardCorner = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/get_chessboard_corner");
+                _GetRemoteChessboardCornerLabel = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/get_chessboard_corner");
 
-                _UpdateSettings = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/update_settings");
+                _UpdateSettingsLabel = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/update_settings");
 
                 _AccelerometerScaleLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/acc_scale");
                 _GyroscopeScaleLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/gyro_scale");
@@ -275,9 +277,14 @@ namespace FireFly.Proxy
 
                 _ImuFilterALabel = Node.GetLabelByName<LinkUpPropertyLabel_Binary>("firefly/computer_vision/imu_filter_a");
                 _ImuFilterBLabel = Node.GetLabelByName<LinkUpPropertyLabel_Binary>("firefly/computer_vision/imu_filter_b");
-                _ImuDerivedEvent = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/imu_derived_event");
+                _ImuDerivedEventLabel = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/imu_derived_event");
 
-                _ImuDerivedEvent.Fired += _ImuFilterEvent_Fired;
+                _SlamStatusEventLabel = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/slam_status_event");
+                _SlamChangeStatusLabel = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/slam_change_status");
+
+                _ImuDerivedEventLabel.Fired += _ImuFilterEvent_Fired;
+
+                _SlamStatusEventLabel.Fired += _SlamStatusEventLabel_Fired;
 
                 _CameraEventLabel.Fired += _CameraEventLabel_Fired;
                 _ImuEventLabel.Fired += _CameraEventLabel_Fired;
@@ -338,12 +345,12 @@ namespace FireFly.Proxy
                 catch (Exception) { }
             }
 
-            if (_UpdateSettings != null)
+            if (_UpdateSettingsLabel != null)
             {
                 try
                 {
                     if (ConnectivityState == LinkUpConnectivityState.Connected)
-                        _UpdateSettings.AsyncCall(new byte[] { });
+                        _UpdateSettingsLabel.AsyncCall(new byte[] { });
                 }
                 catch (Exception) { }
             }
@@ -424,7 +431,7 @@ namespace FireFly.Proxy
                 subscriber = _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuDerivedEvent);
             }
 
-            if (label == _ImuDerivedEvent && subscriber != null && subscriber.Count() > 0)
+            if (label == _ImuDerivedEventLabel && subscriber != null && subscriber.Count() > 0)
             {
                 ImuDerivedEventData eventData = ImuDerivedEventData.Parse(data, 0);
                 foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriber)
@@ -445,7 +452,26 @@ namespace FireFly.Proxy
 
             if (label == _SlamMapEventLabel && subscriber != null && subscriber.Count() > 0)
             {
-                SlamEventData eventData = SlamEventData.Parse(data);
+                SlamMapEventData eventData = SlamMapEventData.Parse(data);
+                foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriber)
+                {
+                    t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
+                }
+            }
+        }
+
+        private void _SlamStatusEventLabel_Fired(LinkUpEventLabel label, byte[] data)
+        {
+            IEnumerable<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriber = null;
+
+            lock (_Subscriptions)
+            {
+                subscriber = _Subscriptions.Where(c => c.Item2 == ProxyEventType.SlamStatusEvent);
+            }
+
+            if (label == _SlamStatusEventLabel && subscriber != null && subscriber.Count() > 0)
+            {
+                SlamStatusEventData eventData = SlamStatusEventData.Parse(data);
                 foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriber)
                 {
                     t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
@@ -505,6 +531,14 @@ namespace FireFly.Proxy
             }
             catch (Exception ex)
             {
+            }
+        }
+
+        public void ChangeSlamStatus(SlamStatusOverall slamStatus)
+        {
+            if (_SlamChangeStatusLabel != null)
+            {
+                _SlamChangeStatusLabel.AsyncCall(new byte[] { (byte)slamStatus });
             }
         }
 
@@ -626,14 +660,14 @@ namespace FireFly.Proxy
                 }
             }
 
-            if (_ImuDerivedEvent != null)
+            if (_SlamStatusEventLabel != null)
             {
-                if (_Subscriptions.Any(c => c.Item2 == ProxyEventType.ImuDerivedEvent))
+                if (_Subscriptions.Any(c => c.Item2 == ProxyEventType.SlamStatusEvent))
                 {
                     try
                     {
                         if (ConnectivityState == LinkUpConnectivityState.Connected)
-                            _ImuDerivedEvent.Subscribe();
+                            _SlamStatusEventLabel.Subscribe();
                     }
                     catch (Exception) { }
                 }
@@ -642,7 +676,29 @@ namespace FireFly.Proxy
                     try
                     {
                         if (ConnectivityState == LinkUpConnectivityState.Connected)
-                            _ImuDerivedEvent.Unsubscribe();
+                            _SlamStatusEventLabel.Unsubscribe();
+                    }
+                    catch (Exception) { }
+                }
+            }
+
+            if (_ImuDerivedEventLabel != null)
+            {
+                if (_Subscriptions.Any(c => c.Item2 == ProxyEventType.ImuDerivedEvent))
+                {
+                    try
+                    {
+                        if (ConnectivityState == LinkUpConnectivityState.Connected)
+                            _ImuDerivedEventLabel.Subscribe();
+                    }
+                    catch (Exception) { }
+                }
+                else
+                {
+                    try
+                    {
+                        if (ConnectivityState == LinkUpConnectivityState.Connected)
+                            _ImuDerivedEventLabel.Unsubscribe();
                     }
                     catch (Exception) { }
                 }

@@ -321,6 +321,8 @@ namespace FireFly.ViewModels
                     reader = new DataReader(fullPath, ReaderMode.Imu0 | ReaderMode.Camera0);
                     reader.Open();
 
+                    Parent.IOProxy.ChangeSlamStatus(Proxy.SlamStatusOverall.Restart);
+
                     Parent.IOProxy.ReplayOffline(reader, new Action<TimeSpan>((t) =>
                     {
                         Parent.SyncContext.Post(c =>
@@ -329,6 +331,7 @@ namespace FireFly.ViewModels
                        }, null);
                     }), new Action(() =>
                     {
+                        Parent.IOProxy.ChangeSlamStatus(Proxy.SlamStatusOverall.Stop);
                         Parent.SyncContext.Post(c =>
                         {
                             IsReplaying = false;
