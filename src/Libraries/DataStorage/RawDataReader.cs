@@ -85,6 +85,28 @@ namespace FireFly.Data.Storage
             return Count > _Index;
         }
 
+        public static string ReadNotes(string filename)
+        {
+            using (FileStream fileStream = new FileStream(filename, FileMode.Open))
+            {
+                using (ZipArchive zipArchive = new ZipArchive(fileStream, ZipArchiveMode.Read))
+                {
+                    ZipArchiveEntry entry = zipArchive.GetEntry("notes.txt");
+                    if (entry != null)
+                    {
+                        using (StreamReader reader = new StreamReader(entry.Open()))
+                        {
+                            return reader.ReadToEnd();
+                        }
+                    }
+                    else
+                    {
+                        return "";
+                    }
+                }
+            }
+        }
+
         public Tuple<long, List<Tuple<RawReaderMode, object>>> Next()
         {
             List<Tuple<RawReaderMode, object>> result = new List<Tuple<RawReaderMode, object>>();

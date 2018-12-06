@@ -39,7 +39,7 @@
                     <PerspectiveCamera Position="0,1,0.3" LookDirection="0,-1,-0.3" UpDirection="0,0,1" />
                 </helix:HelixViewport3D.DefaultCamera>
                 <helix:DefaultLights />
-                <ModelVisual3D Content="{Binding SlamModel3D.Model}"/>
+                <ModelVisual3D Content="{Binding SlamModel3D.Model}" />
                 <helix:CoordinateSystemVisual3D ArrowLengths="0.1" />
                 <helix:CoordinateSystemVisual3D ArrowLengths="0.1" Transform="{Binding SlamModel3D.Transform3D}" />
                 <helix:LinesVisual3D Points="{Binding SlamModel3D.TrajectoryKeyFrame}" Color="Gold" Thickness="3" />
@@ -82,7 +82,7 @@
                 <StackPanel>
                     <Label  Content="Status" Style="{DynamicResource GeneralLabelStyle}" />
                     <Separator Margin="0 1 0 1" />
-                    <Label  Content="{Binding Path=Status}" FontSize="14" FontStyle="Italic"/>
+                    <Label  Content="{Binding Path=Status}" FontSize="14" FontStyle="Italic" />
                 </StackPanel>
             </Border>
         </Grid>
@@ -120,10 +120,9 @@
                 <Controls:ToggleSwitch
                 IsChecked="False" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
-
             </StackPanel>
             <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
-                <Button Width="200" Grid.Row="2" Grid.Column="4" Content="export" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=ExportCommand}" />
+                <Button Width="200" Grid.Row="2" Grid.Column="4" Content="export" IsEnabled="{Binding Path=Status, Converter={StaticResource ToStringEqualConverter}, ConverterParameter=Stopped}" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=ExportCommand}" />
 
                 <Button Width="200" Grid.Row="2" Grid.Column="0" Content="start" IsEnabled="{Binding Path=Status, Converter={StaticResource ToStringEqualConverter}, ConverterParameter=Stopped}" Style="{DynamicResource AccentedSquareButtonStyle}" Margin="0 5 0 5" Command="{Binding Path=StartCommand}" />
                 <Button Width="200" Grid.Row="2" Grid.Column="2" Content="stop" Style="{DynamicResource AccentedSquareButtonStyle}" IsEnabled="{Binding Path=Status, Converter={StaticResource ToStringEqualInverseConverter}, ConverterParameter=Stopped}" Margin="0 5 0 5" Command="{Binding Path=StopCommand}" />

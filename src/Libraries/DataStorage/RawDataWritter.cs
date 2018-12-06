@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
 
 namespace FireFly.Data.Storage
 {
@@ -134,8 +135,13 @@ namespace FireFly.Data.Storage
             }
         }
 
-        public void UpdateNotes(string notes)
+        public void AddNotes(string notes)
         {
+            ZipArchiveEntry imageEntry = _ZipArchive.CreateEntry("notes.txt");
+            Stream stream = imageEntry.Open();
+            byte[] data = Encoding.UTF8.GetBytes(notes ?? "");
+            stream.Write(data, 0, data.Length);
+            stream.Dispose();
         }
     }
 }

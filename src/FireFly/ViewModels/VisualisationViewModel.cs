@@ -3,7 +3,9 @@ using FireFly.Proxy;
 using FireFly.Utilities;
 using FireFly.VI.SLAM;
 using FireFly.VI.SLAM.Visualisation;
+using MahApps.Metro.Controls.Dialogs;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
@@ -35,6 +37,50 @@ namespace FireFly.ViewModels
             Parent.IOProxy.Subscribe(this, ProxyEventType.SlamStatusEvent);
         }
 
+        public RelayCommand<object> ExportCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoExport(o);
+                    });
+            }
+        }
+
+        private Task DoExport(object o)
+        {
+            return Task.Run(async () =>
+            {
+                System.Windows.Forms.SaveFileDialog saveFileDialog = null;
+                bool save = false;
+
+                Parent.SyncContext.Send(c =>
+                {
+                    saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                    saveFileDialog.Filter = "Matlab (*.mat) | *.mat";
+                    save = saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK;
+                }, null);
+
+                if (save)
+                {
+                    MetroDialogSettings settings = new MetroDialogSettings()
+                    {
+                        AnimateShow = false,
+                        AnimateHide = false
+                    };
+
+                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Export data to Matlab!", settings: Parent.MetroDialogSettings);
+
+                    SlamModel3D.ExportToMatlab(saveFileDialog.FileName);
+
+                    controller.SetCancelable(false);
+
+                    await controller.CloseAsync();
+                }
+            });
+        }
         public int FPS
         {
             get { return (int)GetValue(FPSProperty); }

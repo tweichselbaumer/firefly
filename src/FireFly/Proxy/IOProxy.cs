@@ -358,15 +358,15 @@ namespace FireFly.Proxy
 
         private void _CameraEventLabel_Fired(LinkUpEventLabel label, byte[] data)
         {
-            IEnumerable<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriberImu = null;
-            IEnumerable<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriberCamImu = null;
-            IEnumerable<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriberCam = null;
+            List<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriberImu = null;
+            List<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriberCamImu = null;
+            List<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriberCam = null;
 
             lock (_Subscriptions)
             {
-                subscriberCam = _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraEvent);
-                subscriberImu = _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuEvent);
-                subscriberCamImu = _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraImuEvent);
+                subscriberCam = _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraEvent).ToList();
+                subscriberImu = _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuEvent).ToList();
+                subscriberCamImu = _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraImuEvent).ToList();
             }
 
             if (label == _CameraEventLabel && subscriberCam != null && subscriberCam.Count() > 0)
@@ -424,11 +424,11 @@ namespace FireFly.Proxy
 
         private void _ImuFilterEvent_Fired(LinkUpEventLabel label, byte[] data)
         {
-            IEnumerable<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriber = null;
+            List<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriber = null;
 
             lock (_Subscriptions)
             {
-                subscriber = _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuDerivedEvent);
+                subscriber = _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuDerivedEvent).ToList();
             }
 
             if (label == _ImuDerivedEventLabel && subscriber != null && subscriber.Count() > 0)
@@ -443,11 +443,11 @@ namespace FireFly.Proxy
 
         private void _SlamMapEventLabel_Fired(LinkUpEventLabel label, byte[] data)
         {
-            IEnumerable<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriber = null;
+            List<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriber = null;
 
             lock (_Subscriptions)
             {
-                subscriber = _Subscriptions.Where(c => c.Item2 == ProxyEventType.SlamMapEvent);
+                subscriber = _Subscriptions.Where(c => c.Item2 == ProxyEventType.SlamMapEvent).ToList();
             }
 
             if (label == _SlamMapEventLabel && subscriber != null && subscriber.Count() > 0)
@@ -462,11 +462,11 @@ namespace FireFly.Proxy
 
         private void _SlamStatusEventLabel_Fired(LinkUpEventLabel label, byte[] data)
         {
-            IEnumerable<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriber = null;
+            List<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriber = null;
 
             lock (_Subscriptions)
             {
-                subscriber = _Subscriptions.Where(c => c.Item2 == ProxyEventType.SlamStatusEvent);
+                subscriber = _Subscriptions.Where(c => c.Item2 == ProxyEventType.SlamStatusEvent).ToList();
             }
 
             if (label == _SlamStatusEventLabel && subscriber != null && subscriber.Count() > 0)

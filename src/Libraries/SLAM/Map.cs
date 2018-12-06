@@ -17,6 +17,28 @@ namespace FireFly.VI.SLAM
         private List<Frame> _Frames = new List<Frame>();
         private List<KeyFrame> _KeyFrames = new List<KeyFrame>();
 
+        public List<Frame> Frames
+        {
+            get
+            {
+                lock (_Frames)
+                {
+                    return _Frames.Select(c => c).ToList();
+                }
+            }
+        }
+
+        public List<KeyFrame> KeyFrames
+        {
+            get
+            {
+                lock (_KeyFrames)
+                {
+                    return _KeyFrames.Select(c => c).ToList();
+                }
+            }
+        }
+
         public void AddNewFrame(Frame frame)
         {
             lock (_Frames)

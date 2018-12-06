@@ -61,7 +61,7 @@
                                         <ColumnDefinition Width="auto" />
                                         <ColumnDefinition Width="auto" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding Path=Name}" FontSize="16" />
+                                    <TextBlock Grid.Column="0" Text="{Binding Path=Name}" FontSize="16" ToolTip="{Binding Path=Notes}"/>
                                     <Button Grid.Column="1" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.StartCommand}" CommandParameter="{Binding Path=.}">
                                         <Button.IsEnabled>
                                             <MultiBinding Converter="{StaticResource MultiValueReplayBoolConverter}" ConverterParameter="play">

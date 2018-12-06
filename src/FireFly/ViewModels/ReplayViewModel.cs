@@ -142,7 +142,7 @@ namespace FireFly.ViewModels
                         {
                             foreach (string file in Directory.GetFiles(fullPath, "*.ffc"))
                             {
-                                tuple.Item2.Add(new ReplayFile() { Name = Path.GetFileNameWithoutExtension(file), FullPath = file });
+                                tuple.Item2.Add(new ReplayFile() { Name = Path.GetFileNameWithoutExtension(file), FullPath = file, Notes = RawDataReader.ReadNotes(file) });
                             }
                         }
                     }

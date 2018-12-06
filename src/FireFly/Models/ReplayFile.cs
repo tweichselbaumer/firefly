@@ -11,13 +11,16 @@ namespace FireFly.Models
             DependencyProperty.Register("IsPaused", typeof(bool), typeof(ReplayFile), new PropertyMetadata(false));
 
         public static readonly DependencyProperty IsPlayingProperty =
-                    DependencyProperty.Register("IsPlaying", typeof(bool), typeof(ReplayFile), new PropertyMetadata(false));
+            DependencyProperty.Register("IsPlaying", typeof(bool), typeof(ReplayFile), new PropertyMetadata(false));
 
         public static readonly DependencyProperty IsRemoteProperty =
             DependencyProperty.Register("IsRemote", typeof(bool), typeof(ReplayFile), new PropertyMetadata(false));
 
         public static readonly DependencyProperty NameProperty =
-                    DependencyProperty.Register("Name", typeof(string), typeof(ReplayFile), new PropertyMetadata(""));
+            DependencyProperty.Register("Name", typeof(string), typeof(ReplayFile), new PropertyMetadata(""));
+
+        public static readonly DependencyProperty NotesProperty =
+            DependencyProperty.Register("Notes", typeof(string), typeof(ReplayFile), new PropertyMetadata(""));
 
         public string FullPath
         {
@@ -47,6 +50,12 @@ namespace FireFly.Models
         {
             get { return (string)GetValue(NameProperty); }
             set { SetValue(NameProperty, value); }
+        }
+
+        public string Notes
+        {
+            get { return (string)GetValue(NotesProperty); }
+            set { SetValue(NotesProperty, value); }
         }
     }
 }

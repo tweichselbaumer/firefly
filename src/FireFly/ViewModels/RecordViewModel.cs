@@ -191,6 +191,7 @@ namespace FireFly.ViewModels
                     }
                     _DataWritter = new RawDataWritter(fullPath);
                     _DataWritter.Open();
+                    _DataWritter.AddNotes(Notes);
                     if (RecordCamData && RecordImuData)
                         Parent.IOProxy.Subscribe(this, ProxyEventType.CameraImuEvent);
                     else if (RecordCamData)

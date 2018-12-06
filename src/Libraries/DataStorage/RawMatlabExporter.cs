@@ -107,24 +107,6 @@ namespace FireFly.Data.Storage
             ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accz", 0] = accz;
         }
 
-        public void AddFromReader(RawDataReader reader, Func<double, object> p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddImage(int camIndex, long timestamp_ns, byte[] data)
-        {
-        }
-
-        public void AddImu(int imuIndex, long timespampNanoSeconds, double omega_x, double omega_y, double omega_z, double alpha_x, double alpha_y, double alpha_z)
-        {
-            if (_MatlabFormat.HasFlag(MatlabFormat.Imu0) && imuIndex == 0)
-            {
-                //((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyrox", 0] = ResizeArray<double>(((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyrox", 0], 1, 10);
-                //((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroy", 0] = ResizeArray<double>(((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroy", 0], 1, 10);
-            }
-        }
-
         public void Close()
         {
             using (Stream stream = new FileStream(_FileName, FileMode.Create))

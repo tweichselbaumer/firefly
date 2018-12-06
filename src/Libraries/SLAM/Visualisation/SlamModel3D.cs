@@ -1,4 +1,6 @@
 ﻿using FireFly.Command;
+using FireFly.VI.SLAM.Data;
+using MahApps.Metro.Controls.Dialogs;
 using MathNet.Numerics.LinearAlgebra;
 using System;
 using System.Collections.Generic;
@@ -63,30 +65,22 @@ namespace FireFly.VI.SLAM.Visualisation
             set { SetValue(ShowFrameTrajectoryProperty, value); }
         }
 
-        public RelayCommand<object> ExportCommand
-        {
-            get
-            {
-                return new RelayCommand<object>(
-                    async (object o) =>
-                    {
-                        await DoExport(o);
-                    });
-            }
-        }
 
-        private Task DoExport(object o)
-        {
-            return Task.Run(() =>
-            {
-
-            });
-        }
 
         public bool ShowKeyFrameTrajectory
         {
             get { return (bool)GetValue(ShowKeyFrameTrajectoryProperty); }
             set { SetValue(ShowKeyFrameTrajectoryProperty, value); }
+        }
+
+        public void ExportToMatlab(string fileName)
+        {
+            VIMatlabExporter exporter = new VIMatlabExporter(fileName);
+            exporter.Open();
+
+            exporter.ExportMap(_Map);
+
+            exporter.Close();
         }
 
         public bool ShowPointCloud
