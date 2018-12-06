@@ -23,7 +23,7 @@ namespace FireFly.VI.SLAM
             {
                 lock (_Frames)
                 {
-                    return _Frames.Select(c => c).ToList();
+                    return _Frames.Where(c => c != null).ToList();
                 }
             }
         }
@@ -34,7 +34,7 @@ namespace FireFly.VI.SLAM
             {
                 lock (_KeyFrames)
                 {
-                    return _KeyFrames.Select(c => c).ToList();
+                    return _KeyFrames.Where(c => c != null).ToList();
                 }
             }
         }
