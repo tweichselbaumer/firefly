@@ -569,7 +569,7 @@ namespace FireFly.ViewModels
                                         outputPath = Path.Combine(Path.GetTempPath(), "firefly", Guid.NewGuid().ToString());
                                     }, null);
 
-                                    DataReader reader = new DataReader(file, ReaderMode.Camera0);
+                                    RawDataReader reader = new RawDataReader(file, RawReaderMode.Camera0);
                                     reader.Open();
                                     MemoryImageExporter exporter = new MemoryImageExporter();
                                     exporter.AddFromReader(reader, delegate (double percent)

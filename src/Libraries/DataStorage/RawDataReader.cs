@@ -8,13 +8,13 @@ using System.Linq;
 namespace FireFly.Data.Storage
 {
     [Flags]
-    public enum ReaderMode
+    public enum RawReaderMode
     {
         Camera0 = 1,
         Imu0 = 2
     }
 
-    public class DataReader
+    public class RawDataReader
     {
         private Dictionary<long, double> _CamCache = new Dictionary<long, double>();
         private int _DeltaTimeMs;
@@ -22,15 +22,15 @@ namespace FireFly.Data.Storage
         private Dictionary<long, Tuple<double, double, double, double, double, double>> _ImuCache = new Dictionary<long, Tuple<double, double, double, double, double, double>>();
         private int _Index = 0;
         private TimeSpan _Length = new TimeSpan();
-        private ReaderMode _Mode;
-        private List<ReaderMode> _ReaderModes = new List<ReaderMode>();
+        private RawReaderMode _Mode;
+        private List<RawReaderMode> _ReaderModes = new List<RawReaderMode>();
         private bool _Remote;
         private RemoteDataStore _RemoteDataStore;
         private List<long> _Timestamps = new List<long>();
         private ZipArchive _ZipArchive;
         private FileStream _ZipFile;
 
-        public DataReader(string filename, ReaderMode mode, RemoteDataStore remoteDataStore = null)
+        public RawDataReader(string filename, RawReaderMode mode, RemoteDataStore remoteDataStore = null)
         {
             _FileName = filename;
             _Mode = mode;
@@ -62,7 +62,7 @@ namespace FireFly.Data.Storage
             }
         }
 
-        public static ReaderMode AvailableReaderModes(string filename)
+        public static RawReaderMode AvailableReaderModes(string filename)
         {
             return 0;
         }
@@ -85,24 +85,24 @@ namespace FireFly.Data.Storage
             return Count > _Index;
         }
 
-        public Tuple<long, List<Tuple<ReaderMode, object>>> Next()
+        public Tuple<long, List<Tuple<RawReaderMode, object>>> Next()
         {
-            List<Tuple<ReaderMode, object>> result = new List<Tuple<ReaderMode, object>>();
+            List<Tuple<RawReaderMode, object>> result = new List<Tuple<RawReaderMode, object>>();
 
             long currentTimestamp = 0;
-            ReaderMode readerMode = 0;
+            RawReaderMode readerMode = 0;
 
             currentTimestamp = _Timestamps[_Index];
             readerMode = _ReaderModes[_Index];
 
             _Index++;
 
-            if (readerMode.HasFlag(ReaderMode.Imu0))
+            if (readerMode.HasFlag(RawReaderMode.Imu0))
             {
-                result.Add(new Tuple<ReaderMode, object>(ReaderMode.Imu0, _ImuCache[currentTimestamp]));
+                result.Add(new Tuple<RawReaderMode, object>(RawReaderMode.Imu0, _ImuCache[currentTimestamp]));
             }
 
-            if (readerMode.HasFlag(ReaderMode.Camera0))
+            if (readerMode.HasFlag(RawReaderMode.Camera0))
             {
                 double exposerTime = 0;
                 if (_CamCache.Any(c => c.Key == currentTimestamp))
@@ -113,24 +113,24 @@ namespace FireFly.Data.Storage
                     using (MemoryStream ms = new MemoryStream())
                     {
                         stream.CopyTo(ms);
-                        result.Add(new Tuple<ReaderMode, object>(ReaderMode.Camera0, new Tuple<double, byte[]>(exposerTime, ms.ToArray())));
+                        result.Add(new Tuple<RawReaderMode, object>(RawReaderMode.Camera0, new Tuple<double, byte[]>(exposerTime, ms.ToArray())));
                     }
                 }
             }
 
-            return new Tuple<long, List<Tuple<ReaderMode, object>>>(currentTimestamp, result);
+            return new Tuple<long, List<Tuple<RawReaderMode, object>>>(currentTimestamp, result);
         }
 
         public void Open(Action<double> progress = null)
         {
-            Dictionary<long, ReaderMode> timestampDict = new Dictionary<long, ReaderMode>();
+            Dictionary<long, RawReaderMode> timestampDict = new Dictionary<long, RawReaderMode>();
 
             if (!_Remote)
             {
                 _ZipFile = new FileStream(_FileName, FileMode.Open);
                 _ZipArchive = new ZipArchive(_ZipFile, ZipArchiveMode.Read);
 
-                if (_Mode.HasFlag(ReaderMode.Imu0))
+                if (_Mode.HasFlag(RawReaderMode.Imu0))
                 {
                     ZipArchiveEntry entry = _ZipArchive.GetEntry("imu0.csv");
                     using (StreamReader reader = new StreamReader(entry.Open()))
@@ -139,7 +139,7 @@ namespace FireFly.Data.Storage
                         ParseImu(content, true, timestampDict);
                     }
                 }
-                if (_Mode.HasFlag(ReaderMode.Camera0))
+                if (_Mode.HasFlag(RawReaderMode.Camera0))
                 {
                     foreach (ZipArchiveEntry entry in _ZipArchive.Entries)
                     {
@@ -149,11 +149,11 @@ namespace FireFly.Data.Storage
 
                             if (timestampDict.ContainsKey(timestamp))
                             {
-                                timestampDict[timestamp] |= ReaderMode.Camera0;
+                                timestampDict[timestamp] |= RawReaderMode.Camera0;
                             }
                             else
                             {
-                                timestampDict.Add(timestamp, ReaderMode.Camera0);
+                                timestampDict.Add(timestamp, RawReaderMode.Camera0);
                             }
                         }
                     }
@@ -217,7 +217,7 @@ namespace FireFly.Data.Storage
                 File.Delete(tempfile);
             }
 
-            IEnumerable<KeyValuePair<long, ReaderMode>> temp = timestampDict.OrderBy(c => c.Key);
+            IEnumerable<KeyValuePair<long, RawReaderMode>> temp = timestampDict.OrderBy(c => c.Key);
 
             _Timestamps = temp.Select(c => c.Key).ToList();
             _ReaderModes = temp.Select(c => c.Value).ToList();
@@ -228,7 +228,7 @@ namespace FireFly.Data.Storage
                 _DeltaTimeMs = 1000 / 200;
         }
 
-        private void ParseImu(string content, bool isOmega, Dictionary<long, ReaderMode> timestampDict)
+        private void ParseImu(string content, bool isOmega, Dictionary<long, RawReaderMode> timestampDict)
         {
             bool skipFirst = true;
             foreach (string line in content.Split('\n'))
@@ -244,7 +244,7 @@ namespace FireFly.Data.Storage
             }
         }
 
-        private void ParseImuLine(string line, bool isOmega, Dictionary<long, ReaderMode> timestampDict)
+        private void ParseImuLine(string line, bool isOmega, Dictionary<long, RawReaderMode> timestampDict)
         {
             string[] values = line.Split(',');
             if (values.Length >= 7)
@@ -266,7 +266,7 @@ namespace FireFly.Data.Storage
                 else
                     tuple = new Tuple<double, double, double, double, double, double>(omega_x, omega_y, omega_z, alpha_x, alpha_y, alpha_z);
 
-                timestampDict.Add(timestamp, ReaderMode.Imu0);
+                timestampDict.Add(timestamp, RawReaderMode.Imu0);
                 _ImuCache.Add(timestamp, tuple);
             }
         }

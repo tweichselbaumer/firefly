@@ -299,7 +299,7 @@ namespace FireFly.ViewModels
                     controller.SetCancelable(false);
                     controller.SetIndeterminate();
 
-                    MatlabImporter matlabImporter = new MatlabImporter(filename, MatlabFormat.Imu0);
+                    RawMatlabImporter matlabImporter = new RawMatlabImporter(filename, MatlabFormat.Imu0);
                     (List<double> time, List<double> gyrox, List<double> gyroy, List<double> gyroz, List<double> accx, List<double> accy, List<double> accz) = matlabImporter.Load();
 
                     double fs = Math.Floor(1 / (time.Take(time.Count - 1).Select((v, i) => time[i + 1] - v).Sum() / (time.Count - 1)));

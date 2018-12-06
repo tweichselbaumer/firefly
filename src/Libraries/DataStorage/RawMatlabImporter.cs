@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace FireFly.Data.Storage
 {
-    public class MatlabImporter
+    public class RawMatlabImporter
     {
         private string _FileName;
         private MatlabFormat _MatlabFormat;
 
-        public MatlabImporter(string filename, MatlabFormat matlabFormat)
+        public RawMatlabImporter(string filename, MatlabFormat matlabFormat)
         {
             _FileName = filename;
             _MatlabFormat = matlabFormat;

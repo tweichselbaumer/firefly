@@ -230,7 +230,7 @@ namespace FireFly.ViewModels
                                 height = Parent.CameraViewModel.ImageHeight;
                             }, null);
 
-                            DataReader reader = new DataReader(file, ReaderMode.Camera0);
+                            RawDataReader reader = new RawDataReader(file, RawReaderMode.Camera0);
 
                             reader.Open();
 

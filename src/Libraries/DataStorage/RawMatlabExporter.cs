@@ -9,24 +9,23 @@ namespace FireFly.Data.Storage
     [Flags]
     public enum MatlabFormat
     {
-        Camera0 = 1,
-        Imu0 = 2
+        Imu0 = 1,
     }
 
-    public class MatlabExporter
+    public class RawMatlabExporter
     {
         private DataBuilder _DataBuilder;
         private IStructureArray _DataStruct;
         private string _FileName;
         private MatlabFormat _MatlabFormat;
 
-        public MatlabExporter(string filename, MatlabFormat matlabFormat)
+        public RawMatlabExporter(string filename, MatlabFormat matlabFormat)
         {
             _FileName = filename;
             _MatlabFormat = matlabFormat;
         }
 
-        public void AddFromReader(DataReader reader, Action<double> progress = null)
+        public void AddFromReader(RawDataReader reader, Action<double> progress = null)
         {
             IArray time = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["time", 0];
 
@@ -51,11 +50,11 @@ namespace FireFly.Data.Storage
                 {
                     progress?.Invoke((double)i / count);
                 }
-                Tuple<long, List<Tuple<ReaderMode, object>>> res = reader.Next();
+                Tuple<long, List<Tuple<RawReaderMode, object>>> res = reader.Next();
 
-                foreach (Tuple<ReaderMode, object> val in res.Item2)
+                foreach (Tuple<RawReaderMode, object> val in res.Item2)
                 {
-                    if (val.Item1 == ReaderMode.Imu0 && _MatlabFormat.HasFlag(MatlabFormat.Imu0))
+                    if (val.Item1 == RawReaderMode.Imu0 && _MatlabFormat.HasFlag(MatlabFormat.Imu0))
                     {
                         if (imu0Index >= gyrox.Dimensions[1])
                         {
@@ -84,9 +83,6 @@ namespace FireFly.Data.Storage
 
                         imu0Index++;
                     }
-                    if (val.Item1 == ReaderMode.Camera0 && _MatlabFormat.HasFlag(MatlabFormat.Camera0))
-                    {
-                    }
                 }
             }
 
@@ -111,7 +107,7 @@ namespace FireFly.Data.Storage
             ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accz", 0] = accz;
         }
 
-        public void AddFromReader(DataReader reader, Func<double, object> p)
+        public void AddFromReader(RawDataReader reader, Func<double, object> p)
         {
             throw new NotImplementedException();
         }
@@ -164,9 +160,6 @@ namespace FireFly.Data.Storage
                 ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accx", 0] = _DataBuilder.NewArray<double>(1, 0);
                 ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accy", 0] = _DataBuilder.NewArray<double>(1, 0);
                 ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accz", 0] = _DataBuilder.NewArray<double>(1, 0);
-            }
-            if (_MatlabFormat.HasFlag(MatlabFormat.Camera0))
-            {
             }
         }
 

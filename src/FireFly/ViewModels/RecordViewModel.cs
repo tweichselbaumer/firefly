@@ -37,7 +37,7 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty RecordingTimeProperty =
             DependencyProperty.Register("RecordingTime", typeof(TimeSpan), typeof(RecordViewModel), new PropertyMetadata(null));
 
-        private DataWritter _DataWritter;
+        private RawDataWritter _DataWritter;
 
         private Stopwatch _StopWatch;
 
@@ -128,9 +128,13 @@ namespace FireFly.ViewModels
                 {
                     _DataWritter.AddImu(0, imuEventData.TimeNanoSeconds, imuEventData.GyroX / 180 * Math.PI, imuEventData.GyroY / 180 * Math.PI, imuEventData.GyroZ / 180 * Math.PI, imuEventData.AccelX, imuEventData.AccelY, imuEventData.AccelZ);
                 }
-                if (cameraEventData != null)
+                if (cameraEventData != null && imuEventData != null)
                 {
                     _DataWritter.AddImage(0, imuEventData.TimeNanoSeconds, cameraEventData.Image.ToPNGBinary(3), cameraEventData.ExposureTime);
+                }
+                else if (cameraEventData != null)
+                {
+                    _DataWritter.AddImage(0, -1, cameraEventData.Image.ToPNGBinary(3), cameraEventData.ExposureTime);
                 }
             }
         }
@@ -185,9 +189,9 @@ namespace FireFly.ViewModels
                             return;
                         }
                     }
-                    _DataWritter = new DataWritter(fullPath);
+                    _DataWritter = new RawDataWritter(fullPath);
                     _DataWritter.Open();
-                    if(RecordCamData && RecordImuData)
+                    if (RecordCamData && RecordImuData)
                         Parent.IOProxy.Subscribe(this, ProxyEventType.CameraImuEvent);
                     else if (RecordCamData)
                         Parent.IOProxy.Subscribe(this, ProxyEventType.CameraEvent);

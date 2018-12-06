@@ -199,7 +199,7 @@ namespace FireFly.ViewModels
             return Task.Factory.StartNew(async () =>
             {
                 ReplayFile file = o as ReplayFile;
-                DataReader reader = null;
+                RawDataReader reader = null;
 
                 string fullPath = null;
                 bool isRemote = false;
@@ -229,7 +229,7 @@ namespace FireFly.ViewModels
 
                     if (isRemote)
                     {
-                        reader = new DataReader(fullPath, ReaderMode.Imu0, new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Username, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Password));
+                        reader = new RawDataReader(fullPath, RawReaderMode.Imu0, new RemoteDataStore(Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.IpAddress, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Username, Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnection.Password));
                         reader.Open(delegate (double percent)
                         {
                             double value = percent * 0.66;
@@ -239,12 +239,12 @@ namespace FireFly.ViewModels
                     }
                     else
                     {
-                        reader = new DataReader(fullPath, ReaderMode.Imu0 | ReaderMode.Camera0);
+                        reader = new RawDataReader(fullPath, RawReaderMode.Imu0 | RawReaderMode.Camera0);
                         controller.SetIndeterminate();
                         reader.Open();
                     }
 
-                    MatlabExporter matlabExporter = new MatlabExporter(saveFileDialog.FileName, MatlabFormat.Imu0);
+                    RawMatlabExporter matlabExporter = new RawMatlabExporter(saveFileDialog.FileName, MatlabFormat.Imu0);
 
                     matlabExporter.Open();
                     if (isRemote)
@@ -299,7 +299,7 @@ namespace FireFly.ViewModels
             return Task.Factory.StartNew(() =>
             {
                 ReplayFile file = o as ReplayFile;
-                DataReader reader = null;
+                RawDataReader reader = null;
                 string fullPath = null;
                 Parent.SyncContext.Send(c =>
                 {
@@ -318,7 +318,7 @@ namespace FireFly.ViewModels
 
                 if (!string.IsNullOrEmpty(fullPath))
                 {
-                    reader = new DataReader(fullPath, ReaderMode.Imu0 | ReaderMode.Camera0);
+                    reader = new RawDataReader(fullPath, RawReaderMode.Imu0 | RawReaderMode.Camera0);
                     reader.Open();
 
                     Parent.IOProxy.ChangeSlamStatus(Proxy.SlamStatusOverall.Restart);

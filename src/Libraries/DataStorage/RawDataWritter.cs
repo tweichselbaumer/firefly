@@ -7,21 +7,30 @@ using System.Linq;
 
 namespace FireFly.Data.Storage
 {
-    public class DataWritter
+    public class RawDataWritter
     {
         private Dictionary<int, StreamWriter> _CameraStreams = new Dictionary<int, StreamWriter>();
         private string _FileName;
         private Dictionary<int, StreamWriter> _ImuStreams = new Dictionary<int, StreamWriter>();
         private ZipArchive _ZipArchive;
         private FileStream _ZipFile;
+        private long _ImageId = 0;
 
-        public DataWritter(string filename)
+        public RawDataWritter(string filename)
         {
             _FileName = filename;
         }
 
         public void AddImage(int camIndex, long timestampNanoSeconds, byte[] data, double exposureTime)
         {
+            if (timestampNanoSeconds == -1)
+            {
+                timestampNanoSeconds = _ImageId++;
+            }
+            else
+            {
+                _ImageId = timestampNanoSeconds;
+            }
             string imageFileName = string.Format(@"cam{0}\{1}.png", camIndex, timestampNanoSeconds);
 
             ZipArchiveEntry imageEntry = _ZipArchive.CreateEntry(imageFileName);

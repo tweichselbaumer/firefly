@@ -133,7 +133,7 @@ namespace FireFly.Proxy
             return null;
         }
 
-        public void ReplayOffline(DataReader reader, Action<TimeSpan> updateTime, Action onClose, Func<bool> isPaused, Func<bool> isStopped)
+        public void ReplayOffline(RawDataReader reader, Action<TimeSpan> updateTime, Action onClose, Func<bool> isPaused, Func<bool> isStopped)
         {
             _Tasks.Add(Task.Factory.StartNew(() =>
             {
@@ -156,7 +156,7 @@ namespace FireFly.Proxy
                         break;
                     }
 
-                    Tuple<long, List<Tuple<ReaderMode, object>>> res = reader.Next();
+                    Tuple<long, List<Tuple<RawReaderMode, object>>> res = reader.Next();
                     if (startTime == -1)
                         startTime = res.Item1;
 
@@ -170,15 +170,15 @@ namespace FireFly.Proxy
                         byte[] rawImu = null;
                         double exposureTime = 0.0;
 
-                        foreach (Tuple<ReaderMode, object> val in res.Item2)
+                        foreach (Tuple<RawReaderMode, object> val in res.Item2)
                         {
-                            if (val.Item1 == ReaderMode.Imu0)
+                            if (val.Item1 == RawReaderMode.Imu0)
                             {
-                                imuEventData = ImuEventData.Parse(res.Item1, (Tuple<double, double, double, double, double, double>)val.Item2, res.Item2.Any(c => c.Item1 == ReaderMode.Camera0));
+                                imuEventData = ImuEventData.Parse(res.Item1, (Tuple<double, double, double, double, double, double>)val.Item2, res.Item2.Any(c => c.Item1 == RawReaderMode.Camera0));
                                 rawSize += imuEventData.RawSize;
                                 rawImu = imuEventData.GetRaw(_SettingContainer.Settings.ImuSettings.GyroscopeScale, _SettingContainer.Settings.ImuSettings.AccelerometerScale, _SettingContainer.Settings.ImuSettings.TemperatureScale, _SettingContainer.Settings.ImuSettings.TemperatureOffset);
                             }
-                            if (val.Item1 == ReaderMode.Camera0)
+                            if (val.Item1 == RawReaderMode.Camera0)
                             {
                                 cameraEventData = CameraEventData.Parse(((Tuple<double, byte[]>)val.Item2).Item2, 0, false, ((Tuple<double, byte[]>)val.Item2).Item1);
                                 rawSize += cameraEventData.RawSize;

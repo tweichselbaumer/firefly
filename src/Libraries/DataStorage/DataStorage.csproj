@@ -72,10 +72,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataReader.cs" />
-    <Compile Include="DataWritter.cs" />
-    <Compile Include="MatlabExporter.cs" />
-    <Compile Include="MatlabImporter.cs" />
+    <Compile Include="RawDataReader.cs" />
+    <Compile Include="RawDataWritter.cs" />
+    <Compile Include="RawMatlabExporter.cs" />
+    <Compile Include="RawMatlabImporter.cs" />
     <Compile Include="MemoryImageExporter.cs" />
     <Compile Include="Model\CalibrationTarget.cs" />
     <Compile Include="Model\CameraChain.cs" />

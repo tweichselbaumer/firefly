@@ -20,7 +20,7 @@ namespace FireFly.Data.Storage
             }
         }
 
-        public void AddFromReader(DataReader reader, Action<double> progress = null)
+        public void AddFromReader(RawDataReader reader, Action<double> progress = null)
         {
             int count = reader.Count;
 
@@ -35,11 +35,11 @@ namespace FireFly.Data.Storage
                     progress?.Invoke((double)i / count);
                 }
 
-                Tuple<long, List<Tuple<ReaderMode, object>>> res = reader.Next();
+                Tuple<long, List<Tuple<RawReaderMode, object>>> res = reader.Next();
 
-                foreach (Tuple<ReaderMode, object> val in res.Item2)
+                foreach (Tuple<RawReaderMode, object> val in res.Item2)
                 {
-                    if (val.Item1 == ReaderMode.Camera0)
+                    if (val.Item1 == RawReaderMode.Camera0)
                     {
                         Tuple<double, byte[]> item = (Tuple<double, byte[]>)val.Item2;
                         Mat m = new Mat();
