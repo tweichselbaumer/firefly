@@ -28,7 +28,6 @@ namespace FireFly.ViewModels
         public VisualisationViewModel(MainViewModel parent) : base(parent)
         {
             _SlamModel3D = new SlamModel3D(Parent.SyncContext);
-            _SlamModel3D.AddNewFrame(new Frame(0, 0, 0, 0, 1, 0, 0, 0, 1));
             Parent.IOProxy.Subscribe(this, ProxyEventType.SlamMapEvent);
             _Timer = new Timer(300);
             _Timer.Elapsed += _Timer_Elapsed;

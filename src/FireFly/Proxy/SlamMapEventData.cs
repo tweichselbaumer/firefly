@@ -86,6 +86,8 @@ namespace FireFly.Proxy
             int index = offset;
             uint id = BitConverter.ToUInt32(data, index);
             index += 4;
+            double time = BitConverter.ToDouble(data, index);
+            index += 8;
             double tx = BitConverter.ToDouble(data, index);
             index += 8;
             double ty = BitConverter.ToDouble(data, index);
@@ -103,7 +105,7 @@ namespace FireFly.Proxy
             double s = BitConverter.ToDouble(data, index);
             index += 8;
 
-            obj._Frame = new Frame(id, tx, ty, tz, q1, q2, q3, q4, s);
+            obj._Frame = new Frame(id, time, tx, ty, tz, q1, q2, q3, q4, s);
             return index - offset;
         }
 

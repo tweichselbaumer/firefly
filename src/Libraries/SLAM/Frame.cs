@@ -4,12 +4,14 @@ namespace FireFly.VI.SLAM
 {
     public class Frame
     {
+        private double _Time;
         private uint _Id;
         private Sim3 _T_cam_world = new Sim3();
 
-        public Frame(uint id, double tx, double ty, double tz, double q1, double q2, double q3, double q4, double s)
+        public Frame(uint id, double time, double tx, double ty, double tz, double q1, double q2, double q3, double q4, double s)
         {
             Id = id;
+            Time = time;
             T_cam_world = new Sim3(s, tx, ty, tz, q1, q2, q3, q4);
         }
 
@@ -36,6 +38,19 @@ namespace FireFly.VI.SLAM
             set
             {
                 _T_cam_world = value;
+            }
+        }
+
+        public double Time
+        {
+            get
+            {
+                return _Time;
+            }
+
+            set
+            {
+                _Time = value;
             }
         }
     }

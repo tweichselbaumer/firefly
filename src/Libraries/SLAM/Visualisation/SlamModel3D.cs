@@ -1,7 +1,10 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using FireFly.Command;
+using MathNet.Numerics.LinearAlgebra;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Media3D;
 
@@ -58,6 +61,26 @@ namespace FireFly.VI.SLAM.Visualisation
         {
             get { return (bool)GetValue(ShowFrameTrajectoryProperty); }
             set { SetValue(ShowFrameTrajectoryProperty, value); }
+        }
+
+        public RelayCommand<object> ExportCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoExport(o);
+                    });
+            }
+        }
+
+        private Task DoExport(object o)
+        {
+            return Task.Run(() =>
+            {
+
+            });
         }
 
         public bool ShowKeyFrameTrajectory
