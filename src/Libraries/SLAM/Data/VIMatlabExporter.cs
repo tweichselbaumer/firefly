@@ -72,15 +72,15 @@ namespace FireFly.VI.SLAM.Data
             {
                 if (keyFrames[i] != null && keyFrames[i].Frame != null)
                 {
-                    ((IArrayOf<double>)timePre)[0, i] = keyFrames[i].Frame.Time;
-                    ((IArrayOf<uint>)idPre)[0, i] = keyFrames[i].Frame.Id;
+                    ((IArrayOf<double>)timePost)[0, i] = keyFrames[i].Frame.Time;
+                    ((IArrayOf<uint>)idPost)[0, i] = keyFrames[i].Frame.Id;
                     ((IArrayOf<uint>)kfidPost)[0, i] = keyFrames[i].Id;
 
                     for (int j = 0; j < 4; j++)
                     {
                         for (int k = 0; k < 4; k++)
                         {
-                            ((IArrayOf<double>)T_cam_worldPre)[j, k, i] = keyFrames[i].Frame.T_cam_world.Matrix[j, k];
+                            ((IArrayOf<double>)T_cam_worldPost)[j, k, i] = keyFrames[i].Frame.T_cam_world.Matrix[j, k];
                         }
                     }
                 }

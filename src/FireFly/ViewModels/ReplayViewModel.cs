@@ -142,7 +142,16 @@ namespace FireFly.ViewModels
                         {
                             foreach (string file in Directory.GetFiles(fullPath, "*.ffc"))
                             {
-                                tuple.Item2.Add(new ReplayFile() { Name = Path.GetFileNameWithoutExtension(file), FullPath = file, Notes = RawDataReader.ReadNotes(file) });
+                                ReplayFile replayFile = new ReplayFile() { Name = Path.GetFileNameWithoutExtension(file), FullPath = file };
+                                tuple.Item2.Add(replayFile);
+                                Task.Run(() =>
+                                {
+                                    string notes = RawDataReader.ReadNotes(file);
+                                    Parent.SyncContext.Post(c =>
+                                    {
+                                        replayFile.Notes = notes;
+                                    }, null);
+                                });
                             }
                         }
                     }
@@ -321,7 +330,7 @@ namespace FireFly.ViewModels
                     reader = new RawDataReader(fullPath, RawReaderMode.Imu0 | RawReaderMode.Camera0);
                     reader.Open();
 
-                    Parent.IOProxy.ChangeSlamStatus(Proxy.SlamStatusOverall.Restart);
+                    Parent.IOProxy.ChangeSlamStatus(Proxy.SlamStatusOverall.Restart, true);
 
                     Parent.IOProxy.ReplayOffline(reader, new Action<TimeSpan>((t) =>
                     {

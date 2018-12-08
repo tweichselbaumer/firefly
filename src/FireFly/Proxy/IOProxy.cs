@@ -534,12 +534,19 @@ namespace FireFly.Proxy
             }
         }
 
-        public void ChangeSlamStatus(SlamStatusOverall slamStatus)
+        public void ChangeSlamStatus(SlamStatusOverall slamStatus, bool wait = false)
         {
-            if (_SlamChangeStatusLabel != null)
+            try
             {
-                _SlamChangeStatusLabel.AsyncCall(new byte[] { (byte)slamStatus });
+                if (_SlamChangeStatusLabel != null && ConnectivityState == LinkUpConnectivityState.Connected)
+                {
+                    if (wait)
+                        _SlamChangeStatusLabel.Call(new byte[] { (byte)slamStatus });
+                    else
+                        _SlamChangeStatusLabel.AsyncCall(new byte[] { (byte)slamStatus });
+                }
             }
+            catch (Exception) { }
         }
 
         private void UpdateSubscription()
