@@ -244,6 +244,7 @@
     <Compile Include="Settings\PhotometricCalibrationSettings.cs" />
     <Compile Include="Settings\SettingContainer.cs" />
     <Compile Include="Settings\Settings.cs" />
+    <Compile Include="Settings\SlamSettings.cs" />
     <Compile Include="Settings\StreamingSettings.cs" />
     <Compile Include="CustomControls\PlotControl.xaml.cs">
       <DependentUpon>PlotControl.xaml</DependentUpon>

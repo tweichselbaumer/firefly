@@ -8,6 +8,7 @@
         private GeneralSettings _GeneralSettings = new GeneralSettings();
         private ImuSettings _ImuSettings = new ImuSettings();
         private StreamingSettings _StreamingSettings = new StreamingSettings();
+        private SlamSettings _SlamSettings = new SlamSettings();
 
         public CalibrationSettings CalibrationSettings
         {
@@ -84,6 +85,19 @@
             set
             {
                 _StreamingSettings = value;
+            }
+        }
+
+        public SlamSettings SlamSettings
+        {
+            get
+            {
+                return _SlamSettings;
+            }
+
+            set
+            {
+                _SlamSettings = value;
             }
         }
 

@@ -1,11 +1,9 @@
 ﻿using FireFly.Command;
 using FireFly.Proxy;
 using FireFly.Utilities;
-using FireFly.VI.SLAM;
 using FireFly.VI.SLAM.Visualisation;
 using MahApps.Metro.Controls.Dialogs;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
@@ -18,8 +16,11 @@ namespace FireFly.ViewModels
         public static readonly DependencyProperty FPSProperty =
             DependencyProperty.Register("FPS", typeof(int), typeof(VisualisationViewModel), new PropertyMetadata(0));
 
+        public static readonly DependencyProperty ReproducibleExecutionProperty =
+            DependencyProperty.Register("ReproducibleExecution", typeof(bool), typeof(VisualisationViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
+
         public static readonly DependencyProperty StatusProperty =
-            DependencyProperty.Register("Status", typeof(SlamOperationStatus), typeof(VisualisationViewModel), new PropertyMetadata(SlamOperationStatus.Stopped));
+                    DependencyProperty.Register("Status", typeof(SlamOperationStatus), typeof(VisualisationViewModel), new PropertyMetadata(SlamOperationStatus.Stopped));
 
         private FPSCounter _FPSCounter = new FPSCounter();
 
@@ -49,42 +50,16 @@ namespace FireFly.ViewModels
             }
         }
 
-        private Task DoExport(object o)
-        {
-            return Task.Run(async () =>
-            {
-                System.Windows.Forms.SaveFileDialog saveFileDialog = null;
-                bool save = false;
-
-                Parent.SyncContext.Send(c =>
-                {
-                    saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-                    saveFileDialog.Filter = "Matlab (*.mat) | *.mat";
-                    save = saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK;
-                }, null);
-
-                if (save)
-                {
-                    MetroDialogSettings settings = new MetroDialogSettings()
-                    {
-                        AnimateShow = false,
-                        AnimateHide = false
-                    };
-
-                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Export data to Matlab!", settings: Parent.MetroDialogSettings);
-
-                    SlamModel3D.ExportToMatlab(saveFileDialog.FileName);
-
-                    controller.SetCancelable(false);
-
-                    await controller.CloseAsync();
-                }
-            });
-        }
         public int FPS
         {
             get { return (int)GetValue(FPSProperty); }
             set { SetValue(FPSProperty, value); }
+        }
+
+        public bool ReproducibleExecution
+        {
+            get { return (bool)GetValue(ReproducibleExecutionProperty); }
+            set { SetValue(ReproducibleExecutionProperty, value); }
         }
 
         public SlamModel3D SlamModel3D
@@ -154,12 +129,74 @@ namespace FireFly.ViewModels
             }
         }
 
+        internal override void SettingsUpdated()
+        {
+            base.SettingsUpdated();
+
+            ReproducibleExecution = Parent.SettingContainer.Settings.SlamSettings.ReproducibleExecution;
+        }
+
+        private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            VisualisationViewModel vvm = (d as VisualisationViewModel);
+            bool changed = false;
+            bool connectionSettingsChanged = false;
+            switch (e.Property.Name)
+            {
+                case "ReproducibleExecution":
+                    changed = vvm.Parent.SettingContainer.Settings.SlamSettings.ReproducibleExecution != vvm.ReproducibleExecution;
+                    vvm.Parent.SettingContainer.Settings.SlamSettings.ReproducibleExecution = vvm.ReproducibleExecution;
+                    connectionSettingsChanged = false;
+                    break;
+
+                default:
+                    break;
+            }
+            if (changed)
+            {
+                vvm.Parent.UpdateSettings(connectionSettingsChanged);
+            }
+        }
+
         private void _Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Parent.SyncContext.Post(o =>
             {
                 FPS = (int)_FPSCounter.FramesPerSecond;
             }, null);
+        }
+
+        private Task DoExport(object o)
+        {
+            return Task.Run(async () =>
+            {
+                System.Windows.Forms.SaveFileDialog saveFileDialog = null;
+                bool save = false;
+
+                Parent.SyncContext.Send(c =>
+                {
+                    saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                    saveFileDialog.Filter = "Matlab (*.mat) | *.mat";
+                    save = saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK;
+                }, null);
+
+                if (save)
+                {
+                    MetroDialogSettings settings = new MetroDialogSettings()
+                    {
+                        AnimateShow = false,
+                        AnimateHide = false
+                    };
+
+                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Export data to Matlab!", settings: Parent.MetroDialogSettings);
+
+                    SlamModel3D.ExportToMatlab(saveFileDialog.FileName);
+
+                    controller.SetCancelable(false);
+
+                    await controller.CloseAsync();
+                }
+            });
         }
 
         private Task DoStart(object o)

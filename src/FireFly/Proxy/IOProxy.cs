@@ -40,6 +40,7 @@ namespace FireFly.Proxy
         private SettingContainer _SettingContainer;
         private LinkUpFunctionLabel _SlamChangeStatusLabel;
         private LinkUpEventLabel _SlamMapEventLabel;
+        private LinkUpPropertyLabel<Boolean> _SlamReproducibleExecutionLabel;
         private LinkUpEventLabel _SlamStatusEventLabel;
         private List<Tuple<IProxyEventSubscriber, ProxyEventType>> _Subscriptions = new List<Tuple<IProxyEventSubscriber, ProxyEventType>>();
         private List<Task> _Tasks = new List<Task>();
@@ -106,6 +107,21 @@ namespace FireFly.Proxy
                     }
                 });
             }
+        }
+
+        public void ChangeSlamStatus(SlamStatusOverall slamStatus, bool wait = false)
+        {
+            try
+            {
+                if (_SlamChangeStatusLabel != null && ConnectivityState == LinkUpConnectivityState.Connected)
+                {
+                    if (wait)
+                        _SlamChangeStatusLabel.Call(new byte[] { (byte)slamStatus });
+                    else
+                        _SlamChangeStatusLabel.AsyncCall(new byte[] { (byte)slamStatus });
+                }
+            }
+            catch (Exception) { }
         }
 
         public void Connector_ConnectivityChanged(LinkUpConnector connector, LinkUpConnectivityState connectivity)
@@ -282,6 +298,8 @@ namespace FireFly.Proxy
                 _SlamStatusEventLabel = Node.GetLabelByName<LinkUpEventLabel>("firefly/computer_vision/slam_status_event");
                 _SlamChangeStatusLabel = Node.GetLabelByName<LinkUpFunctionLabel>("firefly/computer_vision/slam_change_status");
 
+                _SlamReproducibleExecutionLabel = Node.GetLabelByName<LinkUpPropertyLabel<Boolean>>("firefly/computer_vision/slam_reproducible_execution");
+
                 _ImuDerivedEventLabel.Fired += _ImuFilterEvent_Fired;
 
                 _SlamStatusEventLabel.Fired += _SlamStatusEventLabel_Fired;
@@ -341,6 +359,16 @@ namespace FireFly.Proxy
                 {
                     if (ConnectivityState == LinkUpConnectivityState.Connected)
                         _RecordRemoteLabel.Value = _SettingContainer.Settings.ImuSettings.RecordRemote;
+                }
+                catch (Exception) { }
+            }
+
+            if (_SlamReproducibleExecutionLabel != null)
+            {
+                try
+                {
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _SlamReproducibleExecutionLabel.Value = _SettingContainer.Settings.SlamSettings.ReproducibleExecution;
                 }
                 catch (Exception) { }
             }
@@ -532,21 +560,6 @@ namespace FireFly.Proxy
             catch (Exception ex)
             {
             }
-        }
-
-        public void ChangeSlamStatus(SlamStatusOverall slamStatus, bool wait = false)
-        {
-            try
-            {
-                if (_SlamChangeStatusLabel != null && ConnectivityState == LinkUpConnectivityState.Connected)
-                {
-                    if (wait)
-                        _SlamChangeStatusLabel.Call(new byte[] { (byte)slamStatus });
-                    else
-                        _SlamChangeStatusLabel.AsyncCall(new byte[] { (byte)slamStatus });
-                }
-            }
-            catch (Exception) { }
         }
 
         private void UpdateSubscription()

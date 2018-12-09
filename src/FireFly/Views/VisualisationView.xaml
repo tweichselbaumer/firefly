@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:helix="http://helix-toolkit.org/wpf"
              xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-             xmlns:local="clr-namespace:FireFly.Views"
              xmlns:Converter="clr-namespace:FireFly.Converter"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -116,9 +115,9 @@
                 IsChecked="{Binding Path=EnabledTrajectory}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
-                <Label  Content="Sequential Execution" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Reproducible Execution" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
-                IsChecked="False" Margin="15,0,0,0"
+                IsChecked="{Binding Path=ReproducibleExecution}" Margin="15,0,0,0" 
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
             </StackPanel>
             <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
