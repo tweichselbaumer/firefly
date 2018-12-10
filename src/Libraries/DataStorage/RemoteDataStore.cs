@@ -138,6 +138,24 @@ namespace FireFly.Data.Storage
             }
         }
 
+        public void UploadContentToFile(string remoteFileName, byte[] content)
+        {
+            using (MemoryStream stream = new MemoryStream(content))
+            {
+                try
+                {
+                    using (SftpClient client = new SftpClient(_ConnectionInfo))
+                    {
+                        client.Connect();
+                        client.UploadFile(stream, remoteFileName);
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+        }
+
         public void UploadFile(string remoteFileName, string localFileName, Action<double> downloadAction = null)
         {
             using (FileStream stream = File.Open(localFileName, FileMode.Open))

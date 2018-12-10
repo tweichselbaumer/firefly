@@ -13,6 +13,8 @@ namespace FireFly.Settings
         private string _Password;
         private int _Port;
         private string _Username;
+        private string _ExecutablePath;
+        private bool _IsLocal;
 
         public string Hostname
         {
@@ -89,6 +91,32 @@ namespace FireFly.Settings
             set
             {
                 _Username = value;
+            }
+        }
+
+        public string ExecutablePath
+        {
+            get
+            {
+                return _ExecutablePath;
+            }
+
+            set
+            {
+                _ExecutablePath = value;
+            }
+        }
+
+        public bool IsLocal
+        {
+            get
+            {
+                return _IsLocal;
+            }
+
+            set
+            {
+                _IsLocal = value;
             }
         }
     }

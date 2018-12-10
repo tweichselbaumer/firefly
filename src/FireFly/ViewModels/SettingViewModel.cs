@@ -2,7 +2,6 @@
 using FireFly.Command;
 using FireFly.CustomDialogs;
 using FireFly.Data.Storage;
-using FireFly.Models;
 using FireFly.Settings;
 using FireFly.Utilities;
 using MahApps.Metro.Controls.Dialogs;
@@ -77,15 +76,22 @@ namespace FireFly.ViewModels
             Connections.CollectionChanged += Connections_CollectionChanged;
         }
 
-        private void Connections_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-
-        }
-
         public double AccelerometerScale
         {
             get { return (double)GetValue(AccelerometerScaleProperty); }
             set { SetValue(AccelerometerScaleProperty, value); }
+        }
+
+        public RelayCommand<object> ChangeConnectionCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoChangeConnection(o);
+                    });
+            }
         }
 
         public RangeObservableCollection<Connection> Connections
@@ -148,38 +154,6 @@ namespace FireFly.ViewModels
             {
                 return Enum.GetValues(typeof(PredefinedDictionaryName)).Cast<PredefinedDictionaryName>();
             }
-        }
-        public RelayCommand<object> ChangeConnectionCommand
-        {
-            get
-            {
-                return new RelayCommand<object>(
-                    async (object o) =>
-                    {
-                        await DoChangeConnection(o);
-                    });
-            }
-        }
-
-        private Task DoChangeConnection(object o)
-        {
-            return Task.Factory.StartNew(() =>
-            {
-                if (o != null && o is Connection)
-                {
-                    Connection connection = o as Connection;
-
-                    bool changed = Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnectionGuid != connection.Id;
-                    if (changed)
-                    {
-                        Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnectionGuid = connection.Id;
-                        Parent.SyncContext.Post(d =>
-                        {
-                            Parent.UpdateSettings(true);
-                        }, null);
-                    }
-                }
-            });
         }
 
         public RelayCommand<object> PrintBoardCommand
@@ -402,6 +376,31 @@ namespace FireFly.ViewModels
             }
         }
 
+        private void Connections_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+        }
+
+        private Task DoChangeConnection(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                if (o != null && o is Connection)
+                {
+                    Connection connection = o as Connection;
+
+                    bool changed = Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnectionGuid != connection.Id;
+                    if (changed)
+                    {
+                        Parent.SettingContainer.Settings.ConnectionSettings.SelectedConnectionGuid = connection.Id;
+                        Parent.SyncContext.Post(d =>
+                        {
+                            Parent.UpdateSettings(true);
+                        }, null);
+                    }
+                }
+            });
+        }
+
         private Task DoDeleteFileLocation(object o)
         {
             return Task.Factory.StartNew(() =>
@@ -579,12 +578,20 @@ namespace FireFly.ViewModels
 
                     responseValues.AddRange(Parent.CalibrationViewModel.PhotometricCalibrationViewModel.ResponseValues.Select(f => f.Y));
 
-                    byte[] vignette = Parent.CalibrationViewModel.PhotometricCalibrationViewModel.Vignette.CvImage.ToPNGBinary(0);
+                    byte[] vignette = null;
+                    if (!string.IsNullOrEmpty(Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.VignetteFileBase64))
+                        vignette = Convert.FromBase64String(Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.VignetteFileBase64);
 
                     int width = Parent.CameraViewModel.ImageWidth;
                     int height = Parent.CameraViewModel.ImageHeight;
 
-                    PhotometricCalibratrionExporter.ExporterSettings(fxO, fyO, cxO, cyO, fxN, fyN, cxN, cyN, width, height, k1, k2, k3, k4, @"C:\Users\thoma\source\repos\computer-vision\bin", responseValues, vignette);
+                    if (SelectedHost != null)
+                    {
+                        if (SelectedHost.IsLocal)
+                            PhotometricCalibratrionExporter.ExporterSettingsVOLocal(fxO, fyO, cxO, cyO, fxN, fyN, cxN, cyN, width, height, k1, k2, k3, k4, SelectedHost.ExecutablePath, responseValues, vignette);
+                        else
+                            PhotometricCalibratrionExporter.ExporterSettingsVORemote(fxO, fyO, cxO, cyO, fxN, fyN, cxN, cyN, width, height, k1, k2, k3, k4, SelectedHost.ExecutablePath, responseValues, vignette, SelectedHost.Hostname, SelectedHost.IpAddress, SelectedHost.Username, SelectedHost.Password);
+                    }
                 }, null);
             });
         }
