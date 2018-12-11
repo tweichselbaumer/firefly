@@ -7,7 +7,6 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition />
@@ -21,11 +20,10 @@
         <TextBlock Grid.Row="0"
                    Grid.Column="0"
                    Text="Name:" VerticalAlignment="Center" />
-        <TextBox x:Name="NameTextBox"
-                 Grid.Row="0"
+        <TextBox Grid.Row="0"
                  Grid.Column="1"
                  Margin="8 8 0 0"
-                 Text="{Binding Path=Name}" />
+                 Text="{Binding Path=FileName}" />
 
         <TextBlock Grid.Row="1"
                    Grid.Column="0"
@@ -36,13 +34,28 @@
                  Margin="8 8 0 0"
                  Text="{Binding Path=Path}" />
 
-        <Button Grid.Row="2"
-                Grid.Column="0"
-                Grid.ColumnSpan="2"
+        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Row="0"
+                Grid.Column="1"
+                Grid.ColumnSpan="1"
                 MinWidth="80"
                 Margin="8 8 0 8"
-                HorizontalAlignment="Right"
-                Command="{Binding CloseCommand}"
+                Command="{Binding SaveCommand}"
                 Content="OK" />
+
+            <Button Grid.Row="0"
+                Grid.Column="3"
+                Grid.ColumnSpan="1"
+                MinWidth="80"
+                Margin="8 8 0 8"
+                Command="{Binding CloseCommand}"
+                Content="Cancle" />
+        </Grid>
     </Grid>
 </UserControl>

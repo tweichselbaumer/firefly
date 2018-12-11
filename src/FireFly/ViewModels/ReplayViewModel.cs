@@ -137,22 +137,29 @@ namespace FireFly.ViewModels
                     {
                         Tuple<FileLocation, List<ReplayFile>> tuple = new Tuple<FileLocation, List<ReplayFile>>(loc, new List<ReplayFile>());
                         FilesForReplay.Add(tuple);
-                        string fullPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(loc.Path));
-                        if (Directory.Exists(fullPath))
+                        if (!string.IsNullOrEmpty(loc.Path))
                         {
-                            foreach (string file in Directory.GetFiles(fullPath, "*.ffc"))
+                            try
                             {
-                                ReplayFile replayFile = new ReplayFile() { Name = Path.GetFileNameWithoutExtension(file), FullPath = file };
-                                tuple.Item2.Add(replayFile);
-                                Task.Run(() =>
+                                string fullPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(loc.Path));
+                                if (Directory.Exists(fullPath))
                                 {
-                                    string notes = RawDataReader.ReadNotes(file);
-                                    Parent.SyncContext.Post(c =>
+                                    foreach (string file in Directory.GetFiles(fullPath, "*.ffc"))
                                     {
-                                        replayFile.Notes = notes;
-                                    }, null);
-                                });
+                                        ReplayFile replayFile = new ReplayFile() { Name = Path.GetFileNameWithoutExtension(file), FullPath = file };
+                                        tuple.Item2.Add(replayFile);
+                                        Task.Run(() =>
+                                        {
+                                            string notes = RawDataReader.ReadNotes(file);
+                                            Parent.SyncContext.Post(c =>
+                                            {
+                                                replayFile.Notes = notes;
+                                            }, null);
+                                        });
+                                    }
+                                }
                             }
+                            catch (Exception) { }
                         }
                     }
                 }

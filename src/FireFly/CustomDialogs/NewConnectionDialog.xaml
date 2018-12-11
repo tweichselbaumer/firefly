@@ -7,47 +7,106 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="10" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="10" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="10" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="10" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="10" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="10" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="10" />
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Row="1" Grid.Column="1">
-                <Label  Content="IP Address" Style="{DynamicResource GeneralLabelStyle}" />
-                <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=IpAddress}" />
-            </StackPanel>
-            <StackPanel Grid.Row="1" Grid.Column="3">
-                <Label  Content="Port" Style="{DynamicResource GeneralLabelStyle}" />
-                <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=Port}" />
-            </StackPanel>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="3" Grid.Column="1">
-                <Label  Content="Username" Style="{DynamicResource GeneralLabelStyle}" />
-                <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=Username}" />
-            </StackPanel>
-            <StackPanel Grid.Row="3" Grid.Column="3">
-                <Label  Content="Password" Style="{DynamicResource GeneralLabelStyle}" />
-                <TextBox Style="{DynamicResource GeneralTextBoxStyle}" Text="{Binding Path=Password}" />
-            </StackPanel>
-          
+        <TextBlock Grid.Row="0"
+                   Grid.Column="0"
+                   Text="Hostname:" VerticalAlignment="Center" />
+        <TextBox x:Name="NameTextBox"
+                 Grid.Row="0"
+                 Grid.Column="1"
+                 Margin="8 8 0 0"
+                 Text="{Binding Path=Hostname}" />
+
+        <TextBlock Grid.Row="1"
+                   Grid.Column="0"
+                   Margin="0 8 0 0"
+                   Text="IpAddress:" VerticalAlignment="Center" />
+        <TextBox Grid.Row="1"
+                 Grid.Column="1"
+                 Margin="8 8 0 0"
+                 Text="{Binding Path=IpAddress}" />
+
+        <TextBlock Grid.Row="2"
+                   Grid.Column="0"
+                   Margin="0 8 0 0"
+                   Text="Port:" VerticalAlignment="Center" />
+        <TextBox Grid.Row="2"
+                 Grid.Column="1"
+                 Margin="8 8 0 0"
+                 Text="{Binding Path=Port}" />
+
+        <TextBlock Grid.Row="3"
+                   Grid.Column="0"
+                   Margin="0 8 0 0"
+                   Text="IsLocal:" VerticalAlignment="Center" />
+        <CheckBox Grid.Row="3"
+                 Grid.Column="1"
+                 Margin="8 8 0 0"
+                 IsChecked="{Binding Path=IsLocal}" />
+
+        <TextBlock Grid.Row="4"
+                   Grid.Column="0"
+                   Margin="0 8 0 0"
+                   Text="Username:" VerticalAlignment="Center" />
+        <TextBox Grid.Row="4"
+                 Grid.Column="1"
+                 Margin="8 8 0 0"
+                 Text="{Binding Path=Username}" />
+
+        <TextBlock Grid.Row="5"
+                   Grid.Column="0"
+                   Margin="0 8 0 0"
+                   Text="Password:" VerticalAlignment="Center" />
+        <TextBox Grid.Row="5"
+                 Grid.Column="1"
+                 Margin="8 8 0 0"
+                 Text="{Binding Path=Password}" />
+
+        <TextBlock Grid.Row="6"
+                   Grid.Column="0"
+                   Margin="0 8 0 0"
+                   Text="Executable Path:" VerticalAlignment="Center" />
+        <TextBox Grid.Row="6"
+                 Grid.Column="1"
+                 Margin="8 8 0 0"
+                 Text="{Binding Path=ExecutablePath}" />
+
+        <Grid Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Row="0"
+                Grid.Column="1"
+                Grid.ColumnSpan="1"
+                MinWidth="80"
+                Margin="8 8 0 8"
+                Command="{Binding SaveCommand}"
+                Content="OK" />
+
+            <Button Grid.Row="0"
+                Grid.Column="3"
+                Grid.ColumnSpan="1"
+                MinWidth="80"
+                Margin="8 8 0 8"
+                Command="{Binding CloseCommand}"
+                Content="Cancle" />
         </Grid>
     </Grid>
 </UserControl>

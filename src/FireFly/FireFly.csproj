@@ -178,6 +178,7 @@
     <Compile Include="CustomDialogs\NewConnectionDialog.xaml.cs">
       <DependentUpon>NewConnectionDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomDialogs\NewConnectionDialogModel.cs" />
     <Compile Include="CustomDialogs\PrintAprilGridBoardDialog.xaml.cs">
       <DependentUpon>PrintAprilGridBoardDialog.xaml</DependentUpon>
     </Compile>

@@ -100,6 +100,18 @@ namespace FireFly.ViewModels
             set { SetValue(ConnectionsProperty, value); }
         }
 
+        public RelayCommand<object> DeleteConnectionCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoDeleteConnection(o);
+                    });
+            }
+        }
+
         public RelayCommand<object> DeleteFileLocationCommand
         {
             get
@@ -118,6 +130,30 @@ namespace FireFly.ViewModels
             set { SetValue(DictionaryProperty, value); }
         }
 
+        public RelayCommand<object> EditConnectionCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoEditConnection(o);
+                    });
+            }
+        }
+
+        public RelayCommand<object> EditFileLocationCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoEditFileLocation(o);
+                    });
+            }
+        }
+
         public RangeObservableCollection<FileLocation> FileLocations
         {
             get { return (RangeObservableCollection<FileLocation>)GetValue(FileLocationsProperty); }
@@ -134,6 +170,18 @@ namespace FireFly.ViewModels
         {
             get { return (float)GetValue(MarkerLengthProperty); }
             set { SetValue(MarkerLengthProperty, value); }
+        }
+
+        public RelayCommand<object> NewConnectionCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoNewConnection(o);
+                    });
+            }
         }
 
         public RelayCommand<object> NewFileLocationCommand
@@ -378,6 +426,19 @@ namespace FireFly.ViewModels
 
         private void Connections_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+            if (e.Action == NotifyCollectionChangedAction.Add || e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                var firstNotSecond = Connections.Except(Parent.SettingContainer.Settings.ConnectionSettings.Connections).ToList();
+                var secondNotFirst = Parent.SettingContainer.Settings.ConnectionSettings.Connections.Except(Connections).ToList();
+
+                bool changed = firstNotSecond.Any() || secondNotFirst.Any();
+
+                if (changed)
+                {
+                    Parent.SettingContainer.Settings.ConnectionSettings.Connections = Connections.ToList();
+                    Parent.UpdateSettings(false);
+                }
+            }
         }
 
         private Task DoChangeConnection(object o)
@@ -401,6 +462,17 @@ namespace FireFly.ViewModels
             });
         }
 
+        private Task DoDeleteConnection(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    Connections.Remove((Connection)o);
+                }, null);
+            });
+        }
+
         private Task DoDeleteFileLocation(object o)
         {
             return Task.Factory.StartNew(() =>
@@ -408,6 +480,125 @@ namespace FireFly.ViewModels
                 Parent.SyncContext.Post(c =>
                 {
                     FileLocations.Remove((FileLocation)o);
+                }, null);
+            });
+        }
+
+        private Task DoEditConnection(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    CustomDialog customDialog = new CustomDialog() { Title = "Edit Connection" };
+
+                    var dataContext = new NewConnectionDialogModel(obj =>
+                    {
+                        Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                    },
+                    obj =>
+                    {
+                        Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                        Parent.SyncContext.Post(d =>
+                        {
+                            Connection connection = new Connection()
+                            {
+                                Id = ((Connection)o).Id,
+                                IpAddress = obj.IpAddress,
+                                Port = obj.Port,
+                                Username = obj.Username,
+                                Password = obj.Password,
+                                ExecutablePath = obj.ExecutablePath,
+                                IsLocal = obj.IsLocal,
+                                Hostname = obj.Hostname,
+                            };
+                            Connections.Add(connection);
+                            Connections.Remove((Connection)o);
+                        }, null);
+                    });
+                    dataContext.Username = ((Connection)o).Username;
+                    dataContext.IpAddress = ((Connection)o).IpAddress;
+                    dataContext.Port = ((Connection)o).Port;
+                    dataContext.Password = ((Connection)o).Password;
+                    dataContext.ExecutablePath = ((Connection)o).ExecutablePath;
+                    dataContext.IsLocal = ((Connection)o).IsLocal;
+                    dataContext.Hostname = ((Connection)o).Hostname;
+                    customDialog.Content = new NewConnectionDialog { DataContext = dataContext };
+
+                    Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
+                }, null);
+            });
+        }
+
+        private Task DoEditFileLocation(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    CustomDialog customDialog = new CustomDialog() { Title = "New Location" };
+
+                    var dataContext = new NewFileLocationDialogModel(obj =>
+                    {
+                        Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                    },
+                    obj =>
+                    {
+                        Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                        Parent.SyncContext.Post(d =>
+                        {
+                            FileLocation location = new FileLocation()
+                            {
+                                Name = obj.FileName,
+                                Path = obj.Path
+                            };
+                            FileLocations.Add(location);
+                            FileLocations.Remove((FileLocation)o);
+                        }, null);
+                    });
+                    dataContext.FileName = ((FileLocation)o).Name;
+                    dataContext.Path = ((FileLocation)o).Path;
+                    customDialog.Content = new NewFileLocationDialog { DataContext = dataContext };
+
+                    Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
+                }, null);
+            });
+        }
+
+        private Task DoNewConnection(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    CustomDialog customDialog = new CustomDialog() { Title = "New Connection" };
+
+                    var dataContext = new NewConnectionDialogModel(obj =>
+                    {
+                        Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                    },
+                    obj =>
+                    {
+                        Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                        Parent.SyncContext.Post(d =>
+                        {
+                            Connection connection = new Connection()
+                            {
+                                Id = Guid.NewGuid(),
+                                IpAddress = obj.IpAddress,
+                                Port = obj.Port,
+                                Username = obj.Username,
+                                Password = obj.Password,
+                                ExecutablePath = obj.ExecutablePath,
+                                IsLocal = obj.IsLocal,
+                                Hostname = obj.Hostname,
+                            };
+                            Connections.Add(connection);
+                        }, null);
+                    });
+                    customDialog.Content = new NewConnectionDialog { DataContext = dataContext };
+
+                    Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
                 }, null);
             });
         }
@@ -423,11 +614,15 @@ namespace FireFly.ViewModels
                     var dataContext = new NewFileLocationDialogModel(obj =>
                     {
                         Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
+                    },
+                    obj =>
+                    {
+                        Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
                         Parent.SyncContext.Post(d =>
                         {
                             FileLocation location = new FileLocation()
                             {
-                                Name = obj.Name,
+                                Name = obj.FileName,
                                 Path = obj.Path
                             };
                             FileLocations.Add(location);

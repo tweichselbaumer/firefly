@@ -87,23 +87,30 @@ namespace FireFly.Data.Storage
 
         public static string ReadNotes(string filename)
         {
-            using (FileStream fileStream = new FileStream(filename, FileMode.Open))
+            try
             {
-                using (ZipArchive zipArchive = new ZipArchive(fileStream, ZipArchiveMode.Read))
+                using (FileStream fileStream = new FileStream(filename, FileMode.Open))
                 {
-                    ZipArchiveEntry entry = zipArchive.GetEntry("notes.txt");
-                    if (entry != null)
+                    using (ZipArchive zipArchive = new ZipArchive(fileStream, ZipArchiveMode.Read))
                     {
-                        using (StreamReader reader = new StreamReader(entry.Open()))
+                        ZipArchiveEntry entry = zipArchive.GetEntry("notes.txt");
+                        if (entry != null)
                         {
-                            return reader.ReadToEnd();
+                            using (StreamReader reader = new StreamReader(entry.Open()))
+                            {
+                                return reader.ReadToEnd();
+                            }
+                        }
+                        else
+                        {
+                            return "";
                         }
                     }
-                    else
-                    {
-                        return "";
-                    }
                 }
+            }
+            catch (Exception)
+            {
+                return "";
             }
         }
 
