@@ -72,6 +72,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CsvToMatlabWritter.cs" />
     <Compile Include="RawDataReader.cs" />
     <Compile Include="RawDataWritter.cs" />
     <Compile Include="RawMatlabExporter.cs" />

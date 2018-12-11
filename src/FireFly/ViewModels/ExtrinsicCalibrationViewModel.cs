@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -168,17 +169,34 @@ namespace FireFly.ViewModels
                             string options = string.Format(CultureInfo.InvariantCulture, "--dont-show-report --reprojection-sigma {0} {1}", Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.ReprojectionSigma, Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.TimeCalibration ? "--time-calibration" : "");
 
                             remoteDataStore.ExecuteCommands(new List<string>()
-                                    {
-                                        string.Format(@"cd {0}",remoteFolder),
-                                        string.Format(@"unzip {0} -d {1}",Path.GetFileName(localFile),Path.GetFileNameWithoutExtension(localFile)),
-                                        @"source ~/kalibr_workspace/devel/setup.bash",
-                                        string.Format(@"kalibr_bagcreater --folder {0} --output-bag {0}.bag", Path.GetFileNameWithoutExtension(localFile)),
-                                        string.Format(@"kalibr_calibrate_imu_camera --bag {0}.bag --cams cam.yaml --imu imu.yaml --imu-models {1} --target target.yaml {2}",Path.GetFileNameWithoutExtension(localFile),imuModel,options),
-                                        string.Format("pdftoppm report-imucam-{0}.pdf result -png",Path.GetFileNameWithoutExtension(localFile))
-                                     }, expactString);
+                            {
+                                string.Format(@"cd {0}",remoteFolder),
+                                string.Format(@"unzip {0} -d {1}",Path.GetFileName(localFile),Path.GetFileNameWithoutExtension(localFile)),
+                                @"source ~/kalibr_workspace/devel/setup.bash",
+                                string.Format(@"kalibr_bagcreater --folder {0} --output-bag {0}.bag", Path.GetFileNameWithoutExtension(localFile)),
+                                string.Format(@"kalibr_calibrate_imu_camera --bag {0}.bag --cams cam.yaml --imu imu.yaml --imu-models {1} --target target.yaml {2}",Path.GetFileNameWithoutExtension(localFile),imuModel,options),
+                                string.Format("pdftoppm report-imucam-{0}.pdf result -png",Path.GetFileNameWithoutExtension(localFile))
+                            }, expactString);
 
                             CameraChain cameraChain = YamlTranslator.ConvertFromYaml<CameraChain>(remoteDataStore.DownloadFileToMemory(string.Format("{0}/camchain-imucam-{1}.yaml", remoteFolder, Path.GetFileNameWithoutExtension(localFile))));
                             ImuCain imuChain = YamlTranslator.ConvertFromYaml<ImuCain>(remoteDataStore.DownloadFileToMemory(string.Format("{0}/imu-{1}.yaml", remoteFolder, Path.GetFileNameWithoutExtension(localFile))));
+
+                            List<string> availablePlots = new List<string>();
+
+                            foreach (string file in remoteDataStore.GetAllFileNames(remoteFolder))
+                            {
+                                if (file.Contains(".csv"))
+                                {
+                                    availablePlots.Add(file.Replace(string.Format("data-imucam-{0}.", Path.GetFileNameWithoutExtension(localFile)), "").Replace(".csv", ""));
+                                }
+                            }
+
+                            Dictionary<string, string> plotDataImu = new Dictionary<string, string>();
+
+                            foreach (string plot in availablePlots)
+                            {
+                                plotDataImu.Add(plot, remoteDataStore.DownloadFileToMemory(string.Format("{0}/data-imucam-{1}.{2}.csv", remoteFolder, Path.GetFileNameWithoutExtension(localFile), plot)));
+                            }
 
                             string outputPath = Path.Combine(Path.GetTempPath(), "firefly", guid);
 
@@ -193,12 +211,16 @@ namespace FireFly.ViewModels
                                     remoteDataStore.DownloadFile(string.Format("{0}/{1}", remoteFolder, file), Path.Combine(outputPath, file));
                             }
 
+                            CsvToMatlabWritter csvToMatlabWritter = new CsvToMatlabWritter(Path.Combine(outputPath, "plot-data.mat"));
+                            csvToMatlabWritter.Write(plotDataImu, "ExtrinsicCalibrationData");
+                            csvToMatlabWritter.Save();
+
                             ShowResults(outputPath, cameraChain, imuChain);
 
                             remoteDataStore.ExecuteCommands(new List<string>()
-                                    {
-                                        string.Format(@"rm -r {0}",remoteFolder)
-                                     }, expactString);
+                            {
+                                string.Format(@"rm -r {0}",remoteFolder)
+                            }, expactString);
 
                             await controller.CloseAsync();
                         }
@@ -214,7 +236,7 @@ namespace FireFly.ViewModels
                 Parent.SyncContext.Send(d =>
                 {
                     Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
-                    //Directory.Delete(path, true);
+                    Directory.Delete(path, true);
                 }, null);
             };
         }
@@ -225,6 +247,12 @@ namespace FireFly.ViewModels
             {
                 Parent.SyncContext.Send(d =>
                 {
+                    System.Windows.Forms.SaveFileDialog saveFileDialog = saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                    saveFileDialog.Filter = "Archive (*.zip) | *.zip";
+                    if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        ZipFile.CreateFromDirectory(path, saveFileDialog.FileName, CompressionLevel.Optimal, false);
+                    }
                 }, null);
             };
         }

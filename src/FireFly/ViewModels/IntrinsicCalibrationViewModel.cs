@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
@@ -875,7 +876,7 @@ namespace FireFly.ViewModels
                 Parent.SyncContext.Send(d =>
                 {
                     Parent.DialogCoordinator.HideMetroDialogAsync(Parent, customDialog);
-                    //Directory.Delete(path, true);
+                    Directory.Delete(path, true);
                 }, null);
             };
         }
@@ -886,6 +887,12 @@ namespace FireFly.ViewModels
             {
                 Parent.SyncContext.Send(d =>
                 {
+                    System.Windows.Forms.SaveFileDialog saveFileDialog = saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                    saveFileDialog.Filter = "Archive (*.zip) | *.zip";
+                    if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        ZipFile.CreateFromDirectory(path, saveFileDialog.FileName, CompressionLevel.Optimal, false);
+                    }
                 }, null);
             };
         }
