@@ -19,6 +19,14 @@ namespace FireFly.VI.SLAM.Sophus
             _SO3 = new SO3(matrix);
         }
 
+        public SE3(double[,] matrix)
+        {
+            _Translation[0] = matrix[0, 3];
+            _Translation[1] = matrix[1, 3];
+            _Translation[2] = matrix[2, 3];
+            _SO3 = new SO3(matrix);
+        }
+
         public SE3(Vector<double> translation, SO3 so3)
         {
             Translation = translation;

@@ -38,6 +38,12 @@ namespace FireFly.VI.SLAM.Sophus
             _SE3 = new SE3(matrix);
         }
 
+        public Sim3(double[,] matrix)
+        {
+            Scale = matrix[3,3];
+            _SE3 = new SE3(matrix);
+        }
+
         public double Scale
         {
             get

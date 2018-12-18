@@ -780,6 +780,8 @@ namespace FireFly.ViewModels
                     int width = Parent.CameraViewModel.ImageWidth;
                     int height = Parent.CameraViewModel.ImageHeight;
 
+                    Parent.IOProxy.UpdateSettings();
+
                     if (SelectedHost != null)
                     {
                         if (SelectedHost.IsLocal)

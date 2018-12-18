@@ -4,6 +4,7 @@ using FireFly.Data.Storage;
 using FireFly.Data.Storage.Model;
 using FireFly.VI.SLAM.Sophus;
 using MahApps.Metro.Controls.Dialogs;
+using MathNet.Numerics.LinearAlgebra;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -107,10 +108,6 @@ namespace FireFly.ViewModels
 
                             string imuModel = Imu.ConvertImuModelToString(Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.ImuModel);
 
-                            //imuModel = "scale-misalignment-size-effect";
-                            //imuModel = "calibrated";
-                            //imuModel = "scale-misalignment";
-
                             Parent.SyncContext.Send(c =>
                         {
                             localFile = replaySelectDialogModel.SelectedFile.FullPath;
@@ -160,11 +157,6 @@ namespace FireFly.ViewModels
                                     Width = Parent.SettingContainer.Settings.CameraSettings.Width
                                 }
                             }));
-                            /*
-                            string options = "--time-calibration --dont-show-report";
-                            options = "--dont-show-report";
-                            options = "--time-calibration --dont-show-report --reprojection-sigma 0.5";
-                            */
 
                             string options = string.Format(CultureInfo.InvariantCulture, "--dont-show-report --reprojection-sigma {0} {1}", Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.ReprojectionSigma, Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.TimeCalibration ? "--time-calibration" : "");
 
@@ -263,7 +255,10 @@ namespace FireFly.ViewModels
             {
                 Parent.SyncContext.Send(d =>
                 {
-                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu = cameraChain.Cam0.T_Cam_Imu;
+                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu = Matrix<double>.Build.DenseOfColumnArrays(cameraChain.Cam0.T_Cam_Imu).ToArray();
+                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.R_Acc_Gyro = Matrix<double>.Build.DenseOfColumnArrays(imuChain.Imu0.Gyroscopes.C).Transpose().ToArray();
+                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.M_Inv_Acc = Matrix<double>.Build.DenseOfColumnArrays(imuChain.Imu0.Accelerometers.M).Inverse().ToArray();
+                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.M_Inv_Gyro = Matrix<double>.Build.DenseOfColumnArrays(imuChain.Imu0.Gyroscopes.M).Inverse().ToArray();
                     Parent.UpdateSettings(false);
                 }, null);
             };

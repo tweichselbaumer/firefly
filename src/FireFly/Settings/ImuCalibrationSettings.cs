@@ -18,6 +18,8 @@ namespace FireFly.Settings
         private List<double> _AllanDeviationGyroscopeY = new List<double>();
         private List<double> _AllanDeviationGyroscopeZ = new List<double>();
         private List<double> _AllanDeviationTime = new List<double>();
+        private double[] _FilterA;
+        private double[] _FilterB;
         private double _GyroscopeNoiseDensity;
         private double _GyroscopeNoiseDensitySafetyScale;
         private double _GyroscopeRandomWalk;
@@ -165,6 +167,32 @@ namespace FireFly.Settings
             set
             {
                 _AllanDeviationTime = value;
+            }
+        }
+
+        public double[] FilterA
+        {
+            get
+            {
+                return _FilterA;
+            }
+
+            set
+            {
+                _FilterA = value;
+            }
+        }
+
+        public double[] FilterB
+        {
+            get
+            {
+                return _FilterB;
+            }
+
+            set
+            {
+                _FilterB = value;
             }
         }
 

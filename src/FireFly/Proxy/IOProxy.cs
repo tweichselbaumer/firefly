@@ -20,20 +20,27 @@ namespace FireFly.Proxy
 
     public class IOProxy : IDisposable
     {
+        private LinkUpPropertyLabel<Double> _AccelerometerNoiseLabel;
         private LinkUpPropertyLabel<Double> _AccelerometerScaleLabel;
+        private LinkUpPropertyLabel<Double> _AccelerometerWalkLabel;
         private BlockingCollection<Tuple<ImuEventData, CameraEventData>> _BackgroundQueue = new BlockingCollection<Tuple<ImuEventData, CameraEventData>>();
         private Task _BackgroundTask;
         private LinkUpEventLabel _CameraEventLabel;
         private LinkUpEventLabel _CameraImuEventLabel;
         private LinkUpPropertyLabel<Int16> _ExposureLabel;
         private LinkUpFunctionLabel _GetRemoteChessboardCornerLabel;
+        private LinkUpPropertyLabel<Double> _GyroscopeNoiseLabel;
         private LinkUpPropertyLabel<Double> _GyroscopeScaleLabel;
+        private LinkUpPropertyLabel<Double> _GyroscopeWalkLabel;
         private LinkUpEventLabel _ImuDerivedEventLabel;
         private LinkUpEventLabel _ImuEventLabel;
         private LinkUpPropertyLabel_Binary _ImuFilterALabel;
         private LinkUpPropertyLabel_Binary _ImuFilterBLabel;
+        private LinkUpPropertyLabel_Binary _MInvAccLabel;
+        private LinkUpPropertyLabel_Binary _MInvGyroLabel;
         private LinkUpNode _Node;
         private IOProxyMode _ProxyMode = IOProxyMode.Live;
+        private LinkUpPropertyLabel_Binary _RAccGyroLabel;
         private LinkUpPropertyLabel<Boolean> _RecordRemoteLabel;
         private LinkUpFunctionLabel _ReplayDataSend;
         private bool _Running;
@@ -44,6 +51,7 @@ namespace FireFly.Proxy
         private LinkUpEventLabel _SlamStatusEventLabel;
         private List<Tuple<IProxyEventSubscriber, ProxyEventType>> _Subscriptions = new List<Tuple<IProxyEventSubscriber, ProxyEventType>>();
         private List<Task> _Tasks = new List<Task>();
+        private LinkUpPropertyLabel_Binary _TCamImuLabel;
         private LinkUpPropertyLabel<Double> _TemperatureOffsetLabel;
         private LinkUpPropertyLabel<Double> _TemperatureScaleLabel;
         private LinkUpFunctionLabel _UpdateSettingsLabel;
@@ -300,6 +308,15 @@ namespace FireFly.Proxy
 
                 _SlamReproducibleExecutionLabel = Node.GetLabelByName<LinkUpPropertyLabel<Boolean>>("firefly/computer_vision/slam_reproducible_execution");
 
+                _TCamImuLabel = Node.GetLabelByName<LinkUpPropertyLabel_Binary>("firefly/computer_vision/calibration_T_cam_imu");
+                _RAccGyroLabel = Node.GetLabelByName<LinkUpPropertyLabel_Binary>("firefly/computer_vision/calibration_R_acc_gyro");
+                _MInvGyroLabel = Node.GetLabelByName<LinkUpPropertyLabel_Binary>("firefly/computer_vision/calibration_M_inv_gyro");
+                _MInvAccLabel = Node.GetLabelByName<LinkUpPropertyLabel_Binary>("firefly/computer_vision/calibration_M_inv_acc");
+                _GyroscopeNoiseLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/calibration_gyro_noise");
+                _GyroscopeWalkLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/calibration_gyro_walk");
+                _AccelerometerNoiseLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/calibration_acc_noise");
+                _AccelerometerWalkLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/calibration_acc_walk");
+
                 _ImuDerivedEventLabel.Fired += _ImuFilterEvent_Fired;
 
                 _SlamStatusEventLabel.Fired += _SlamStatusEventLabel_Fired;
@@ -369,6 +386,86 @@ namespace FireFly.Proxy
                 {
                     if (ConnectivityState == LinkUpConnectivityState.Connected)
                         _SlamReproducibleExecutionLabel.Value = _SettingContainer.Settings.SlamSettings.ReproducibleExecution;
+                }
+                catch (Exception) { }
+            }
+
+            if (_AccelerometerNoiseLabel != null)
+            {
+                try
+                {
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _AccelerometerNoiseLabel.Value = _SettingContainer.Settings.CalibrationSettings.ImuCalibration.AccelerometerNoiseDensity;
+                }
+                catch (Exception) { }
+            }
+
+            if (_AccelerometerWalkLabel != null)
+            {
+                try
+                {
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _AccelerometerWalkLabel.Value = _SettingContainer.Settings.CalibrationSettings.ImuCalibration.AccelerometerRandomWalk;
+                }
+                catch (Exception) { }
+            }
+
+            if (_GyroscopeNoiseLabel != null)
+            {
+                try
+                {
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _GyroscopeNoiseLabel.Value = _SettingContainer.Settings.CalibrationSettings.ImuCalibration.GyroscopeNoiseDensity;
+                }
+                catch (Exception) { }
+            }
+
+            if (_GyroscopeWalkLabel != null)
+            {
+                try
+                {
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _GyroscopeWalkLabel.Value = _SettingContainer.Settings.CalibrationSettings.ImuCalibration.GyroscopeRandomWalk;
+                }
+                catch (Exception) { }
+            }
+
+            if (_TCamImuLabel != null)
+            {
+                try
+                {
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _TCamImuLabel.Value = DoubleArrayArrayToByteArray(_SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu);
+                }
+                catch (Exception) { }
+            }
+
+            if (_MInvGyroLabel != null)
+            {
+                try
+                {
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _MInvGyroLabel.Value = DoubleArrayArrayToByteArray(_SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.M_Inv_Gyro);
+                }
+                catch (Exception) { }
+            }
+
+            if (_RAccGyroLabel != null)
+            {
+                try
+                {
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _RAccGyroLabel.Value = DoubleArrayArrayToByteArray(_SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.R_Acc_Gyro);
+                }
+                catch (Exception) { }
+            }
+
+            if (_MInvAccLabel != null)
+            {
+                try
+                {
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _MInvAccLabel.Value = DoubleArrayArrayToByteArray(_SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.M_Inv_Acc);
                 }
                 catch (Exception) { }
             }
@@ -505,6 +602,20 @@ namespace FireFly.Proxy
                     t.Item1.Fired(this, new List<AbstractProxyEventData>() { eventData });
                 }
             }
+        }
+
+        private byte[] DoubleArrayArrayToByteArray(double[,] array)
+        {
+            byte[] data = new byte[array.GetLength(0) * array.GetLength(1) * sizeof(double)];
+            for (int i = 0; i < array.GetLength(0); i++)
+            {
+                for (int j = 0; j < array.GetLength(1); j++)
+                {
+                    byte[] temp = BitConverter.GetBytes(array[i, j]);
+                    Array.Copy(temp, 0, data, (i * array.GetLength(1) + j) * sizeof(double), sizeof(double));
+                }
+            }
+            return data;
         }
 
         private void DoWork()
