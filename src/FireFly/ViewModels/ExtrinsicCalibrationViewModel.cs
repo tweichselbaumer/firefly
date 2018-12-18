@@ -255,10 +255,10 @@ namespace FireFly.ViewModels
             {
                 Parent.SyncContext.Send(d =>
                 {
-                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu = Matrix<double>.Build.DenseOfColumnArrays(cameraChain.Cam0.T_Cam_Imu).ToArray();
-                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.R_Acc_Gyro = Matrix<double>.Build.DenseOfColumnArrays(imuChain.Imu0.Gyroscopes.C).Transpose().ToArray();
-                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.M_Inv_Acc = Matrix<double>.Build.DenseOfColumnArrays(imuChain.Imu0.Accelerometers.M).Inverse().ToArray();
-                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.M_Inv_Gyro = Matrix<double>.Build.DenseOfColumnArrays(imuChain.Imu0.Gyroscopes.M).Inverse().ToArray();
+                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.T_Cam_Imu = Matrix<double>.Build.DenseOfColumnArrays(cameraChain.Cam0.T_Cam_Imu).Transpose().ToArray();
+                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.R_Acc_Gyro = Matrix<double>.Build.DenseOfColumnArrays(imuChain.Imu0.Gyroscopes.C).ToArray();
+                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.M_Inv_Acc = Matrix<double>.Build.DenseOfColumnArrays(imuChain.Imu0.Accelerometers.M).Inverse().Transpose().ToArray();
+                    Parent.SettingContainer.Settings.CalibrationSettings.ExtrinsicCalibrationSettings.M_Inv_Gyro = Matrix<double>.Build.DenseOfColumnArrays(imuChain.Imu0.Gyroscopes.M).Inverse().Transpose().ToArray();
                     Parent.UpdateSettings(false);
                 }, null);
             };
