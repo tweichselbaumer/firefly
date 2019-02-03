@@ -347,7 +347,7 @@ namespace FireFly.ViewModels
                        }, null);
                     }), new Action(() =>
                     {
-                        Parent.IOProxy.ChangeSlamStatus(Proxy.SlamStatusOverall.Stop);
+                        //Parent.IOProxy.ChangeSlamStatus(Proxy.SlamStatusOverall.Stop);
                         Parent.SyncContext.Post(c =>
                         {
                             IsReplaying = false;
