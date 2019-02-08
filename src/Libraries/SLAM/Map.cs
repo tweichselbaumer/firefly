@@ -51,7 +51,7 @@ namespace FireFly.VI.SLAM
             }
         }
 
-        public void AddNewKeyFrame(KeyFrame keyFrame)
+        public KeyFrame AddNewKeyFrame(KeyFrame keyFrame)
         {
             lock (_KeyFrames)
             {
@@ -59,7 +59,9 @@ namespace FireFly.VI.SLAM
                 {
                     _KeyFrames.Add(null);
                 }
+                KeyFrame old = _KeyFrames[(int)keyFrame.Id];
                 _KeyFrames[(int)keyFrame.Id] = keyFrame;
+                return old;
             }
         }
 

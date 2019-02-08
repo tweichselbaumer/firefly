@@ -114,7 +114,14 @@ namespace FireFly.VI.SLAM.Visualisation
 
         public void AddNewKeyFrame(KeyFrame keyFrame)
         {
-            _Map.AddNewKeyFrame(keyFrame);
+            KeyFrame oldKeyFrame = _Map.AddNewKeyFrame(keyFrame);
+            if (oldKeyFrame != null)
+            {
+                _SyncContext.Post(d =>
+                {
+                    (Model as Model3DGroup).Children.Remove(oldKeyFrame.GetPointCloud());
+                }, null);
+            }
         }
 
         public void Reset()
