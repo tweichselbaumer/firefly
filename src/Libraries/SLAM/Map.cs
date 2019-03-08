@@ -83,7 +83,7 @@ namespace FireFly.VI.SLAM
             return pointClouds;
         }
 
-        public List<Vector<double>> GetTrajectory(TrajectoryType trajectoryType = TrajectoryType.PreOptimazation)
+        public List<Vector3> GetTrajectory(TrajectoryType trajectoryType = TrajectoryType.PreOptimazation)
         {
             switch (trajectoryType)
             {
@@ -98,7 +98,7 @@ namespace FireFly.VI.SLAM
                         return _KeyFrames.Where(d => d != null).Select(c => c.Frame.T_cam_world.Inverse().SE3.Translation).ToList();
                     }
                 default:
-                    return new List<Vector<double>>();
+                    return new List<Vector3>();
             }
         }
 

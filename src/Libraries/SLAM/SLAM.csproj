@@ -81,6 +81,7 @@
     <Compile Include="Sophus\SE3.cs" />
     <Compile Include="Sophus\Sim3.cs" />
     <Compile Include="Sophus\SO3.cs" />
+    <Compile Include="Vector3.cs" />
     <Compile Include="Visualisation\SlamModel3D.cs" />
   </ItemGroup>
   <ItemGroup>

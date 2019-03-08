@@ -1,4 +1,5 @@
 ﻿using FireFly.VI.SLAM;
+using FireFly.VI.SLAM.Sophus;
 using System;
 
 namespace FireFly.Proxy
@@ -81,6 +82,18 @@ namespace FireFly.Proxy
             return obj;
         }
 
+        private static int ParseVector3(byte[] data, int offset, Vector3 obj)
+        {
+            int index = offset;
+            obj.X = BitConverter.ToDouble(data, index);
+            index += 8;
+            obj.Y = BitConverter.ToDouble(data, index);
+            index += 8;
+            obj.Z = BitConverter.ToDouble(data, index);
+
+            return index;
+        }
+
         private static int ParseFrame(byte[] data, int offset, SlamMapEventData obj)
         {
             int index = offset;
@@ -88,24 +101,21 @@ namespace FireFly.Proxy
             index += 4;
             double time = BitConverter.ToDouble(data, index);
             index += 8;
-            double tx = BitConverter.ToDouble(data, index);
-            index += 8;
-            double ty = BitConverter.ToDouble(data, index);
-            index += 8;
-            double tz = BitConverter.ToDouble(data, index);
-            index += 8;
-            double q1 = BitConverter.ToDouble(data, index);
-            index += 8;
-            double q2 = BitConverter.ToDouble(data, index);
-            index += 8;
-            double q3 = BitConverter.ToDouble(data, index);
-            index += 8;
-            double q4 = BitConverter.ToDouble(data, index);
-            index += 8;
-            double s = BitConverter.ToDouble(data, index);
-            index += 8;
 
-            obj._Frame = new Frame(id, time, tx, ty, tz, q1, q2, q3, q4, s);
+            SE3 Tcw = new SE3();
+            SE3 Tbw = new SE3();
+            Vector3 v = new Vector3();
+            Vector3 bg = new Vector3();
+            Vector3 ba = new Vector3();
+
+            index = ParseSE3(data, index, Tcw);
+            index = ParseSE3(data, index, Tbw);
+
+            index = ParseVector3(data, index, v);
+            index = ParseVector3(data, index, bg);
+            index = ParseVector3(data, index, ba);
+
+            obj._Frame = new Frame(id, time, new Sim3(1, Tcw), Tbw, v, bg, ba);
             return index - offset;
         }
 
@@ -146,6 +156,28 @@ namespace FireFly.Proxy
             obj.InverseDepth = inverseDepth;
 
             return index - offset;
+        }
+
+        private static int ParseSE3(byte[] data, int offset, SE3 obj)
+        {
+            int index = offset;
+            obj.Translation.X = BitConverter.ToDouble(data, index);
+            index += 8;
+            obj.Translation.Y = BitConverter.ToDouble(data, index);
+            index += 8;
+            obj.Translation.Z = BitConverter.ToDouble(data, index);
+            index += 8;
+            double q1 = BitConverter.ToDouble(data, index);
+            index += 8;
+            double q2 = BitConverter.ToDouble(data, index);
+            index += 8;
+            double q3 = BitConverter.ToDouble(data, index);
+            index += 8;
+            double q4 = BitConverter.ToDouble(data, index);
+            index += 8;
+
+            obj.SO3.Quaternion = new Quaternion(q1, q2, q3, q4);
+            return index;
         }
     }
 }

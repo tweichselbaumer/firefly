@@ -152,8 +152,8 @@ namespace FireFly.VI.SLAM.Visualisation
             {
 
 
-                List<Vector<double>> pointsKeyFrame = new List<Vector<double>>();
-                List<Vector<double>> pointsFrame = new List<Vector<double>>();
+                List<Vector3> pointsKeyFrame = new List<Vector3>();
+                List<Vector3> pointsFrame = new List<Vector3>();
 
                 if (showKeyFrameTrajectory)
                     pointsKeyFrame = _Map.GetTrajectory(TrajectoryType.Optimazation);
@@ -166,11 +166,11 @@ namespace FireFly.VI.SLAM.Visualisation
 
                 _SyncContext.Post(d =>
                 {
-                    TrajectoryKeyFrame = new Point3DCollection(pointsKeyFrame.SelectMany(c => new List<Point3D>() { new Point3D(c[0], c[1], c[2]), new Point3D(c[0], c[1], c[2]) }));
+                    TrajectoryKeyFrame = new Point3DCollection(pointsKeyFrame.SelectMany(c => new List<Point3D>() { new Point3D(c.X, c.Y, c.Z), new Point3D(c.X, c.Y, c.Z) }));
                     if (TrajectoryKeyFrame.Count > 0)
                         TrajectoryKeyFrame.RemoveAt(0);
 
-                    TrajectoryFrame = new Point3DCollection(pointsFrame.SelectMany(c => new List<Point3D>() { new Point3D(c[0], c[1], c[2]), new Point3D(c[0], c[1], c[2]) }));
+                    TrajectoryFrame = new Point3DCollection(pointsFrame.SelectMany(c => new List<Point3D>() { new Point3D(c.X, c.Y, c.Z), new Point3D(c.X, c.Y, c.Z) }));
                     if (TrajectoryFrame.Count > 0)
                         TrajectoryFrame.RemoveAt(0);
 

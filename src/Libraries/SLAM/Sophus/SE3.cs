@@ -5,7 +5,7 @@ namespace FireFly.VI.SLAM.Sophus
     public class SE3
     {
         private SO3 _SO3 = new SO3();
-        private Vector<double> _Translation = Vector<double>.Build.Dense(3);
+        private Vector3 _Translation = new Vector3();
 
         public SE3()
         {
@@ -13,21 +13,21 @@ namespace FireFly.VI.SLAM.Sophus
 
         public SE3(double[][] matrix)
         {
-            _Translation[0] = matrix[0][3];
-            _Translation[1] = matrix[1][3];
-            _Translation[2] = matrix[2][3];
+            _Translation.X = matrix[0][3];
+            _Translation.Y = matrix[1][3];
+            _Translation.Z = matrix[2][3];
             _SO3 = new SO3(matrix);
         }
 
         public SE3(double[,] matrix)
         {
-            _Translation[0] = matrix[0, 3];
-            _Translation[1] = matrix[1, 3];
-            _Translation[2] = matrix[2, 3];
+            _Translation.X = matrix[0, 3];
+            _Translation.Y = matrix[1, 3];
+            _Translation.Z = matrix[2, 3];
             _SO3 = new SO3(matrix);
         }
 
-        public SE3(Vector<double> translation, SO3 so3)
+        public SE3(Vector3 translation, SO3 so3)
         {
             Translation = translation;
             SO3 = so3;
@@ -46,7 +46,7 @@ namespace FireFly.VI.SLAM.Sophus
             }
         }
 
-        public Vector<double> Translation
+        public Vector3 Translation
         {
             get
             {
@@ -66,7 +66,7 @@ namespace FireFly.VI.SLAM.Sophus
             {
                 Matrix<double> result = Matrix<double>.Build.Dense(4, 4);
                 result.SetSubMatrix(0, 0, SO3.Matrix);
-                result.SetSubMatrix(0, 3, Translation.ToColumnMatrix());
+                result.SetSubMatrix(0, 3, Translation.Vector.ToColumnMatrix());
                 return result;
             }
         }
@@ -76,7 +76,7 @@ namespace FireFly.VI.SLAM.Sophus
             SE3 result = new SE3();
 
             result.SO3 = SO3.Inverse();
-            result.Translation = -result.SO3.TransformVector(Translation);
+            result.Translation = -1 * result.SO3.TransformVector(Translation);
 
             return result;
         }

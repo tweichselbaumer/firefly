@@ -27,8 +27,40 @@ namespace FireFly.VI.SLAM.Sophus
         {
             get
             {
-                Matrix<double> tilde = Tilde(_Q2, _Q3, _Q4);
-                return Matrix<double>.Build.DenseIdentity(3, 3) + 2 * (tilde * _Q1 + tilde * tilde);
+                Matrix<double> tilde = Tilde(Q2, Q3, Q4);
+                return Matrix<double>.Build.DenseIdentity(3, 3) + 2 * (tilde * Q1 + tilde * tilde);
+            }
+        }
+
+        public double Q1
+        {
+            get
+            {
+                return _Q1;
+            }
+        }
+
+        public double Q2
+        {
+            get
+            {
+                return _Q2;
+            }
+        }
+
+        public double Q3
+        {
+            get
+            {
+                return _Q3;
+            }
+        }
+
+        public double Q4
+        {
+            get
+            {
+                return _Q4;
             }
         }
 
@@ -63,7 +95,7 @@ namespace FireFly.VI.SLAM.Sophus
 
         private double Norm()
         {
-            return Math.Sqrt(_Q1 * _Q1 + _Q2 * _Q2 + _Q3 * _Q3 + _Q4 * _Q4);
+            return Math.Sqrt(Q1 * Q1 + Q2 * Q2 + Q3 * Q3 + Q4 * Q4);
         }
 
         private void Normalize()

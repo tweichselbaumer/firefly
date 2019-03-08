@@ -62,9 +62,9 @@ namespace FireFly.VI.SLAM.Sophus
             return result;
         }
 
-        public Vector<double> TransformVector(Vector<double> translation)
+        public Vector3 TransformVector(Vector3 translation)
         {
-            return Matrix.Multiply(translation);
+            return new Vector3(Matrix.Multiply(translation.Vector));
         }
     }
 }

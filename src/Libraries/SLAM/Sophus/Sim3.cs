@@ -9,7 +9,7 @@ namespace FireFly.VI.SLAM.Sophus
         private double _Scale = 1;
         private SE3 _SE3 = new SE3();
 
-        public Sim3(double scale, double tx, double ty, double tz, double q1, double q2, double q3, double q4) : this(scale, Vector<double>.Build.DenseOfArray(new double[] { tx, ty, tz }), new Quaternion(q1, q2, q3, q4))
+        public Sim3(double scale, double tx, double ty, double tz, double q1, double q2, double q3, double q4) : this(scale, new Vector3(tx, ty, tz), new Quaternion(q1, q2, q3, q4))
         {
 
         }
@@ -18,11 +18,11 @@ namespace FireFly.VI.SLAM.Sophus
         {
         }
 
-        public Sim3(double scale, Vector<double> translation, SO3 so3) : this(scale, new SE3(translation, so3))
+        public Sim3(double scale, Vector3 translation, SO3 so3) : this(scale, new SE3(translation, so3))
         {
         }
 
-        public Sim3(double scale, Vector<double> translation, Quaternion quaternion) : this(scale, new SE3(translation, new SO3(quaternion)))
+        public Sim3(double scale, Vector3 translation, Quaternion quaternion) : this(scale, new SE3(translation, new SO3(quaternion)))
         {
         }
 
@@ -40,7 +40,7 @@ namespace FireFly.VI.SLAM.Sophus
 
         public Sim3(double[,] matrix)
         {
-            Scale = matrix[3,3];
+            Scale = matrix[3, 3];
             _SE3 = new SE3(matrix);
         }
 
@@ -100,7 +100,7 @@ namespace FireFly.VI.SLAM.Sophus
 
             result.SE3 = SE3.Inverse();
             result.Scale = 1 / Scale;
-            result.SE3.Translation = result.Scale * result.SE3.Translation;
+            result.SE3.Translation = new Vector3(result.Scale * result.SE3.Translation.Vector);
 
             return result;
         }
