@@ -90,6 +90,7 @@ namespace FireFly.Proxy
             obj.Y = BitConverter.ToDouble(data, index);
             index += 8;
             obj.Z = BitConverter.ToDouble(data, index);
+            index += 8;
 
             return index;
         }
