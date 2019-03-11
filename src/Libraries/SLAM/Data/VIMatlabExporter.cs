@@ -30,16 +30,28 @@ namespace FireFly.VI.SLAM.Data
             List<KeyFrame> keyFrames = map.KeyFrames;
             List<Frame> frames = map.Frames;
 
-            IArray timePre = (_DataStruct["PreOptimizationTrajectory", 0] as IStructureArray)["time", 0];
-            IArray timePost = (_DataStruct["PreOptimizationTrajectory", 0] as IStructureArray)["time", 0];
+            IArray timePre = (_DataStruct["PreOptimization", 0] as IStructureArray)["time", 0];
+            IArray timePost = (_DataStruct["PostOptimization", 0] as IStructureArray)["time", 0];
 
-            IArray idPre = (_DataStruct["PreOptimizationTrajectory", 0] as IStructureArray)["id", 0];
-            IArray idPost = (_DataStruct["PostOptimizationTrajectory", 0] as IStructureArray)["id", 0];
+            IArray idPre = (_DataStruct["PreOptimization", 0] as IStructureArray)["id", 0];
+            IArray idPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["id", 0];
 
-            IArray T_cam_worldPre = (_DataStruct["PreOptimizationTrajectory", 0] as IStructureArray)["T_cam_world", 0];
-            IArray T_cam_worldPost = (_DataStruct["PostOptimizationTrajectory", 0] as IStructureArray)["T_cam_world", 0];
+            IArray T_cam_worldPre = (_DataStruct["PreOptimization", 0] as IStructureArray)["T_cam_world", 0];
+            IArray T_cam_worldPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["T_cam_world", 0];
 
-            IArray kfidPost = (_DataStruct["PostOptimizationTrajectory", 0] as IStructureArray)["T_cam_world", 0];
+            IArray velocityPre = (_DataStruct["PreOptimization", 0] as IStructureArray)["velocity", 0];
+            IArray velocityPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["velocity", 0];
+
+            IArray bgPre = (_DataStruct["PreOptimization", 0] as IStructureArray)["bias_gyroscope", 0];
+            IArray baPre = (_DataStruct["PreOptimization", 0] as IStructureArray)["bias_accelerometer", 0];
+
+            IArray bgPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_gyroscope", 0];
+            IArray baPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_accelerometer", 0];
+
+            IArray kfidPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["kfid", 0];
+
+            IArray scalePre = (_DataStruct["PreOptimization", 0] as IStructureArray)["scale", 0];
+            IArray scalePost = (_DataStruct["PostOptimization", 0] as IStructureArray)["scale", 0];
 
             timePre = ResizeArray<double>(timePre, 1, frames.Count);
             timePost = ResizeArray<double>(timePost, 1, keyFrames.Count);
@@ -50,7 +62,19 @@ namespace FireFly.VI.SLAM.Data
             T_cam_worldPre = ResizeArray<double>(T_cam_worldPre, 4, 4, frames.Count);
             T_cam_worldPost = ResizeArray<double>(T_cam_worldPost, 4, 4, keyFrames.Count);
 
+            velocityPre = ResizeArray<double>(timePre, 3, frames.Count);
+            velocityPost = ResizeArray<double>(timePost, 3, keyFrames.Count);
+
+            bgPre = ResizeArray<double>(timePre, 3, frames.Count);
+            baPre = ResizeArray<double>(timePost, 3, frames.Count);
+
+            bgPost = ResizeArray<double>(timePre, 3, keyFrames.Count);
+            baPost = ResizeArray<double>(timePost, 3, keyFrames.Count);
+
             kfidPost = ResizeArray<uint>(kfidPost, 1, keyFrames.Count);
+
+            scalePre = ResizeArray<double>(scalePre, 1, frames.Count);
+            scalePost = ResizeArray<double>(scalePost, 1, keyFrames.Count);
 
             for (int i = 0; i < frames.Count; i++)
             {
@@ -58,6 +82,15 @@ namespace FireFly.VI.SLAM.Data
                 {
                     ((IArrayOf<double>)timePre)[0, i] = frames[i].Time;
                     ((IArrayOf<uint>)idPre)[0, i] = frames[i].Id;
+                    ((IArrayOf<double>)scalePre)[0, i] = frames[i].Scale;
+
+                    for (int j = 0; j < 3; j++)
+                    {
+                        ((IArrayOf<double>)velocityPre)[j, i] = frames[i].Velocity.Vector[j];
+                        ((IArrayOf<double>)bgPre)[j, i] = frames[i].BiasGyroscope.Vector[j];
+                        ((IArrayOf<double>)baPre)[j, i] = frames[i].BiasAccelerometer.Vector[j];
+                    }
+
                     for (int j = 0; j < 4; j++)
                     {
                         for (int k = 0; k < 4; k++)
@@ -75,6 +108,14 @@ namespace FireFly.VI.SLAM.Data
                     ((IArrayOf<double>)timePost)[0, i] = keyFrames[i].Frame.Time;
                     ((IArrayOf<uint>)idPost)[0, i] = keyFrames[i].Frame.Id;
                     ((IArrayOf<uint>)kfidPost)[0, i] = keyFrames[i].Id;
+                    ((IArrayOf<double>)scalePost)[0, i] = keyFrames[i].Frame.Scale;
+
+                    for (int j = 0; j < 3; j++)
+                    {
+                        ((IArrayOf<double>)velocityPost)[j, i] = keyFrames[i].Frame.Velocity.Vector[j];
+                        ((IArrayOf<double>)bgPost)[j, i] = keyFrames[i].Frame.BiasGyroscope.Vector[j];
+                        ((IArrayOf<double>)baPost)[j, i] = keyFrames[i].Frame.BiasAccelerometer.Vector[j];
+                    }
 
                     for (int j = 0; j < 4; j++)
                     {
@@ -86,38 +127,66 @@ namespace FireFly.VI.SLAM.Data
                 }
             }
 
-            (_DataStruct["PreOptimizationTrajectory", 0] as IStructureArray)["time", 0] = timePre;
-            (_DataStruct["PreOptimizationTrajectory", 0] as IStructureArray)["id", 0] = idPre;
-            (_DataStruct["PreOptimizationTrajectory", 0] as IStructureArray)["T_cam_world", 0] = T_cam_worldPre;
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["time", 0] = timePre;
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["id", 0] = idPre;
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["T_cam_world", 0] = T_cam_worldPre;
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["velocity", 0] = velocityPre;
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["bias_gyroscope", 0] = bgPre;
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["bias_accelerometer", 0] = baPre;
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["scale", 0] = scalePre;
 
-            (_DataStruct["PostOptimizationTrajectory", 0] as IStructureArray)["time", 0] = timePost;
-            (_DataStruct["PostOptimizationTrajectory", 0] as IStructureArray)["id", 0] = idPost;
-            (_DataStruct["PostOptimizationTrajectory", 0] as IStructureArray)["T_cam_world", 0] = T_cam_worldPost;
-            (_DataStruct["PostOptimizationTrajectory", 0] as IStructureArray)["kfid", 0] = kfidPost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["time", 0] = timePost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["id", 0] = idPost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["T_cam_world", 0] = T_cam_worldPost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["kfid", 0] = kfidPost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["velocity", 0] = velocityPost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_gyroscope", 0] = bgPost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_accelerometer", 0] = baPost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["scale", 0] = scalePost;
+
         }
 
         public void Open()
         {
             _DataBuilder = new DataBuilder();
-            _DataStruct = _DataBuilder.NewStructureArray(new[] { "PreOptimizationTrajectory", "PostOptimizationTrajectory" }, 1);
+            _DataStruct = _DataBuilder.NewStructureArray(new[] { "PreOptimization", "PostOptimization" }, 1);
 
-            _DataStruct["PreOptimizationTrajectory", 0] = AddFieldToStructureArray(_DataStruct["PreOptimizationTrajectory", 0], "time", 1);
-            _DataStruct["PreOptimizationTrajectory", 0] = AddFieldToStructureArray(_DataStruct["PreOptimizationTrajectory", 0], "id", 1);
-            _DataStruct["PreOptimizationTrajectory", 0] = AddFieldToStructureArray(_DataStruct["PreOptimizationTrajectory", 0], "T_cam_world", 1);
+            _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "time", 1);
+            _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "id", 1);
+            _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "T_cam_world", 1);
+            _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "velocity", 1);
+            _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "bias_gyroscope", 1);
+            _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "bias_accelerometer", 1);
+            _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "scale", 1);
 
-            _DataStruct["PostOptimizationTrajectory", 0] = AddFieldToStructureArray(_DataStruct["PostOptimizationTrajectory", 0], "time", 1);
-            _DataStruct["PostOptimizationTrajectory", 0] = AddFieldToStructureArray(_DataStruct["PostOptimizationTrajectory", 0], "id", 1);
-            _DataStruct["PostOptimizationTrajectory", 0] = AddFieldToStructureArray(_DataStruct["PostOptimizationTrajectory", 0], "T_cam_world", 1);
-            _DataStruct["PostOptimizationTrajectory", 0] = AddFieldToStructureArray(_DataStruct["PostOptimizationTrajectory", 0], "kfid", 1);
 
-            (_DataStruct["PreOptimizationTrajectory", 0] as IStructureArray)["time", 0] = _DataBuilder.NewArray<double>(1, 0);
-            (_DataStruct["PreOptimizationTrajectory", 0] as IStructureArray)["id", 0] = _DataBuilder.NewArray<uint>(1, 0);
-            (_DataStruct["PreOptimizationTrajectory", 0] as IStructureArray)["T_cam_world", 0] = _DataBuilder.NewArray<double>(4, 4, 0);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "time", 1);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "id", 1);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "T_cam_world", 1);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "kfid", 1);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "velocity", 1);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "bias_gyroscope", 1);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "bias_accelerometer", 1);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "scale", 1);
 
-            (_DataStruct["PostOptimizationTrajectory", 0] as IStructureArray)["time", 0] = _DataBuilder.NewArray<double>(1, 0);
-            (_DataStruct["PostOptimizationTrajectory", 0] as IStructureArray)["id", 0] = _DataBuilder.NewArray<uint>(1, 0);
-            (_DataStruct["PostOptimizationTrajectory", 0] as IStructureArray)["kfid", 0] = _DataBuilder.NewArray<uint>(1, 0);
-            (_DataStruct["PostOptimizationTrajectory", 0] as IStructureArray)["T_cam_world", 0] = _DataBuilder.NewArray<double>(4, 4, 0);
+
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["time", 0] = _DataBuilder.NewArray<double>(1, 0);
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["id", 0] = _DataBuilder.NewArray<uint>(1, 0);
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["T_cam_world", 0] = _DataBuilder.NewArray<double>(4, 4, 0);
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["velocity", 0] = _DataBuilder.NewArray<double>(3, 0);
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["bias_gyroscope", 0] = _DataBuilder.NewArray<double>(3, 0);
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["bias_accelerometer", 0] = _DataBuilder.NewArray<double>(3, 0);
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["scale", 0] = _DataBuilder.NewArray<double>(1, 0);
+
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["time", 0] = _DataBuilder.NewArray<double>(1, 0);
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["id", 0] = _DataBuilder.NewArray<uint>(1, 0);
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["kfid", 0] = _DataBuilder.NewArray<uint>(1, 0);
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["T_cam_world", 0] = _DataBuilder.NewArray<double>(4, 4, 0);
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["velocity", 0] = _DataBuilder.NewArray<double>(3, 0);
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_gyroscope", 0] = _DataBuilder.NewArray<double>(3, 0);
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_accelerometer", 0] = _DataBuilder.NewArray<double>(3, 0);
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["scale", 0] = _DataBuilder.NewArray<double>(1, 0);
+
         }
 
         private IStructureArray AddFieldToStructureArray(IArray structureArray, string fieldName, params int[] dimensions)

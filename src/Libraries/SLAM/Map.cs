@@ -1,5 +1,4 @@
 ﻿using FireFly.VI.SLAM.Sophus;
-using MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media.Media3D;
@@ -63,6 +62,24 @@ namespace FireFly.VI.SLAM
                 _KeyFrames[(int)keyFrame.Id] = keyFrame;
                 return old;
             }
+        }
+
+        public List<Model3D> GetKeyFrameOrientations()
+        {
+            List<Model3D> kfos = new List<Model3D>();
+            lock (_KeyFrames)
+            {
+                foreach (KeyFrame keyFrame in _KeyFrames)
+                {
+                    if (keyFrame != null)
+                    {
+                        Model3D kfo = keyFrame.GetCoordinateSystem().Content;
+                        kfo.Freeze();
+                        kfos.Add(kfo);
+                    }
+                }
+            }
+            return kfos;
         }
 
         public List<GeometryModel3D> GetPointCloud(bool onlyNew = false)

@@ -116,7 +116,10 @@ namespace FireFly.Proxy
             index = ParseVector3(data, index, bg);
             index = ParseVector3(data, index, ba);
 
-            obj._Frame = new Frame(id, time, new Sim3(1, Tcw), Tbw, v, bg, ba);
+            double scale = BitConverter.ToDouble(data, index);
+            index += 8;
+
+            obj._Frame = new Frame(id, time, new Sim3(1, Tcw), Tbw, v, bg, ba, scale);
             return index - offset;
         }
 

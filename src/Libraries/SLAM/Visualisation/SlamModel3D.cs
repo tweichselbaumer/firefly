@@ -1,12 +1,8 @@
-﻿using FireFly.Command;
-using FireFly.VI.SLAM.Data;
-using MahApps.Metro.Controls.Dialogs;
-using MathNet.Numerics.LinearAlgebra;
-using System;
+﻿using FireFly.VI.SLAM.Data;
+using HelixToolkit.Wpf;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Media3D;
 
@@ -14,8 +10,10 @@ namespace FireFly.VI.SLAM.Visualisation
 {
     public class SlamModel3D : DependencyObject
     {
+        
+
         public static readonly DependencyProperty ModelProperty =
-            DependencyProperty.Register("Model", typeof(Model3D), typeof(SlamModel3D), new PropertyMetadata(null));
+                    DependencyProperty.Register("Model", typeof(Model3D), typeof(SlamModel3D), new PropertyMetadata(null));
 
         public static readonly DependencyProperty ShowFrameTrajectoryProperty =
             DependencyProperty.Register("ShowFrameTrajectory", typeof(bool), typeof(SlamModel3D), new PropertyMetadata(true));
@@ -37,6 +35,8 @@ namespace FireFly.VI.SLAM.Visualisation
 
         private Map _Map = new Map();
 
+        private bool _ShowKeyFrameOrientations;
+
         private SynchronizationContext _SyncContext;
 
         private System.Timers.Timer _Timer;
@@ -53,6 +53,8 @@ namespace FireFly.VI.SLAM.Visualisation
             _Timer.Start();
         }
 
+      
+
         public Model3D Model
         {
             get { return (Model3D)GetValue(ModelProperty); }
@@ -65,22 +67,23 @@ namespace FireFly.VI.SLAM.Visualisation
             set { SetValue(ShowFrameTrajectoryProperty, value); }
         }
 
+        public bool ShowKeyFrameOrientations
+        {
+            get
+            {
+                return _ShowKeyFrameOrientations;
+            }
 
+            set
+            {
+                _ShowKeyFrameOrientations = value;
+            }
+        }
 
         public bool ShowKeyFrameTrajectory
         {
             get { return (bool)GetValue(ShowKeyFrameTrajectoryProperty); }
             set { SetValue(ShowKeyFrameTrajectoryProperty, value); }
-        }
-
-        public void ExportToMatlab(string fileName)
-        {
-            VIMatlabExporter exporter = new VIMatlabExporter(fileName);
-            exporter.Open();
-
-            exporter.ExportMap(_Map);
-
-            exporter.Close();
         }
 
         public bool ShowPointCloud
@@ -124,6 +127,16 @@ namespace FireFly.VI.SLAM.Visualisation
             }
         }
 
+        public void ExportToMatlab(string fileName)
+        {
+            VIMatlabExporter exporter = new VIMatlabExporter(fileName);
+            exporter.Open();
+
+            exporter.ExportMap(_Map);
+
+            exporter.Close();
+        }
+
         public void Reset()
         {
             _Map.Reset();
@@ -146,12 +159,11 @@ namespace FireFly.VI.SLAM.Visualisation
                 showKeyFrameTrajectory = ShowKeyFrameTrajectory;
                 showFrameTrajectory = ShowFrameTrajectory;
                 onlyNew = !(showPointCloud && Model != null && (Model as Model3DGroup).Children.Count == 0);
+
             }, null);
 
             if (_Map.HasFrames() || _Map.HasKeyFrames())
             {
-
-
                 List<Vector3> pointsKeyFrame = new List<Vector3>();
                 List<Vector3> pointsFrame = new List<Vector3>();
 
@@ -163,7 +175,7 @@ namespace FireFly.VI.SLAM.Visualisation
                 List<GeometryModel3D> pointClouds = new List<GeometryModel3D>();
                 if (showPointCloud)
                     pointClouds = _Map.GetPointCloud(onlyNew);
-
+           
                 _SyncContext.Post(d =>
                 {
                     TrajectoryKeyFrame = new Point3DCollection(pointsKeyFrame.SelectMany(c => new List<Point3D>() { new Point3D(c.X, c.Y, c.Z), new Point3D(c.X, c.Y, c.Z) }));
@@ -184,7 +196,9 @@ namespace FireFly.VI.SLAM.Visualisation
                         (Model as Model3DGroup).Children.Add(pointCloud);
                     }
 
-
+                    if (ShowKeyFrameOrientations)
+                    {
+                    }
                 }, null);
             }
             else

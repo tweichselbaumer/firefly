@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using HelixToolkit.Wpf;
 
 namespace FireFly.VI.SLAM
 {
@@ -23,6 +25,7 @@ namespace FireFly.VI.SLAM
             Fy = fy;
             Cx = cx;
             Cy = cy;
+
             Points.AddRange(Enumerable.Range(1, points).Select(c => (Point)null));
         }
 
@@ -225,6 +228,16 @@ namespace FireFly.VI.SLAM
                 mesh.TriangleIndices.Add(offset + 0);
                 mesh.TriangleIndices.Add(offset + 1);
             }
+        }
+
+        public CoordinateSystemVisual3D GetCoordinateSystem()
+        {
+            CoordinateSystemVisual3D coordinateSystemVisual3D = new CoordinateSystemVisual3D();
+
+            coordinateSystemVisual3D.ArrowLengths = 0.1;
+            coordinateSystemVisual3D.Transform = new MatrixTransform3D(Frame.T_base_world.Inverse().Matrix3D);
+
+            return coordinateSystemVisual3D;
         }
     }
 }

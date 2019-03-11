@@ -184,33 +184,32 @@ namespace FireFly.Proxy
                     if (startTime == -1)
                         startTime = res.Item1;
 
-                    lock (_Subscriptions)
+                    ImuEventData imuEventData = null;
+                    CameraEventData cameraEventData = null;
+
+                    int rawSize = 0;
+                    byte[] rawImage = null;
+                    byte[] rawImu = null;
+                    double exposureTime = 0.0;
+
+                    foreach (Tuple<RawReaderMode, object> val in res.Item2)
                     {
-                        ImuEventData imuEventData = null;
-                        CameraEventData cameraEventData = null;
-
-                        int rawSize = 0;
-                        byte[] rawImage = null;
-                        byte[] rawImu = null;
-                        double exposureTime = 0.0;
-
-                        foreach (Tuple<RawReaderMode, object> val in res.Item2)
+                        if (val.Item1 == RawReaderMode.Imu0)
                         {
-                            if (val.Item1 == RawReaderMode.Imu0)
-                            {
-                                imuEventData = ImuEventData.Parse(res.Item1, (Tuple<double, double, double, double, double, double>)val.Item2, res.Item2.Any(c => c.Item1 == RawReaderMode.Camera0));
-                                rawSize += imuEventData.RawSize;
-                                rawImu = imuEventData.GetRaw(_SettingContainer.Settings.ImuSettings.GyroscopeScale, _SettingContainer.Settings.ImuSettings.AccelerometerScale, _SettingContainer.Settings.ImuSettings.TemperatureScale, _SettingContainer.Settings.ImuSettings.TemperatureOffset);
-                            }
-                            if (val.Item1 == RawReaderMode.Camera0)
-                            {
-                                cameraEventData = CameraEventData.Parse(((Tuple<double, byte[]>)val.Item2).Item2, 0, false, ((Tuple<double, byte[]>)val.Item2).Item1);
-                                rawSize += cameraEventData.RawSize;
-                                rawImage = ((Tuple<double, byte[]>)val.Item2).Item2;
-                                exposureTime = ((Tuple<double, byte[]>)val.Item2).Item1;
-                            }
+                            imuEventData = ImuEventData.Parse(res.Item1, (Tuple<double, double, double, double, double, double>)val.Item2, res.Item2.Any(c => c.Item1 == RawReaderMode.Camera0));
+                            rawSize += imuEventData.RawSize;
+                            rawImu = imuEventData.GetRaw(_SettingContainer.Settings.ImuSettings.GyroscopeScale, _SettingContainer.Settings.ImuSettings.AccelerometerScale, _SettingContainer.Settings.ImuSettings.TemperatureScale, _SettingContainer.Settings.ImuSettings.TemperatureOffset);
                         }
-
+                        if (val.Item1 == RawReaderMode.Camera0)
+                        {
+                            cameraEventData = CameraEventData.Parse(((Tuple<double, byte[]>)val.Item2).Item2, 0, false, ((Tuple<double, byte[]>)val.Item2).Item1);
+                            rawSize += cameraEventData.RawSize;
+                            rawImage = ((Tuple<double, byte[]>)val.Item2).Item2;
+                            exposureTime = ((Tuple<double, byte[]>)val.Item2).Item1;
+                        }
+                    }
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                    {
                         if (rawSize > 0)
                         {
                             byte[] data = new byte[rawSize];
@@ -222,9 +221,10 @@ namespace FireFly.Proxy
                             }
                             _ReplayDataSend.AsyncCall(data);
                         }
-
-                        _BackgroundQueue.Add(new Tuple<ImuEventData, CameraEventData>(imuEventData, cameraEventData));
                     }
+                    else
+                        _BackgroundQueue.Add(new Tuple<ImuEventData, CameraEventData>(imuEventData, cameraEventData));
+
                     currentTime += reader.DeltaTimeMs;
                     int sleep = (int)(currentTime - watch.ElapsedMilliseconds);
                     if (sleep > reader.DeltaTimeMs)
@@ -628,7 +628,19 @@ namespace FireFly.Proxy
                 {
                     ImuEventData imuEventData = next.Item1;
                     CameraEventData cameraEventData = next.Item2;
-                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraImuEvent))
+
+                    List<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriberCamImu = null;
+                    List<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriberCam = null;
+                    List<Tuple<IProxyEventSubscriber, ProxyEventType>> subscriberImu = null;
+
+                    lock (_Subscriptions)
+                    {
+                        subscriberCamImu = _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraImuEvent).ToList();
+                        subscriberCam = _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraEvent).ToList();
+                        subscriberImu = _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuEvent).ToList();
+                    }
+
+                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriberCamImu)
                     {
                         if (cameraEventData != null)
                             t.Item1.Fired(this, new List<AbstractProxyEventData>() { cameraEventData, imuEventData });
@@ -639,13 +651,13 @@ namespace FireFly.Proxy
                         }
                     }
 
-                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.CameraEvent))
+                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriberCam)
                     {
                         if (cameraEventData != null)
                             t.Item1.Fired(this, new List<AbstractProxyEventData>() { cameraEventData });
                     }
 
-                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in _Subscriptions.Where(c => c.Item2 == ProxyEventType.ImuEvent))
+                    foreach (Tuple<IProxyEventSubscriber, ProxyEventType> t in subscriberImu)
                     {
                         if (imuEventData != null)
                             t.Item1.Fired(this, new List<AbstractProxyEventData>() { imuEventData });
@@ -747,27 +759,27 @@ namespace FireFly.Proxy
                     }
                 }
             }
-            else if (ProxyMode == IOProxyMode.Offline)
-            {
-                try
-                {
-                    if (ConnectivityState == LinkUpConnectivityState.Connected)
-                        _CameraEventLabel.Unsubscribe();
-                }
-                catch (Exception) { }
-                try
-                {
-                    if (ConnectivityState == LinkUpConnectivityState.Connected)
-                        _ImuEventLabel.Unsubscribe();
-                }
-                catch (Exception) { }
-                try
-                {
-                    if (ConnectivityState == LinkUpConnectivityState.Connected)
-                        _CameraImuEventLabel.Unsubscribe();
-                }
-                catch (Exception) { }
-            }
+            //else if (ProxyMode == IOProxyMode.Offline)
+            //{
+            //    try
+            //    {
+            //        if (ConnectivityState == LinkUpConnectivityState.Connected)
+            //            _CameraEventLabel.Unsubscribe();
+            //    }
+            //    catch (Exception) { }
+            //    try
+            //    {
+            //        if (ConnectivityState == LinkUpConnectivityState.Connected)
+            //            _ImuEventLabel.Unsubscribe();
+            //    }
+            //    catch (Exception) { }
+            //    try
+            //    {
+            //        if (ConnectivityState == LinkUpConnectivityState.Connected)
+            //            _CameraImuEventLabel.Unsubscribe();
+            //    }
+            //    catch (Exception) { }
+            //}
 
             if (_SlamMapEventLabel != null)
             {

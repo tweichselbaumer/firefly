@@ -1,4 +1,6 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using FireFly.Utilities;
+using MathNet.Numerics.LinearAlgebra;
+using System.Windows.Media.Media3D;
 
 namespace FireFly.VI.SLAM.Sophus
 {
@@ -33,6 +35,28 @@ namespace FireFly.VI.SLAM.Sophus
             SO3 = so3;
         }
 
+        public Matrix<double> Matrix
+        {
+            get
+            {
+                Matrix<double> result = Matrix<double>.Build.Dense(4, 4);
+                result.SetSubMatrix(0, 0, SO3.Matrix);
+                result.SetSubMatrix(0, 3, Translation.Vector.ToColumnMatrix());
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// x'*Matrix3D
+        /// </summary>
+        public Matrix3D Matrix3D
+        {
+            get
+            {
+                return Matrix3DFactory.CreateMatrix(Matrix.ToArray());
+            }
+        }
+
         public SO3 SO3
         {
             get
@@ -56,18 +80,6 @@ namespace FireFly.VI.SLAM.Sophus
             set
             {
                 _Translation = value;
-            }
-        }
-
-        public Matrix<double> Matrix
-        {
-
-            get
-            {
-                Matrix<double> result = Matrix<double>.Build.Dense(4, 4);
-                result.SetSubMatrix(0, 0, SO3.Matrix);
-                result.SetSubMatrix(0, 3, Translation.Vector.ToColumnMatrix());
-                return result;
             }
         }
 

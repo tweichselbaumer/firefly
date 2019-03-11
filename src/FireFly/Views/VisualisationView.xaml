@@ -43,6 +43,7 @@
                 <helix:CoordinateSystemVisual3D ArrowLengths="0.1" Transform="{Binding SlamModel3D.Transform3D}" />
                 <helix:LinesVisual3D Points="{Binding SlamModel3D.TrajectoryKeyFrame}" Color="Gold" Thickness="3" />
                 <helix:LinesVisual3D Points="{Binding SlamModel3D.TrajectoryFrame}" Color="OrangeRed" Thickness="2" />
+                <!--<helix:GridLinesVisual3D MinorDistance="1" MajorDistance="1" Thickness="0.001"/>-->
             </helix:HelixViewport3D>
             <Grid Panel.ZIndex="1000" Opacity="0.8" Margin="0 0 1 12">
                 <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left" Orientation="Horizontal" Background="Black" Opacity="0.8">
@@ -105,14 +106,14 @@
 
                 <Separator Margin="0 20 0 20" />
 
-                <Label  Content="Enable Imu Integration" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Enable Visual Inertial" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
-                IsChecked="{Binding Path=EnabledTrajectory}" Margin="15,0,0,0"
+                IsChecked="{Binding Path=EnableVisualInertial}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
-                <Label  Content="Enable Loop Closing" Style="{DynamicResource GeneralLabelStyle}" />
+                <Label  Content="Show KeyFrame Orientations" Style="{DynamicResource GeneralLabelStyle}" />
                 <Controls:ToggleSwitch
-                IsChecked="{Binding Path=EnabledTrajectory}" Margin="15,0,0,0"
+                IsChecked="{Binding Path=ShowKeyFrameOrientations}" Margin="15,0,0,0"
                 Style="{StaticResource MahApps.Metro.Styles.ToggleSwitch.Win10}" />
 
                 <Label  Content="Reproducible Execution" Style="{DynamicResource GeneralLabelStyle}" />

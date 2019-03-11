@@ -211,11 +211,11 @@
                             <Views:VisualisationView  DataContext="{Binding Source={StaticResource Data}, Path=VisualisationViewModel}" />
                         </Controls:HamburgerMenuIconItem.Tag>
                     </Controls:HamburgerMenuIconItem>
-                    <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=GoogleController}" Label="Control">
+                    <!--<Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=GoogleController}" Label="Control">
                         <Controls:HamburgerMenuIconItem.Tag>
                             <Grid></Grid>
                         </Controls:HamburgerMenuIconItem.Tag>
-                    </Controls:HamburgerMenuIconItem>
+                    </Controls:HamburgerMenuIconItem>-->
                     <Controls:HamburgerMenuIconItem Icon="{iconPacks:Material Kind=RecordRec}" Label="Record">
                         <Controls:HamburgerMenuIconItem.Tag>
                             <Views:RecordView  DataContext="{Binding Source={StaticResource Data}, Path=RecordViewModel}" />

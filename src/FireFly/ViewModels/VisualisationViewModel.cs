@@ -13,11 +13,17 @@ namespace FireFly.ViewModels
 {
     public class VisualisationViewModel : AbstractViewModel, IProxyEventSubscriber
     {
+        public static readonly DependencyProperty EnableVisualInertialProperty =
+            DependencyProperty.Register("EnableVisualInertial", typeof(bool), typeof(VisualisationViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
+
         public static readonly DependencyProperty FPSProperty =
-            DependencyProperty.Register("FPS", typeof(int), typeof(VisualisationViewModel), new PropertyMetadata(0));
+                    DependencyProperty.Register("FPS", typeof(int), typeof(VisualisationViewModel), new PropertyMetadata(0));
 
         public static readonly DependencyProperty ReproducibleExecutionProperty =
             DependencyProperty.Register("ReproducibleExecution", typeof(bool), typeof(VisualisationViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
+
+        public static readonly DependencyProperty ShowKeyFrameOrientationsProperty =
+            DependencyProperty.Register("ShowKeyFrameOrientations", typeof(bool), typeof(VisualisationViewModel), new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnPropertyChanged)));
 
         public static readonly DependencyProperty StatusProperty =
                     DependencyProperty.Register("Status", typeof(SlamOperationStatus), typeof(VisualisationViewModel), new PropertyMetadata(SlamOperationStatus.Stopped));
@@ -36,6 +42,12 @@ namespace FireFly.ViewModels
             _Timer.Elapsed += _Timer_Elapsed;
             _Timer.Start();
             Parent.IOProxy.Subscribe(this, ProxyEventType.SlamStatusEvent);
+        }
+
+        public bool EnableVisualInertial
+        {
+            get { return (bool)GetValue(EnableVisualInertialProperty); }
+            set { SetValue(EnableVisualInertialProperty, value); }
         }
 
         public RelayCommand<object> ExportCommand
@@ -60,6 +72,12 @@ namespace FireFly.ViewModels
         {
             get { return (bool)GetValue(ReproducibleExecutionProperty); }
             set { SetValue(ReproducibleExecutionProperty, value); }
+        }
+
+        public bool ShowKeyFrameOrientations
+        {
+            get { return (bool)GetValue(ShowKeyFrameOrientationsProperty); }
+            set { SetValue(ShowKeyFrameOrientationsProperty, value); }
         }
 
         public SlamModel3D SlamModel3D
@@ -134,6 +152,8 @@ namespace FireFly.ViewModels
             base.SettingsUpdated();
 
             ReproducibleExecution = Parent.SettingContainer.Settings.SlamSettings.ReproducibleExecution;
+            ShowKeyFrameOrientations = Parent.SettingContainer.Settings.SlamSettings.ShowKeyFrameOrientations;
+            EnableVisualInertial = Parent.SettingContainer.Settings.SlamSettings.EnableVisualInertial;
         }
 
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -147,6 +167,19 @@ namespace FireFly.ViewModels
                     changed = vvm.Parent.SettingContainer.Settings.SlamSettings.ReproducibleExecution != vvm.ReproducibleExecution;
                     vvm.Parent.SettingContainer.Settings.SlamSettings.ReproducibleExecution = vvm.ReproducibleExecution;
                     connectionSettingsChanged = false;
+                    break;
+
+                case "EnableVisualInertial":
+                    changed = vvm.Parent.SettingContainer.Settings.SlamSettings.EnableVisualInertial != vvm.EnableVisualInertial;
+                    vvm.Parent.SettingContainer.Settings.SlamSettings.EnableVisualInertial = vvm.EnableVisualInertial;
+                    connectionSettingsChanged = false;
+                    break;
+
+                case "ShowKeyFrameOrientations":
+                    changed = vvm.Parent.SettingContainer.Settings.SlamSettings.ShowKeyFrameOrientations != vvm.ShowKeyFrameOrientations;
+                    vvm.Parent.SettingContainer.Settings.SlamSettings.ShowKeyFrameOrientations = vvm.ShowKeyFrameOrientations;
+                    connectionSettingsChanged = false;
+                    vvm.SlamModel3D.ShowKeyFrameOrientations = vvm.ShowKeyFrameOrientations;
                     break;
 
                 default:
