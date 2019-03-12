@@ -64,18 +64,18 @@ namespace FireFly.VI.SLAM
             }
         }
 
-        public List<Model3D> GetKeyFrameOrientations()
+        public List<Visual3D> GetKeyFrameOrientations(bool onlyNew = false)
         {
-            List<Model3D> kfos = new List<Model3D>();
+            List<Visual3D> kfos = new List<Visual3D>();
             lock (_KeyFrames)
             {
                 foreach (KeyFrame keyFrame in _KeyFrames)
                 {
                     if (keyFrame != null)
                     {
-                        Model3D kfo = keyFrame.GetCoordinateSystem().Content;
-                        kfo.Freeze();
-                        kfos.Add(kfo);
+                        Visual3D visual3D = keyFrame.GetCoordinateSystem(onlyNew);
+                        if (visual3D != null)
+                            kfos.Add(visual3D);
                     }
                 }
             }

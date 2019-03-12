@@ -6,6 +6,7 @@
              xmlns:helix="http://helix-toolkit.org/wpf"
              xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:Converter="clr-namespace:FireFly.Converter"
+             xmlns:helixExtend="clr-namespace:FireFly.VI.SLAM.Visualisation;assembly=FireFly.SLAM"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -44,6 +45,7 @@
                 <helix:LinesVisual3D Points="{Binding SlamModel3D.TrajectoryKeyFrame}" Color="Gold" Thickness="3" />
                 <helix:LinesVisual3D Points="{Binding SlamModel3D.TrajectoryFrame}" Color="OrangeRed" Thickness="2" />
                 <!--<helix:GridLinesVisual3D MinorDistance="1" MajorDistance="1" Thickness="0.001"/>-->
+                <helixExtend:ItemsVisual3D ItemsSource="{Binding SlamModel3D.CoordinateSystems}"/>
             </helix:HelixViewport3D>
             <Grid Panel.ZIndex="1000" Opacity="0.8" Margin="0 0 1 12">
                 <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Left" Orientation="Horizontal" Background="Black" Opacity="0.8">

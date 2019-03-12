@@ -51,6 +51,7 @@
       <HintPath>..\..\packages\MathNet.Numerics.4.7.0\lib\net461\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -82,6 +83,7 @@
     <Compile Include="Sophus\Sim3.cs" />
     <Compile Include="Sophus\SO3.cs" />
     <Compile Include="Vector3.cs" />
+    <Compile Include="Visualisation\ItemsVisual3D.cs" />
     <Compile Include="Visualisation\SlamModel3D.cs" />
   </ItemGroup>
   <ItemGroup>

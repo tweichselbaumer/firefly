@@ -1,6 +1,6 @@
 ﻿using FireFly.VI.SLAM.Data;
-using HelixToolkit.Wpf;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Windows;
@@ -10,13 +10,14 @@ namespace FireFly.VI.SLAM.Visualisation
 {
     public class SlamModel3D : DependencyObject
     {
-        
-
         public static readonly DependencyProperty ModelProperty =
-                    DependencyProperty.Register("Model", typeof(Model3D), typeof(SlamModel3D), new PropertyMetadata(null));
+            DependencyProperty.Register("Model", typeof(Model3D), typeof(SlamModel3D), new PropertyMetadata(null));
+
+        public static readonly DependencyProperty MyPropertyProperty =
+            DependencyProperty.Register("CoordinateSystems", typeof(ObservableCollection<Visual3D>), typeof(SlamModel3D), new PropertyMetadata(null));
 
         public static readonly DependencyProperty ShowFrameTrajectoryProperty =
-            DependencyProperty.Register("ShowFrameTrajectory", typeof(bool), typeof(SlamModel3D), new PropertyMetadata(true));
+                    DependencyProperty.Register("ShowFrameTrajectory", typeof(bool), typeof(SlamModel3D), new PropertyMetadata(true));
 
         public static readonly DependencyProperty ShowKeyFrameTrajectoryProperty =
             DependencyProperty.Register("ShowKeyFrameTrajectory", typeof(bool), typeof(SlamModel3D), new PropertyMetadata(true));
@@ -28,10 +29,10 @@ namespace FireFly.VI.SLAM.Visualisation
             DependencyProperty.Register("TrajectoryFrame", typeof(Point3DCollection), typeof(SlamModel3D), new PropertyMetadata(null));
 
         public static readonly DependencyProperty TrajectoryKeyFrameProperty =
-         DependencyProperty.Register("TrajectoryKeyFrame", typeof(Point3DCollection), typeof(SlamModel3D), new PropertyMetadata(null));
+            DependencyProperty.Register("TrajectoryKeyFrame", typeof(Point3DCollection), typeof(SlamModel3D), new PropertyMetadata(null));
 
         public static readonly DependencyProperty Transform3DProperty =
-                DependencyProperty.Register("Transform3D", typeof(MatrixTransform3D), typeof(SlamModel3D), new PropertyMetadata(null));
+            DependencyProperty.Register("Transform3D", typeof(MatrixTransform3D), typeof(SlamModel3D), new PropertyMetadata(null));
 
         private Map _Map = new Map();
 
@@ -51,9 +52,15 @@ namespace FireFly.VI.SLAM.Visualisation
             _Timer = new System.Timers.Timer(200);
             _Timer.Elapsed += _Timer_Elapsed;
             _Timer.Start();
+
+            CoordinateSystems = new ObservableCollection<Visual3D>();
         }
 
-      
+        public ObservableCollection<Visual3D> CoordinateSystems
+        {
+            get { return (ObservableCollection<Visual3D>)GetValue(MyPropertyProperty); }
+            set { SetValue(MyPropertyProperty, value); }
+        }
 
         public Model3D Model
         {
@@ -143,6 +150,7 @@ namespace FireFly.VI.SLAM.Visualisation
             _SyncContext.Send(d =>
             {
                 Model = new Model3DGroup();
+                CoordinateSystems.Clear();
             }, null);
         }
 
@@ -159,7 +167,6 @@ namespace FireFly.VI.SLAM.Visualisation
                 showKeyFrameTrajectory = ShowKeyFrameTrajectory;
                 showFrameTrajectory = ShowFrameTrajectory;
                 onlyNew = !(showPointCloud && Model != null && (Model as Model3DGroup).Children.Count == 0);
-
             }, null);
 
             if (_Map.HasFrames() || _Map.HasKeyFrames())
@@ -175,7 +182,7 @@ namespace FireFly.VI.SLAM.Visualisation
                 List<GeometryModel3D> pointClouds = new List<GeometryModel3D>();
                 if (showPointCloud)
                     pointClouds = _Map.GetPointCloud(onlyNew);
-           
+
                 _SyncContext.Post(d =>
                 {
                     TrajectoryKeyFrame = new Point3DCollection(pointsKeyFrame.SelectMany(c => new List<Point3D>() { new Point3D(c.X, c.Y, c.Z), new Point3D(c.X, c.Y, c.Z) }));
@@ -198,6 +205,14 @@ namespace FireFly.VI.SLAM.Visualisation
 
                     if (ShowKeyFrameOrientations)
                     {
+                        foreach (Visual3D visual3D in _Map.GetKeyFrameOrientations(CoordinateSystems.Count != 0))
+                        {
+                            CoordinateSystems.Add(visual3D);
+                        }
+                    }
+                    else
+                    {
+                        CoordinateSystems.Clear();
                     }
                 }, null);
             }

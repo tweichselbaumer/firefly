@@ -42,6 +42,7 @@ namespace FireFly.VI.SLAM.Sophus
                 Matrix<double> result = Matrix<double>.Build.Dense(4, 4);
                 result.SetSubMatrix(0, 0, SO3.Matrix);
                 result.SetSubMatrix(0, 3, Translation.Vector.ToColumnMatrix());
+                result[3, 3] = 1;
                 return result;
             }
         }

@@ -16,6 +16,7 @@ namespace FireFly.VI.SLAM
         private double _Fy;
         private uint _Id;
         private GeometryModel3D _PointCloud;
+        private CoordinateSystemVisual3D _CoordinateSystemVisual3D;
         private List<Point> _Points = new List<Point>();
 
         public KeyFrame(uint id, double fx, double fy, double cx, double cy, int points, Frame frame)
@@ -230,14 +231,21 @@ namespace FireFly.VI.SLAM
             }
         }
 
-        public CoordinateSystemVisual3D GetCoordinateSystem()
+        public CoordinateSystemVisual3D GetCoordinateSystem(bool onlyNew = false)
         {
-            CoordinateSystemVisual3D coordinateSystemVisual3D = new CoordinateSystemVisual3D();
+            bool newCoordinateSystem = false;
+            if (_CoordinateSystemVisual3D == null)
+            {
+                newCoordinateSystem = true;
+                _CoordinateSystemVisual3D = new CoordinateSystemVisual3D();
+                _CoordinateSystemVisual3D.ArrowLengths = 0.05;
+                _CoordinateSystemVisual3D.Transform = new MatrixTransform3D(Frame.T_base_world.Inverse().Matrix3D);
+            }
 
-            coordinateSystemVisual3D.ArrowLengths = 0.1;
-            coordinateSystemVisual3D.Transform = new MatrixTransform3D(Frame.T_base_world.Inverse().Matrix3D);
-
-            return coordinateSystemVisual3D;
+            if (onlyNew && newCoordinateSystem || !onlyNew)
+                return _CoordinateSystemVisual3D;
+            else
+                return null;
         }
     }
 }
