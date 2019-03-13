@@ -10,6 +10,7 @@ namespace FireFly.Data.Storage
     public enum MatlabFormat
     {
         Imu0 = 1,
+        Camera0 = 2,
     }
 
     public class RawMatlabExporter
@@ -27,17 +28,35 @@ namespace FireFly.Data.Storage
 
         public void AddFromReader(RawDataReader reader, Action<double> progress = null)
         {
-            IArray time = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["time", 0];
+            IArray time_imu0 = null;
+            IArray time_cam0 = null;
+            IArray gyrox = null;
+            IArray gyroy = null;
+            IArray gyroz = null;
+            IArray accx = null;
+            IArray accy = null;
+            IArray accz = null;
 
-            IArray gyrox = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyrox", 0];
-            IArray gyroy = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroy", 0];
-            IArray gyroz = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroz", 0];
+            if (_MatlabFormat.HasFlag(MatlabFormat.Imu0))
+            {
+                time_imu0 = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["time", 0];
 
-            IArray accx = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accx", 0];
-            IArray accy = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accy", 0];
-            IArray accz = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accz", 0];
+                gyrox = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyrox", 0];
+                gyroy = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroy", 0];
+                gyroz = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroz", 0];
+
+                accx = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accx", 0];
+                accy = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accy", 0];
+                accz = ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accz", 0];
+            }
+
+            if (_MatlabFormat.HasFlag(MatlabFormat.Camera0))
+            {
+                time_cam0 = ((_DataStruct["raw", 0] as IStructureArray)["cam0", 0] as IStructureArray)["time", 0];
+            }
 
             int imu0Index = 0;
+            int cam0Index = 0;
 
             int count = reader.Count;
 
@@ -56,9 +75,9 @@ namespace FireFly.Data.Storage
                 {
                     if (val.Item1 == RawReaderMode.Imu0 && _MatlabFormat.HasFlag(MatlabFormat.Imu0))
                     {
-                        if (imu0Index >= gyrox.Dimensions[1])
+                        if (time_imu0.Dimensions.Length == 0 || imu0Index >= time_imu0.Dimensions[1])
                         {
-                            time = ResizeArray<double>(time, 1, imu0Index * 2 + 1);
+                            time_imu0 = ResizeArray<double>(time_imu0, 1, imu0Index * 2 + 1);
                             gyrox = ResizeArray<double>(gyrox, 1, imu0Index * 2 + 1);
                             gyroy = ResizeArray<double>(gyroy, 1, imu0Index * 2 + 1);
                             gyroz = ResizeArray<double>(gyroz, 1, imu0Index * 2 + 1);
@@ -67,7 +86,7 @@ namespace FireFly.Data.Storage
                             accz = ResizeArray<double>(accz, 1, imu0Index * 2 + 1);
                         }
 
-                        ((IArrayOf<double>)time)[0, imu0Index] = (double)res.Item1 / (1000 * 1000 * 1000);
+                        ((IArrayOf<double>)time_imu0)[0, imu0Index] = (double)res.Item1 / (1000 * 1000 * 1000);
 
                         ((IArrayOf<double>)gyrox)[0, imu0Index] = ((Tuple<double, double, double, double, double, double>)val.Item2).Item1;
 
@@ -83,28 +102,44 @@ namespace FireFly.Data.Storage
 
                         imu0Index++;
                     }
+                    if (val.Item1 == RawReaderMode.Camera0 && _MatlabFormat.HasFlag(MatlabFormat.Camera0))
+                    {
+                        if (time_cam0.Dimensions.Length == 0 || cam0Index >= time_cam0.Dimensions[1])
+                        {
+                            time_cam0 = ResizeArray<double>(time_cam0, 1, cam0Index * 2 + 1);
+                        }
+                        ((IArrayOf<double>)time_cam0)[0, cam0Index] = (double)res.Item1 / (1000 * 1000 * 1000);
+                        cam0Index++;
+                    }
                 }
             }
 
             if (_MatlabFormat.HasFlag(MatlabFormat.Imu0))
             {
-                time = ResizeArray<double>(time, 1, imu0Index);
+                time_imu0 = ResizeArray<double>(time_imu0, 1, imu0Index);
                 gyrox = ResizeArray<double>(gyrox, 1, imu0Index);
                 gyroy = ResizeArray<double>(gyroy, 1, imu0Index);
                 gyroz = ResizeArray<double>(gyroz, 1, imu0Index);
                 accx = ResizeArray<double>(accx, 1, imu0Index);
                 accy = ResizeArray<double>(accy, 1, imu0Index);
                 accz = ResizeArray<double>(accz, 1, imu0Index);
+
+                ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["time", 0] = time_imu0;
+                ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyrox", 0] = gyrox;
+                ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroy", 0] = gyroy;
+                ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroz", 0] = gyroz;
+
+                ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accx", 0] = accx;
+                ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accy", 0] = accy;
+                ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accz", 0] = accz;
             }
 
-            ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["time", 0] = time;
-            ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyrox", 0] = gyrox;
-            ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroy", 0] = gyroy;
-            ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["gyroz", 0] = gyroz;
+            if (_MatlabFormat.HasFlag(MatlabFormat.Camera0))
+            {
+                time_cam0 = ResizeArray<double>(time_cam0, 1, cam0Index);
 
-            ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accx", 0] = accx;
-            ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accy", 0] = accy;
-            ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accz", 0] = accz;
+                ((_DataStruct["raw", 0] as IStructureArray)["cam0", 0] as IStructureArray)["time", 0] = time_cam0;
+            }
         }
 
         public void Close()
@@ -142,6 +177,12 @@ namespace FireFly.Data.Storage
                 ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accx", 0] = _DataBuilder.NewArray<double>(1, 0);
                 ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accy", 0] = _DataBuilder.NewArray<double>(1, 0);
                 ((_DataStruct["raw", 0] as IStructureArray)["imu0", 0] as IStructureArray)["accz", 0] = _DataBuilder.NewArray<double>(1, 0);
+            }
+            if (_MatlabFormat.HasFlag(MatlabFormat.Camera0))
+            {
+                _DataStruct["raw", 0] = AddFieldToStructureArray(_DataStruct["raw", 0], "cam0", 1);
+
+                (_DataStruct["raw", 0] as IStructureArray)["cam0", 0] = AddFieldToStructureArray((_DataStruct["raw", 0] as IStructureArray)["cam0", 0], "time", 1);
             }
         }
 

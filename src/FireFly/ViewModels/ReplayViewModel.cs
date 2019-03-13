@@ -255,12 +255,12 @@ namespace FireFly.ViewModels
                     }
                     else
                     {
-                        reader = new RawDataReader(fullPath, RawReaderMode.Imu0 | RawReaderMode.Camera0);
+                        reader = new RawDataReader(fullPath, RawReaderMode.Imu0 | RawReaderMode.Camera0, null, true);
                         controller.SetIndeterminate();
                         reader.Open();
                     }
 
-                    RawMatlabExporter matlabExporter = new RawMatlabExporter(saveFileDialog.FileName, MatlabFormat.Imu0);
+                    RawMatlabExporter matlabExporter = new RawMatlabExporter(saveFileDialog.FileName, MatlabFormat.Imu0 | MatlabFormat.Camera0);
 
                     matlabExporter.Open();
                     if (isRemote)

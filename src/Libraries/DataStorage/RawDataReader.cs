@@ -29,13 +29,15 @@ namespace FireFly.Data.Storage
         private List<long> _Timestamps = new List<long>();
         private ZipArchive _ZipArchive;
         private FileStream _ZipFile;
+        private bool _CamFastRead;
 
-        public RawDataReader(string filename, RawReaderMode mode, RemoteDataStore remoteDataStore = null)
+        public RawDataReader(string filename, RawReaderMode mode, RemoteDataStore remoteDataStore = null, bool camFastRead = false)
         {
             _FileName = filename;
             _Mode = mode;
             _Remote = remoteDataStore != null;
             _RemoteDataStore = remoteDataStore;
+            _CamFastRead = camFastRead;
         }
 
         public int Count
@@ -136,13 +138,20 @@ namespace FireFly.Data.Storage
                 double exposerTime = 0;
                 if (_CamCache.Any(c => c.Key == currentTimestamp))
                     exposerTime = _CamCache.FirstOrDefault(c => c.Key == currentTimestamp).Value;
-                ZipArchiveEntry imageEntry = _ZipArchive.GetEntry(string.Format("cam0\\{0}.png", currentTimestamp));
-                using (Stream stream = imageEntry.Open())
+                if (_CamFastRead)
                 {
-                    using (MemoryStream ms = new MemoryStream())
+                    result.Add(new Tuple<RawReaderMode, object>(RawReaderMode.Camera0, new Tuple<double, byte[]>(exposerTime, new byte[0])));
+                }
+                else
+                {
+                    ZipArchiveEntry imageEntry = _ZipArchive.GetEntry(string.Format("cam0\\{0}.png", currentTimestamp));
+                    using (Stream stream = imageEntry.Open())
                     {
-                        stream.CopyTo(ms);
-                        result.Add(new Tuple<RawReaderMode, object>(RawReaderMode.Camera0, new Tuple<double, byte[]>(exposerTime, ms.ToArray())));
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            stream.CopyTo(ms);
+                            result.Add(new Tuple<RawReaderMode, object>(RawReaderMode.Camera0, new Tuple<double, byte[]>(exposerTime, ms.ToArray())));
+                        }
                     }
                 }
             }
