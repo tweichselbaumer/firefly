@@ -39,6 +39,9 @@ namespace FireFly.VI.SLAM.Data
             IArray T_cam_worldPre = (_DataStruct["PreOptimization", 0] as IStructureArray)["T_cam_world", 0];
             IArray T_cam_worldPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["T_cam_world", 0];
 
+            IArray T_base_worldPre = (_DataStruct["PreOptimization", 0] as IStructureArray)["T_base_world", 0];
+            IArray T_base_worldPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["T_base_world", 0];
+
             IArray velocityPre = (_DataStruct["PreOptimization", 0] as IStructureArray)["velocity", 0];
             IArray velocityPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["velocity", 0];
 
@@ -61,6 +64,9 @@ namespace FireFly.VI.SLAM.Data
 
             T_cam_worldPre = ResizeArray<double>(T_cam_worldPre, 4, 4, frames.Count);
             T_cam_worldPost = ResizeArray<double>(T_cam_worldPost, 4, 4, keyFrames.Count);
+
+            T_base_worldPre = ResizeArray<double>(T_base_worldPre, 4, 4, frames.Count);
+            T_base_worldPost = ResizeArray<double>(T_base_worldPost, 4, 4, keyFrames.Count);
 
             velocityPre = ResizeArray<double>(timePre, 3, frames.Count);
             velocityPost = ResizeArray<double>(timePost, 3, keyFrames.Count);
@@ -96,6 +102,7 @@ namespace FireFly.VI.SLAM.Data
                         for (int k = 0; k < 4; k++)
                         {
                             ((IArrayOf<double>)T_cam_worldPre)[j, k, i] = frames[i].T_cam_world.Matrix[j, k];
+                            ((IArrayOf<double>)T_base_worldPre)[j, k, i] = frames[i].T_base_world.Matrix[j, k];
                         }
                     }
                 }
@@ -122,6 +129,7 @@ namespace FireFly.VI.SLAM.Data
                         for (int k = 0; k < 4; k++)
                         {
                             ((IArrayOf<double>)T_cam_worldPost)[j, k, i] = keyFrames[i].Frame.T_cam_world.Matrix[j, k];
+                            ((IArrayOf<double>)T_base_worldPost)[j, k, i] = keyFrames[i].Frame.T_base_world.Matrix[j, k];
                         }
                     }
                 }
@@ -130,6 +138,7 @@ namespace FireFly.VI.SLAM.Data
             (_DataStruct["PreOptimization", 0] as IStructureArray)["time", 0] = timePre;
             (_DataStruct["PreOptimization", 0] as IStructureArray)["id", 0] = idPre;
             (_DataStruct["PreOptimization", 0] as IStructureArray)["T_cam_world", 0] = T_cam_worldPre;
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["T_base_world", 0] = T_base_worldPre;
             (_DataStruct["PreOptimization", 0] as IStructureArray)["velocity", 0] = velocityPre;
             (_DataStruct["PreOptimization", 0] as IStructureArray)["bias_gyroscope", 0] = bgPre;
             (_DataStruct["PreOptimization", 0] as IStructureArray)["bias_accelerometer", 0] = baPre;
@@ -138,6 +147,7 @@ namespace FireFly.VI.SLAM.Data
             (_DataStruct["PostOptimization", 0] as IStructureArray)["time", 0] = timePost;
             (_DataStruct["PostOptimization", 0] as IStructureArray)["id", 0] = idPost;
             (_DataStruct["PostOptimization", 0] as IStructureArray)["T_cam_world", 0] = T_cam_worldPost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["T_base_world", 0] = T_base_worldPost;
             (_DataStruct["PostOptimization", 0] as IStructureArray)["kfid", 0] = kfidPost;
             (_DataStruct["PostOptimization", 0] as IStructureArray)["velocity", 0] = velocityPost;
             (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_gyroscope", 0] = bgPost;
@@ -154,6 +164,7 @@ namespace FireFly.VI.SLAM.Data
             _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "time", 1);
             _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "id", 1);
             _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "T_cam_world", 1);
+            _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "T_base_world", 1);
             _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "velocity", 1);
             _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "bias_gyroscope", 1);
             _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "bias_accelerometer", 1);
@@ -163,6 +174,7 @@ namespace FireFly.VI.SLAM.Data
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "time", 1);
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "id", 1);
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "T_cam_world", 1);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "T_base_world", 1);
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "kfid", 1);
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "velocity", 1);
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "bias_gyroscope", 1);
@@ -173,6 +185,7 @@ namespace FireFly.VI.SLAM.Data
             (_DataStruct["PreOptimization", 0] as IStructureArray)["time", 0] = _DataBuilder.NewArray<double>(1, 0);
             (_DataStruct["PreOptimization", 0] as IStructureArray)["id", 0] = _DataBuilder.NewArray<uint>(1, 0);
             (_DataStruct["PreOptimization", 0] as IStructureArray)["T_cam_world", 0] = _DataBuilder.NewArray<double>(4, 4, 0);
+            (_DataStruct["PreOptimization", 0] as IStructureArray)["T_base_world", 0] = _DataBuilder.NewArray<double>(4, 4, 0);
             (_DataStruct["PreOptimization", 0] as IStructureArray)["velocity", 0] = _DataBuilder.NewArray<double>(3, 0);
             (_DataStruct["PreOptimization", 0] as IStructureArray)["bias_gyroscope", 0] = _DataBuilder.NewArray<double>(3, 0);
             (_DataStruct["PreOptimization", 0] as IStructureArray)["bias_accelerometer", 0] = _DataBuilder.NewArray<double>(3, 0);
@@ -182,6 +195,7 @@ namespace FireFly.VI.SLAM.Data
             (_DataStruct["PostOptimization", 0] as IStructureArray)["id", 0] = _DataBuilder.NewArray<uint>(1, 0);
             (_DataStruct["PostOptimization", 0] as IStructureArray)["kfid", 0] = _DataBuilder.NewArray<uint>(1, 0);
             (_DataStruct["PostOptimization", 0] as IStructureArray)["T_cam_world", 0] = _DataBuilder.NewArray<double>(4, 4, 0);
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["T_base_world", 0] = _DataBuilder.NewArray<double>(4, 4, 0);
             (_DataStruct["PostOptimization", 0] as IStructureArray)["velocity", 0] = _DataBuilder.NewArray<double>(3, 0);
             (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_gyroscope", 0] = _DataBuilder.NewArray<double>(3, 0);
             (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_accelerometer", 0] = _DataBuilder.NewArray<double>(3, 0);
