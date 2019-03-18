@@ -42,6 +42,7 @@ namespace FireFly.Proxy
         private IOProxyMode _ProxyMode = IOProxyMode.Live;
         private LinkUpPropertyLabel_Binary _RAccGyroLabel;
         private LinkUpPropertyLabel<Boolean> _RecordRemoteLabel;
+        private LinkUpPropertyLabel<Boolean> _EnableVisualInertialLabel;
         private LinkUpFunctionLabel _ReplayDataSend;
         private bool _Running;
         private SettingContainer _SettingContainer;
@@ -317,6 +318,8 @@ namespace FireFly.Proxy
                 _AccelerometerNoiseLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/calibration_acc_noise");
                 _AccelerometerWalkLabel = Node.GetLabelByName<LinkUpPropertyLabel<Double>>("firefly/computer_vision/calibration_acc_walk");
 
+                _EnableVisualInertialLabel = Node.GetLabelByName<LinkUpPropertyLabel<Boolean>>("firefly/computer_vision/slam_enable_visual_inertial");
+
                 _ImuDerivedEventLabel.Fired += _ImuFilterEvent_Fired;
 
                 _SlamStatusEventLabel.Fired += _SlamStatusEventLabel_Fired;
@@ -386,6 +389,16 @@ namespace FireFly.Proxy
                 {
                     if (ConnectivityState == LinkUpConnectivityState.Connected)
                         _SlamReproducibleExecutionLabel.Value = _SettingContainer.Settings.SlamSettings.ReproducibleExecution;
+                }
+                catch (Exception) { }
+            }
+
+            if (_EnableVisualInertialLabel != null)
+            {
+                try
+                {
+                    if (ConnectivityState == LinkUpConnectivityState.Connected)
+                        _EnableVisualInertialLabel.Value = _SettingContainer.Settings.SlamSettings.EnableVisualInertial;
                 }
                 catch (Exception) { }
             }
