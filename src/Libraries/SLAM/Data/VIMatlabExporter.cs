@@ -53,6 +53,11 @@ namespace FireFly.VI.SLAM.Data
 
             IArray kfidPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["kfid", 0];
 
+            IArray fxPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["fx", 0];
+            IArray fyPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["fy", 0];
+            IArray cxPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["cx", 0];
+            IArray cyPost = (_DataStruct["PostOptimization", 0] as IStructureArray)["cy", 0];
+
             IArray scalePre = (_DataStruct["PreOptimization", 0] as IStructureArray)["scale", 0];
             IArray scalePost = (_DataStruct["PostOptimization", 0] as IStructureArray)["scale", 0];
 
@@ -80,6 +85,11 @@ namespace FireFly.VI.SLAM.Data
             baPost = ResizeArray<double>(timePost, 3, keyFrames.Count);
 
             kfidPost = ResizeArray<uint>(kfidPost, 1, keyFrames.Count);
+
+            fxPost = ResizeArray<double>(fxPost, 1, keyFrames.Count);
+            fyPost = ResizeArray<double>(fyPost, 1, keyFrames.Count);
+            cxPost = ResizeArray<double>(cxPost, 1, keyFrames.Count);
+            cyPost = ResizeArray<double>(cyPost, 1, keyFrames.Count);
 
             scalePre = ResizeArray<double>(scalePre, 1, frames.Count);
             scalePost = ResizeArray<double>(scalePost, 1, keyFrames.Count);
@@ -142,6 +152,11 @@ namespace FireFly.VI.SLAM.Data
                     ((IArrayOf<uint>)kfidPost)[0, i] = keyFrames[i].Id;
                     ((IArrayOf<double>)scalePost)[0, i] = keyFrames[i].Frame.Scale;
 
+                    ((IArrayOf<double>)fxPost)[0, i] = keyFrames[i].Fx;
+                    ((IArrayOf<double>)fyPost)[0, i] = keyFrames[i].Fy;
+                    ((IArrayOf<double>)cxPost)[0, i] = keyFrames[i].Cx;
+                    ((IArrayOf<double>)cyPost)[0, i] = keyFrames[i].Cy;
+
                     for (int j = 0; j < 3; j++)
                     {
                         ((IArrayOf<double>)velocityPost)[j, i] = keyFrames[i].Frame.Velocity.Vector[j];
@@ -180,6 +195,10 @@ namespace FireFly.VI.SLAM.Data
             (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_gyroscope", 0] = bgPost;
             (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_accelerometer", 0] = baPost;
             (_DataStruct["PostOptimization", 0] as IStructureArray)["scale", 0] = scalePost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["fx", 0] = fxPost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["fy", 0] = fyPost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["cx", 0] = cxPost;
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["cy", 0] = cyPost;
         }
 
         public void Open()
@@ -205,6 +224,10 @@ namespace FireFly.VI.SLAM.Data
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "bias_gyroscope", 1);
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "bias_accelerometer", 1);
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "scale", 1);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "fx", 1);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "fy", 1);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "cx", 1);
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "cy", 1);
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "point_cloud", 1);
 
             (_DataStruct["PreOptimization", 0] as IStructureArray)["time", 0] = _DataBuilder.NewArray<double>(1, 0);
@@ -225,6 +248,11 @@ namespace FireFly.VI.SLAM.Data
             (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_gyroscope", 0] = _DataBuilder.NewArray<double>(3, 0);
             (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_accelerometer", 0] = _DataBuilder.NewArray<double>(3, 0);
             (_DataStruct["PostOptimization", 0] as IStructureArray)["scale", 0] = _DataBuilder.NewArray<double>(1, 0);
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["fx", 0] = _DataBuilder.NewArray<double>(1, 0);
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["fy", 0] = _DataBuilder.NewArray<double>(1, 0);
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["cx", 0] = _DataBuilder.NewArray<double>(1, 0);
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["cy", 0] = _DataBuilder.NewArray<double>(1, 0);
+
         }
 
         private IStructureArray AddFieldToStructureArray(IArray structureArray, string fieldName, params int[] dimensions)

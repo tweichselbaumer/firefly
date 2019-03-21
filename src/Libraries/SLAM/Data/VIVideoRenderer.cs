@@ -41,6 +41,8 @@ namespace FireFly.VI.SLAM.Data
 
             int i = 0;
 
+            List<KeyFrame> keyFrames = matlabImporter.GetKeyFrames();
+
             while (reader.HasNext())
             {
                 i++;
@@ -59,7 +61,6 @@ namespace FireFly.VI.SLAM.Data
                         WriteFrame(rawImage);
                     }
                 }
-                progress?.Invoke(1);
             }
         }
 

@@ -119,7 +119,7 @@ namespace FireFly.Proxy
             double scale = BitConverter.ToDouble(data, index);
             index += 8;
 
-            obj._Frame = new Frame(id, time, new Sim3(1, Tcw), Tbw, v, bg, ba, scale);
+            obj._Frame = new Frame(id, time, Tcw, Tbw, v, bg, ba, scale);
             return index - offset;
         }
 

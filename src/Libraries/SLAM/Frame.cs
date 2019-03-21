@@ -8,12 +8,12 @@ namespace FireFly.VI.SLAM
         private Vector3 _BiasGyroscope = new Vector3();
         private uint _Id;
         private SE3 _T_base_world = new SE3();
-        private Sim3 _T_cam_world = new Sim3();
+        private SE3 _T_cam_world = new SE3();
         private double _Time;
         private Vector3 _Velocity = new Vector3();
         private double _Scale;
 
-        public Frame(uint id, double time, Sim3 Tcw, SE3 Tbw, Vector3 v, Vector3 bg, Vector3 ba, double scale)
+        public Frame(uint id, double time, SE3 Tcw, SE3 Tbw, Vector3 v, Vector3 bg, Vector3 ba, double scale)
         {
             Id = id;
             Time = time;
@@ -77,7 +77,7 @@ namespace FireFly.VI.SLAM
             }
         }
 
-        public Sim3 T_cam_world
+        public SE3 T_cam_world
         {
             get
             {

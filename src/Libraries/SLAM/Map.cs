@@ -107,12 +107,12 @@ namespace FireFly.VI.SLAM
                 case TrajectoryType.PreOptimazation:
                     lock (_Frames)
                     {
-                        return _Frames.Where(d => d != null).Select(c => c.T_cam_world.Inverse().SE3.Translation).ToList();
+                        return _Frames.Where(d => d != null).Select(c => c.T_cam_world.Inverse().Translation).ToList();
                     }
                 case TrajectoryType.Optimazation:
                     lock (_KeyFrames)
                     {
-                        return _KeyFrames.Where(d => d != null).Select(c => c.Frame.T_cam_world.Inverse().SE3.Translation).ToList();
+                        return _KeyFrames.Where(d => d != null).Select(c => c.Frame.T_cam_world.Inverse().Translation).ToList();
                     }
                 default:
                     return new List<Vector3>();
@@ -135,14 +135,14 @@ namespace FireFly.VI.SLAM
             }
         }
 
-        public Sim3 LastTransformation()
+        public SE3 LastTransformation()
         {
             lock (_Frames)
             {
                 if (_Frames.Count > 0)
                     return _Frames.Where(c => c != null).Last().T_cam_world.Inverse();
                 else
-                    return new Sim3();
+                    return new SE3();
             }
         }
 
