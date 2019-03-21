@@ -60,6 +60,7 @@
                                         <ColumnDefinition Width="auto" />
                                         <ColumnDefinition Width="auto" />
                                         <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{Binding Path=Name}" FontSize="16" ToolTip="{Binding Path=Notes}"/>
                                     <Button Grid.Column="1" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.StartCommand}" CommandParameter="{Binding Path=.}">
@@ -97,6 +98,9 @@
                                     </Button>
                                     <Button Grid.Column="4" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.ExportCommand}" CommandParameter="{Binding Path=.}" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.IsReplaying, Converter={StaticResource InverseBooleanConverter}}">
                                         <iconPacks:Material Width="10" Height="10" Kind="Export" />
+                                    </Button>
+                                    <Button Grid.Column="5" Width="20" Height="20" Style="{StaticResource AccentCircleButtonStyle}" Margin="2" Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.ExportVideoCommand}" CommandParameter="{Binding Path=.}" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Path=DataContext.IsReplaying, Converter={StaticResource InverseBooleanConverter}}">
+                                        <iconPacks:Material Width="10" Height="10" Kind="Video3d" />
                                     </Button>
                                 </Grid>
                             </DataTemplate>

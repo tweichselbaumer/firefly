@@ -1,5 +1,5 @@
-﻿using MatFileHandler;
-using System;
+﻿using FireFly.Utilities;
+using MatFileHandler;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -55,24 +55,7 @@ namespace FireFly.Data.Storage
 
         private IStructureArray AddFieldToStructureArray(IArray structureArray, string fieldName, params int[] dimensions)
         {
-            IStructureArray result;
-            if (structureArray == null || structureArray.IsEmpty || !(structureArray is IStructureArray))
-            {
-                result = _DataBuilder.NewStructureArray(new List<string> { fieldName }, dimensions);
-            }
-            else
-            {
-                result = _DataBuilder.NewStructureArray(new List<string> { fieldName }.Union((structureArray as IStructureArray).FieldNames), dimensions);
-                foreach (string field in (structureArray as IStructureArray).FieldNames)
-                {
-                    for (int i = 0; i < (structureArray as IStructureArray).Count && i < result.Count; i++)
-                    {
-                        result[field, i] = (structureArray as IStructureArray)[field, i];
-                    }
-                }
-            }
-
-            return result;
+            return MatlabUtilities.AddFieldToStructureArray(_DataBuilder, structureArray, fieldName, dimensions);
         }
 
         private List<List<double>> ConvertToDouble(string data)
@@ -106,6 +89,11 @@ namespace FireFly.Data.Storage
             }
 
             return result;
+        }
+
+        private IArray ResizeArray<T>(IArray array, params int[] dimensions) where T : struct
+        {
+            return MatlabUtilities.ResizeArray<T>(_DataBuilder, array, dimensions);
         }
     }
 }

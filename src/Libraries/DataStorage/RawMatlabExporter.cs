@@ -1,8 +1,8 @@
-﻿using MatFileHandler;
+﻿using FireFly.Utilities;
+using MatFileHandler;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace FireFly.Data.Storage
 {
@@ -188,45 +188,12 @@ namespace FireFly.Data.Storage
 
         private IStructureArray AddFieldToStructureArray(IArray structureArray, string fieldName, params int[] dimensions)
         {
-            IStructureArray result;
-            if (structureArray == null || structureArray.IsEmpty || !(structureArray is IStructureArray))
-            {
-                result = _DataBuilder.NewStructureArray(new List<string> { fieldName }, dimensions);
-            }
-            else
-            {
-                result = _DataBuilder.NewStructureArray(new List<string> { fieldName }.Union((structureArray as IStructureArray).FieldNames), dimensions);
-                foreach (string field in (structureArray as IStructureArray).FieldNames)
-                {
-                    for (int i = 0; i < (structureArray as IStructureArray).Count && i < result.Count; i++)
-                    {
-                        result[field, i] = (structureArray as IStructureArray)[field, i];
-                    }
-                }
-            }
-
-            return result;
+            return MatlabUtilities.AddFieldToStructureArray(_DataBuilder, structureArray, fieldName, dimensions);
         }
 
         private IArray ResizeArray<T>(IArray array, params int[] dimensions) where T : struct
         {
-            IArrayOf<T> result;
-
-            if (array == null || array.IsEmpty || !(array is IArrayOf<T>))
-            {
-                result = _DataBuilder.NewArray<T>(dimensions);
-            }
-            else
-            {
-                result = _DataBuilder.NewArray<T>(dimensions);
-
-                for (int i = 0; i < array.Count && i < result.Count; i++)
-                {
-                    result[i] = (array as IArrayOf<T>)[i];
-                }
-            }
-
-            return result;
+            return MatlabUtilities.ResizeArray<T>(_DataBuilder, array, dimensions);
         }
     }
 }

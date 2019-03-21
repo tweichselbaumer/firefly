@@ -3,6 +3,7 @@ using FireFly.Data.Storage;
 using FireFly.Models;
 using FireFly.Settings;
 using FireFly.Utilities;
+using FireFly.VI.SLAM.Data;
 using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
@@ -43,6 +44,18 @@ namespace FireFly.ViewModels
                     async (object o) =>
                     {
                         await DoExport(o);
+                    });
+            }
+        }
+
+        public RelayCommand<object> ExportVideoCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoExportVideo(o);
                     });
             }
         }
@@ -280,6 +293,71 @@ namespace FireFly.ViewModels
                         });
                     }
                     matlabExporter.Close();
+
+                    reader.Close();
+                    await controller.CloseAsync();
+                }
+            });
+        }
+
+        private Task DoExportVideo(object o)
+        {
+            return Task.Factory.StartNew(async () =>
+            {
+                ReplayFile file = o as ReplayFile;
+                RawDataReader reader = null;
+
+                string fullPath = null;
+                bool isRemote = false;
+                System.Windows.Forms.OpenFileDialog openFileDialog = null;
+                System.Windows.Forms.SaveFileDialog saveFileDialog = null;
+                bool open = false;
+                bool save = false;
+
+                Parent.SyncContext.Send(c =>
+                {
+                    fullPath = file.FullPath;
+                    isRemote = file.IsRemote;
+                    openFileDialog = new System.Windows.Forms.OpenFileDialog();
+                    openFileDialog.Filter = "Matlab (*.mat) | *.mat";
+                    open = openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK;
+
+                    saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                    saveFileDialog.Filter = "Video (*.mp4) | *.mp4";
+                    save = saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK;
+                }, null);
+
+                if (open && save && !isRemote)
+                {
+                    MetroDialogSettings settings = new MetroDialogSettings()
+                    {
+                        AnimateShow = false,
+                        AnimateHide = false
+                    };
+
+                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Export video File!", settings: Parent.MetroDialogSettings);
+
+                    controller.SetCancelable(false);
+
+                    reader = new RawDataReader(fullPath, RawReaderMode.Imu0 | RawReaderMode.Camera0, null, false);
+                    controller.SetIndeterminate();
+                    reader.Open();
+
+                    VIMatlabImporter matlabImporter = new VIMatlabImporter(openFileDialog.FileName);
+
+                    matlabImporter.Open();
+
+                    VIVideoRenderer renderer = new VIVideoRenderer(saveFileDialog.FileName, 1920, 1080);
+
+                    renderer.Open();
+
+                    renderer.Render(matlabImporter, reader, delegate (double percent)
+                    {
+                        controller.SetProgress(percent);
+                    });
+
+                    renderer.Close();
+                    matlabImporter.Close();
 
                     reader.Close();
                     await controller.CloseAsync();
