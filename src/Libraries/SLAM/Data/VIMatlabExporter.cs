@@ -56,6 +56,8 @@ namespace FireFly.VI.SLAM.Data
             IArray scalePre = (_DataStruct["PreOptimization", 0] as IStructureArray)["scale", 0];
             IArray scalePost = (_DataStruct["PostOptimization", 0] as IStructureArray)["scale", 0];
 
+            (_DataStruct["PostOptimization", 0] as IStructureArray)["point_cloud", 0] = AddFieldToStructureArray(((_DataStruct["PostOptimization", 0] as IStructureArray)["point_cloud", 0] as IStructureArray), "keyframe", keyFrames.Count);
+
             timePre = ResizeArray<double>(timePre, 1, frames.Count);
             timePost = ResizeArray<double>(timePost, 1, keyFrames.Count);
 
@@ -112,6 +114,29 @@ namespace FireFly.VI.SLAM.Data
             {
                 if (keyFrames[i] != null && keyFrames[i].Frame != null)
                 {
+                    IStructureArray kfstruct = ((_DataStruct["PostOptimization", 0] as IStructureArray)["point_cloud", 0] as IStructureArray)["keyframe", i] as IStructureArray;
+
+                    kfstruct = AddFieldToStructureArray(kfstruct, "u", 1);
+                    kfstruct = AddFieldToStructureArray(kfstruct, "v", 1);
+                    kfstruct = AddFieldToStructureArray(kfstruct, "inverse_depth", 1);
+                    kfstruct = AddFieldToStructureArray(kfstruct, "colors", 1);
+
+                    kfstruct["u", 0] = _DataBuilder.NewArray<double>(1, keyFrames[i].Points.Count);
+                    kfstruct["v", 0] = _DataBuilder.NewArray<double>(1, keyFrames[i].Points.Count);
+                    kfstruct["inverse_depth", 0] = _DataBuilder.NewArray<double>(1, keyFrames[i].Points.Count);
+                    kfstruct["colors", 0] = _DataBuilder.NewArray<byte>(8, keyFrames[i].Points.Count);
+
+                    for (int j = 0; j < keyFrames[i].Points.Count; j++)
+                    {
+                        (kfstruct["u", 0] as IArrayOf<double>)[0, j] = keyFrames[i].Points[j].U;
+                        (kfstruct["v", 0] as IArrayOf<double>)[0, j] = keyFrames[i].Points[j].V;
+                        (kfstruct["inverse_depth", 0] as IArrayOf<double>)[0, j] = keyFrames[i].Points[j].InverseDepth;
+                        for (int k = 0; k < 8; k++)
+                        {
+                            (kfstruct["colors", 0] as IArrayOf<byte>)[k, j] = keyFrames[i].Points[j].Colors[k];
+                        }
+                    }
+
                     ((IArrayOf<double>)timePost)[0, i] = keyFrames[i].Frame.Time;
                     ((IArrayOf<uint>)idPost)[0, i] = keyFrames[i].Frame.Id;
                     ((IArrayOf<uint>)kfidPost)[0, i] = keyFrames[i].Id;
@@ -132,6 +157,8 @@ namespace FireFly.VI.SLAM.Data
                             ((IArrayOf<double>)T_base_worldPost)[j, k, i] = keyFrames[i].Frame.T_base_world.Matrix[j, k];
                         }
                     }
+
+                    ((_DataStruct["PostOptimization", 0] as IStructureArray)["point_cloud", 0] as IStructureArray)["keyframe", i] = kfstruct;
                 }
             }
 
@@ -153,7 +180,6 @@ namespace FireFly.VI.SLAM.Data
             (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_gyroscope", 0] = bgPost;
             (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_accelerometer", 0] = baPost;
             (_DataStruct["PostOptimization", 0] as IStructureArray)["scale", 0] = scalePost;
-
         }
 
         public void Open()
@@ -170,7 +196,6 @@ namespace FireFly.VI.SLAM.Data
             _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "bias_accelerometer", 1);
             _DataStruct["PreOptimization", 0] = AddFieldToStructureArray(_DataStruct["PreOptimization", 0], "scale", 1);
 
-
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "time", 1);
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "id", 1);
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "T_cam_world", 1);
@@ -180,7 +205,7 @@ namespace FireFly.VI.SLAM.Data
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "bias_gyroscope", 1);
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "bias_accelerometer", 1);
             _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "scale", 1);
-
+            _DataStruct["PostOptimization", 0] = AddFieldToStructureArray(_DataStruct["PostOptimization", 0], "point_cloud", 1);
 
             (_DataStruct["PreOptimization", 0] as IStructureArray)["time", 0] = _DataBuilder.NewArray<double>(1, 0);
             (_DataStruct["PreOptimization", 0] as IStructureArray)["id", 0] = _DataBuilder.NewArray<uint>(1, 0);
@@ -200,7 +225,6 @@ namespace FireFly.VI.SLAM.Data
             (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_gyroscope", 0] = _DataBuilder.NewArray<double>(3, 0);
             (_DataStruct["PostOptimization", 0] as IStructureArray)["bias_accelerometer", 0] = _DataBuilder.NewArray<double>(3, 0);
             (_DataStruct["PostOptimization", 0] as IStructureArray)["scale", 0] = _DataBuilder.NewArray<double>(1, 0);
-
         }
 
         private IStructureArray AddFieldToStructureArray(IArray structureArray, string fieldName, params int[] dimensions)
