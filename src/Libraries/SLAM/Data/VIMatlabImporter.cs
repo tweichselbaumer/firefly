@@ -138,6 +138,7 @@ namespace FireFly.VI.SLAM.Data
 
                 for (int j = 0; j < points; j++)
                 {
+                    keyFrame.Points[j] = new Point();
                     keyFrame.Points[j].U = (kfstruct["u", 0] as IArrayOf<double>)[0, j];
                     keyFrame.Points[j].V = (kfstruct["v", 0] as IArrayOf<double>)[0, j];
                     keyFrame.Points[j].InverseDepth = (kfstruct["inverse_depth", 0] as IArrayOf<double>)[0, j];

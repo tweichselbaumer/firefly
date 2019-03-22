@@ -1,14 +1,14 @@
-﻿using System;
+﻿using HelixToolkit.Wpf;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using HelixToolkit.Wpf;
 
 namespace FireFly.VI.SLAM
 {
     public class KeyFrame
     {
+        private CoordinateSystemVisual3D _CoordinateSystemVisual3D;
         private double _Cx;
         private double _Cy;
         private Frame _Frame;
@@ -16,7 +16,6 @@ namespace FireFly.VI.SLAM
         private double _Fy;
         private uint _Id;
         private GeometryModel3D _PointCloud;
-        private CoordinateSystemVisual3D _CoordinateSystemVisual3D;
         private List<Point> _Points = new List<Point>();
 
         public KeyFrame(uint id, double fx, double fy, double cx, double cy, int points, Frame frame)
@@ -26,7 +25,7 @@ namespace FireFly.VI.SLAM
             Fy = fy;
             Cx = cx;
             Cy = cy;
-
+            Frame = frame;
             Points.AddRange(Enumerable.Range(1, points).Select(c => (Point)null));
         }
 
@@ -119,6 +118,23 @@ namespace FireFly.VI.SLAM
             {
                 _Points = value;
             }
+        }
+
+        public CoordinateSystemVisual3D GetCoordinateSystem(bool onlyNew = false)
+        {
+            bool newCoordinateSystem = false;
+            if (_CoordinateSystemVisual3D == null)
+            {
+                newCoordinateSystem = true;
+                _CoordinateSystemVisual3D = new CoordinateSystemVisual3D();
+                _CoordinateSystemVisual3D.ArrowLengths = 0.05;
+                _CoordinateSystemVisual3D.Transform = new MatrixTransform3D(Frame.T_base_world.Inverse().Matrix3D);
+            }
+
+            if (onlyNew && newCoordinateSystem || !onlyNew)
+                return _CoordinateSystemVisual3D;
+            else
+                return null;
         }
 
         public GeometryModel3D GetPointCloud(bool onlyNew = false)
@@ -229,23 +245,6 @@ namespace FireFly.VI.SLAM
                 mesh.TriangleIndices.Add(offset + 0);
                 mesh.TriangleIndices.Add(offset + 1);
             }
-        }
-
-        public CoordinateSystemVisual3D GetCoordinateSystem(bool onlyNew = false)
-        {
-            bool newCoordinateSystem = false;
-            if (_CoordinateSystemVisual3D == null)
-            {
-                newCoordinateSystem = true;
-                _CoordinateSystemVisual3D = new CoordinateSystemVisual3D();
-                _CoordinateSystemVisual3D.ArrowLengths = 0.05;
-                _CoordinateSystemVisual3D.Transform = new MatrixTransform3D(Frame.T_base_world.Inverse().Matrix3D);
-            }
-
-            if (onlyNew && newCoordinateSystem || !onlyNew)
-                return _CoordinateSystemVisual3D;
-            else
-                return null;
         }
     }
 }

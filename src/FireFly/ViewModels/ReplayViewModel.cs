@@ -347,7 +347,7 @@ namespace FireFly.ViewModels
 
                     matlabImporter.Open();
 
-                    VIVideoRenderer renderer = new VIVideoRenderer(saveFileDialog.FileName, 1920, 1080);
+                    VIVideoRenderer renderer = new VIVideoRenderer(saveFileDialog.FileName, 1920, 1080, Parent.SyncContext);
 
                     renderer.Open();
 

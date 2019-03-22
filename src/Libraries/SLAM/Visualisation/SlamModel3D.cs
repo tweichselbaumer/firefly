@@ -42,16 +42,19 @@ namespace FireFly.VI.SLAM.Visualisation
 
         private System.Timers.Timer _Timer;
 
-        public SlamModel3D(SynchronizationContext synchronizationContext)
+        public SlamModel3D(SynchronizationContext synchronizationContext, bool enableRenderTimer = true)
         {
             _SyncContext = synchronizationContext;
 
             TrajectoryFrame = new Point3DCollection();
             TrajectoryKeyFrame = new Point3DCollection();
 
-            _Timer = new System.Timers.Timer(200);
-            _Timer.Elapsed += _Timer_Elapsed;
-            _Timer.Start();
+            if (enableRenderTimer)
+            {
+                _Timer = new System.Timers.Timer(50);
+                _Timer.Elapsed += _Timer_Elapsed;
+                _Timer.Start();
+            }
 
             CoordinateSystems = new ObservableCollection<Visual3D>();
         }
@@ -144,17 +147,7 @@ namespace FireFly.VI.SLAM.Visualisation
             exporter.Close();
         }
 
-        public void Reset()
-        {
-            _Map.Reset();
-            _SyncContext.Send(d =>
-            {
-                Model = new Model3DGroup();
-                CoordinateSystems.Clear();
-            }, null);
-        }
-
-        private void _Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        public void Render()
         {
             bool showPointCloud = false;
             bool showKeyFrameTrajectory = false;
@@ -226,6 +219,21 @@ namespace FireFly.VI.SLAM.Visualisation
                         TrajectoryKeyFrame = new Point3DCollection();
                 }, null);
             }
+        }
+
+        public void Reset()
+        {
+            _Map.Reset();
+            _SyncContext.Send(d =>
+            {
+                Model = new Model3DGroup();
+                CoordinateSystems.Clear();
+            }, null);
+        }
+
+        private void _Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            Render();
         }
     }
 }
