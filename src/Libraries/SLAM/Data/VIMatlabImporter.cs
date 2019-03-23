@@ -134,7 +134,7 @@ namespace FireFly.VI.SLAM.Data
                 SE3 Tbw = new SE3(matrixTbw);
 
                 Frame frame = new Frame(((IArrayOf<uint>)idPost)[0, i], ((IArrayOf<double>)timePost)[0, i], Tcw, Tbw, v, bg, ba, ((IArrayOf<double>)scalePost)[0, i]);
-                KeyFrame keyFrame = new KeyFrame(((IArrayOf<uint>)kfidPost)[0, i], ((IArrayOf<double>)fxPost)[0, i], ((IArrayOf<double>)fxPost)[0, i], ((IArrayOf<double>)fxPost)[0, i], ((IArrayOf<double>)fxPost)[0, i], points, frame);
+                KeyFrame keyFrame = new KeyFrame(((IArrayOf<uint>)kfidPost)[0, i], ((IArrayOf<double>)fxPost)[0, i], ((IArrayOf<double>)fyPost)[0, i], ((IArrayOf<double>)cxPost)[0, i], ((IArrayOf<double>)cyPost)[0, i], points, frame);
 
                 for (int j = 0; j < points; j++)
                 {

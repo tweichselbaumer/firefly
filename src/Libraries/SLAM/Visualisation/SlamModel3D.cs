@@ -1,4 +1,5 @@
 ﻿using FireFly.VI.SLAM.Data;
+using FireFly.VI.SLAM.Sophus;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -10,6 +11,9 @@ namespace FireFly.VI.SLAM.Visualisation
 {
     public class SlamModel3D : DependencyObject
     {
+        public static readonly DependencyProperty CameraPositionProperty =
+            DependencyProperty.Register("CameraPosition", typeof(MatrixTransform3D), typeof(SlamModel3D), new PropertyMetadata(null));
+
         public static readonly DependencyProperty ModelProperty =
             DependencyProperty.Register("Model", typeof(Model3D), typeof(SlamModel3D), new PropertyMetadata(null));
 
@@ -17,7 +21,7 @@ namespace FireFly.VI.SLAM.Visualisation
             DependencyProperty.Register("CoordinateSystems", typeof(ObservableCollection<Visual3D>), typeof(SlamModel3D), new PropertyMetadata(null));
 
         public static readonly DependencyProperty ShowFrameTrajectoryProperty =
-                    DependencyProperty.Register("ShowFrameTrajectory", typeof(bool), typeof(SlamModel3D), new PropertyMetadata(true));
+            DependencyProperty.Register("ShowFrameTrajectory", typeof(bool), typeof(SlamModel3D), new PropertyMetadata(true));
 
         public static readonly DependencyProperty ShowKeyFrameTrajectoryProperty =
             DependencyProperty.Register("ShowKeyFrameTrajectory", typeof(bool), typeof(SlamModel3D), new PropertyMetadata(true));
@@ -30,9 +34,6 @@ namespace FireFly.VI.SLAM.Visualisation
 
         public static readonly DependencyProperty TrajectoryKeyFrameProperty =
             DependencyProperty.Register("TrajectoryKeyFrame", typeof(Point3DCollection), typeof(SlamModel3D), new PropertyMetadata(null));
-
-        public static readonly DependencyProperty Transform3DProperty =
-            DependencyProperty.Register("Transform3D", typeof(MatrixTransform3D), typeof(SlamModel3D), new PropertyMetadata(null));
 
         private Map _Map = new Map();
 
@@ -57,6 +58,12 @@ namespace FireFly.VI.SLAM.Visualisation
             }
 
             CoordinateSystems = new ObservableCollection<Visual3D>();
+        }
+
+        public MatrixTransform3D CameraPosition
+        {
+            get { return (MatrixTransform3D)GetValue(CameraPositionProperty); }
+            set { SetValue(CameraPositionProperty, value); }
         }
 
         public ObservableCollection<Visual3D> CoordinateSystems
@@ -114,12 +121,6 @@ namespace FireFly.VI.SLAM.Visualisation
             set { SetValue(TrajectoryKeyFrameProperty, value); }
         }
 
-        public MatrixTransform3D Transform3D
-        {
-            get { return (MatrixTransform3D)GetValue(Transform3DProperty); }
-            set { SetValue(Transform3DProperty, value); }
-        }
-
         public void AddNewFrame(Frame frame)
         {
             _Map.AddNewFrame(frame);
@@ -145,6 +146,11 @@ namespace FireFly.VI.SLAM.Visualisation
             exporter.ExportMap(_Map);
 
             exporter.Close();
+        }
+
+        public SE3 LastTransformation()
+        {
+            return _Map.LastTransformation();
         }
 
         public void Render()
@@ -186,7 +192,8 @@ namespace FireFly.VI.SLAM.Visualisation
                     if (TrajectoryFrame.Count > 0)
                         TrajectoryFrame.RemoveAt(0);
 
-                    Transform3D = new MatrixTransform3D(_Map.LastTransformation().Matrix3D);
+                    CameraPosition = new MatrixTransform3D(_Map.LastTransformation().Matrix3D);
+
                     if (Model == null || !showPointCloud)
                     {
                         Model = new Model3DGroup();

@@ -41,7 +41,7 @@
                 <helix:DefaultLights />
                 <ModelVisual3D Content="{Binding SlamModel3D.Model}" />
                 <helix:CoordinateSystemVisual3D ArrowLengths="0.1" />
-                <helix:CoordinateSystemVisual3D ArrowLengths="0.1" Transform="{Binding SlamModel3D.Transform3D}" />
+                <helix:CoordinateSystemVisual3D ArrowLengths="0.1" Transform="{Binding SlamModel3D.CameraPosition}" />
                 <helix:LinesVisual3D Points="{Binding SlamModel3D.TrajectoryKeyFrame}" Color="Gold" Thickness="3" />
                 <helix:LinesVisual3D Points="{Binding SlamModel3D.TrajectoryFrame}" Color="OrangeRed" Thickness="2" />
                 <!--<helix:GridLinesVisual3D MinorDistance="1" MajorDistance="1" Thickness="0.001"/>-->
