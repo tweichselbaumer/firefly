@@ -1,4 +1,5 @@
-﻿using FireFly.Command;
+﻿using Emgu.CV;
+using FireFly.Command;
 using FireFly.Data.Storage;
 using FireFly.Models;
 using FireFly.Settings;
@@ -314,8 +315,11 @@ namespace FireFly.ViewModels
                 bool open = false;
                 bool save = false;
 
+                CameraViewModel cvm = null;
+
                 Parent.SyncContext.Send(c =>
                 {
+                    cvm = Parent.CameraViewModel;
                     fullPath = file.FullPath;
                     isRemote = file.IsRemote;
                     openFileDialog = new System.Windows.Forms.OpenFileDialog();
@@ -347,7 +351,7 @@ namespace FireFly.ViewModels
 
                     matlabImporter.Open();
 
-                    VIVideoRenderer renderer = new VIVideoRenderer(saveFileDialog.FileName, 1920, 1080, Parent.SyncContext);
+                    VIVideoRenderer renderer = new VIVideoRenderer(saveFileDialog.FileName, 1920, 1080, Parent.SyncContext, cvm.OrginalCameraMatrix, cvm.CenteredCameraMatrix, cvm.DistortionCoefficients);
 
                     renderer.Open();
 

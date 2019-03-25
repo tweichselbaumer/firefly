@@ -22,8 +22,12 @@ namespace FireFly.VI.SLAM.Data
         private const double CAMERA_ROTATION_SPEED = 0.01;
         private const double CAMERA_Z = 2.5;
         private CoordinateSystemVisual3D _CameraPosition;
+        private Mat _CenteredCameraMatrix;
+        private Mat _DistortionCoefficients;
         private string _FileName;
+        private Mat _LastKeyFrame = new Mat();
         private ModelVisual3D _ModelVisual3d;
+        private Mat _OrginalCameraMatrix;
         private SlamModel3D _SlamModel3D;
         private SynchronizationContext _SyncContext;
         private LinesVisual3D _TrajectoryFrame;
@@ -33,12 +37,15 @@ namespace FireFly.VI.SLAM.Data
         private VideoWriter _VideoWriter;
         private HelixViewport3D _Viewport3d;
 
-        public VIVideoRenderer(string fileName, int width, int height, SynchronizationContext syncContext)
+        public VIVideoRenderer(string fileName, int width, int height, SynchronizationContext syncContext, Mat orginalCameraMatrix, Mat centeredCameraMatrix, Mat distortionCoefficients)
         {
             _FileName = fileName;
             _VideoWidth = width;
             _VideoHeight = height;
             _SyncContext = syncContext;
+            _OrginalCameraMatrix = orginalCameraMatrix;
+            _CenteredCameraMatrix = centeredCameraMatrix;
+            _DistortionCoefficients = distortionCoefficients;
         }
 
         public void Close()
@@ -99,6 +106,11 @@ namespace FireFly.VI.SLAM.Data
 
                         List<KeyFrame> kfs = keyFrames.Where(c => c.Frame.Time <= time).ToList();
 
+                        if (kfs.Count > 0)
+                        {
+                            UpdateLastKeyFrame(kfs.Last(), rawImage);
+                        }
+
                         foreach (KeyFrame keyFrame in kfs)
                         {
                             _SlamModel3D.AddNewKeyFrame(keyFrame);
@@ -121,6 +133,8 @@ namespace FireFly.VI.SLAM.Data
                         WriteFrame(rawImage, RenderViewport());
                     }
                 }
+                if (i == 200)
+                    break;
             }
         }
 
@@ -191,6 +205,40 @@ namespace FireFly.VI.SLAM.Data
             return image;
         }
 
+        private void UpdateLastKeyFrame(KeyFrame keyFrame, Mat rawImage)
+        {
+            Mat rawImageColor = new Mat();
+            Mat rawImageColorUndist = new Mat();
+            CvInvoke.CvtColor(rawImage, rawImageColor, ColorConversion.Gray2Bgr);
+
+            Mat map1 = new Mat();
+            Mat map2 = new Mat();
+
+            Fisheye.InitUndistorRectifyMap(_OrginalCameraMatrix, _DistortionCoefficients, Mat.Eye(3, 3, DepthType.Cv64F, 1), _CenteredCameraMatrix, new System.Drawing.Size(512, 512), DepthType.Cv32F, map1, map2);
+
+            CvInvoke.Remap(rawImageColor, rawImageColorUndist, map1, map2, Inter.Linear, BorderType.Constant);
+
+            Image<Emgu.CV.Structure.Hsv, byte> rawImageColorUndistImage = rawImageColorUndist.ToImage<Emgu.CV.Structure.Hsv, byte>();
+            byte[,,] data = rawImageColorUndistImage.Data;
+
+            foreach (Point point in keyFrame.Points)
+            {
+                int u = (int)Math.Round(point.U);
+                int v = (int)Math.Round(point.V);
+
+                
+
+                for (int i = -2; i <= +2; i++)
+                    for (int j = -2; j <= +2; j++)
+                    {
+                        data[v + i, u + j, 0] = 255;
+                        data[v + i, u + j, 1] = 0;
+                        data[v + i, u + j, 2] = 0;
+                    }
+            }
+            _LastKeyFrame = rawImageColorUndistImage.Mat;
+        }
+
         private void WriteFrame(Mat rawImage, Mat viewport3dImage)
         {
             Image<Emgu.CV.Structure.Bgr, byte> imageResult = new Image<Emgu.CV.Structure.Bgr, byte>(_VideoWidth, _VideoHeight);
@@ -201,6 +249,10 @@ namespace FireFly.VI.SLAM.Data
             CvInvoke.CvtColor(rawImage, rawImageColor, ColorConversion.Gray2Bgr);
 
             rawImageColor.CopyTo(imageResult);
+
+            imageResult.ROI = new Rectangle(0, 512, 512, 512);
+
+            _LastKeyFrame.CopyTo(imageResult);
 
             imageResult.ROI = new Rectangle(512, 0, _VideoWidth - 512, 2 * 512);
 
