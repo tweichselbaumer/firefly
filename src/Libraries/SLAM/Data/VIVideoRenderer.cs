@@ -18,9 +18,12 @@ namespace FireFly.VI.SLAM.Data
 {
     public class VIVideoRenderer
     {
-        private const double CAMERA_RADIUS = 5;
+        private const double CAMERA_RADIUS = 6;
         private const double CAMERA_ROTATION_SPEED = 0.01;
-        private const double CAMERA_Z = 2.5;
+        private const double CAMERA_Z = 3.5;
+        private const double HSV_SATURATION_PERCENT = 70;
+        private const double HSV_VALUE_PERCENT = 90;
+
         private CoordinateSystemVisual3D _CameraPosition;
         private Mat _CenteredCameraMatrix;
         private Mat _DistortionCoefficients;
@@ -59,8 +62,8 @@ namespace FireFly.VI.SLAM.Data
 
         public void MoveCamera(double x0, double y0, double t)
         {
-            double x = x0 + CAMERA_RADIUS * Math.Cos(2 * Math.PI * t * CAMERA_ROTATION_SPEED);
-            double y = y0 + CAMERA_RADIUS * Math.Sin(2 * Math.PI * t * CAMERA_ROTATION_SPEED);
+            double x = x0 + CAMERA_RADIUS * Math.Cos(2 * Math.PI * t * CAMERA_ROTATION_SPEED + Math.PI);
+            double y = y0 + CAMERA_RADIUS * Math.Sin(2 * Math.PI * t * CAMERA_ROTATION_SPEED + Math.PI);
             _SyncContext.Send(d =>
             {
                 _Viewport3d.Camera.Position = new Point3D(x, y, CAMERA_Z);
@@ -108,7 +111,7 @@ namespace FireFly.VI.SLAM.Data
 
                         if (kfs.Count > 0)
                         {
-                            UpdateLastKeyFrame(kfs.Last(), rawImage);
+                            UpdateLastKeyFrame(kfs.Last(), rawImage, 0.2, 10);
                         }
 
                         foreach (KeyFrame keyFrame in kfs)
@@ -133,8 +136,6 @@ namespace FireFly.VI.SLAM.Data
                         WriteFrame(rawImage, RenderViewport());
                     }
                 }
-                if (i == 200)
-                    break;
             }
         }
 
@@ -205,7 +206,7 @@ namespace FireFly.VI.SLAM.Data
             return image;
         }
 
-        private void UpdateLastKeyFrame(KeyFrame keyFrame, Mat rawImage)
+        private void UpdateLastKeyFrame(KeyFrame keyFrame, Mat rawImage, double minDepth, double maxDepth)
         {
             Mat rawImageColor = new Mat();
             Mat rawImageColorUndist = new Mat();
@@ -218,7 +219,11 @@ namespace FireFly.VI.SLAM.Data
 
             CvInvoke.Remap(rawImageColor, rawImageColorUndist, map1, map2, Inter.Linear, BorderType.Constant);
 
-            Image<Emgu.CV.Structure.Hsv, byte> rawImageColorUndistImage = rawImageColorUndist.ToImage<Emgu.CV.Structure.Hsv, byte>();
+            Mat hsvImage = new Mat();
+
+            CvInvoke.CvtColor(rawImageColorUndist, hsvImage, ColorConversion.Bgr2Hsv);
+
+            Image<Emgu.CV.Structure.Hsv, byte> rawImageColorUndistImage = hsvImage.ToImage<Emgu.CV.Structure.Hsv, byte>();
             byte[,,] data = rawImageColorUndistImage.Data;
 
             foreach (Point point in keyFrame.Points)
@@ -226,17 +231,16 @@ namespace FireFly.VI.SLAM.Data
                 int u = (int)Math.Round(point.U);
                 int v = (int)Math.Round(point.V);
 
-                
-
                 for (int i = -2; i <= +2; i++)
                     for (int j = -2; j <= +2; j++)
                     {
-                        data[v + i, u + j, 0] = 255;
-                        data[v + i, u + j, 1] = 0;
-                        data[v + i, u + j, 2] = 0;
+                        byte h = (byte)Math.Round(((1.0 / point.InverseDepth - minDepth) < 0 ? 0 : (1.0 / point.InverseDepth - minDepth)) * 180 / (maxDepth - minDepth));
+                        data[v + i, u + j, 0] = h;
+                        data[v + i, u + j, 1] = (byte)Math.Round(255 / 100.0 * HSV_SATURATION_PERCENT);
+                        data[v + i, u + j, 2] = (byte)Math.Round(255 / 100.0 * HSV_VALUE_PERCENT);
                     }
             }
-            _LastKeyFrame = rawImageColorUndistImage.Mat;
+            CvInvoke.CvtColor(rawImageColorUndistImage.Mat, _LastKeyFrame, ColorConversion.Hsv2Bgr);
         }
 
         private void WriteFrame(Mat rawImage, Mat viewport3dImage)
