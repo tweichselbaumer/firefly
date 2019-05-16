@@ -339,7 +339,7 @@ namespace FireFly.ViewModels
                         AnimateHide = false
                     };
 
-                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Export video File!", settings: Parent.MetroDialogSettings);
+                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Export video file!", settings: Parent.MetroDialogSettings);
 
                     controller.SetCancelable(false);
 

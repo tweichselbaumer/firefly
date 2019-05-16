@@ -191,7 +191,7 @@ namespace FireFly.ViewModels
                 {
                     if (FishEyeCalibration)
                     {
-                        Fisheye.EstimateNewCameraMatrixForUndistorRectify(OrginalCameraMatrix, DistortionCoefficients, new System.Drawing.Size(ImageWidth, ImageHeight), Mat.Eye(3, 3, Emgu.CV.CvEnum.DepthType.Cv64F, 1), newCameraMatrix, 0, new System.Drawing.Size(ImageWidth, ImageHeight), FOVScale);
+                        Fisheye.EstimateNewCameraMatrixForUndistorRectify(OrginalCameraMatrix, DistortionCoefficients, new System.Drawing.Size(ImageWidth, ImageHeight), Mat.Eye(3, 3, DepthType.Cv64F, 1), newCameraMatrix, 0, new System.Drawing.Size(ImageWidth, ImageHeight), FOVScale);
                         newCameraMatrix.SetValue(0, 2, ImageWidth / 2);
                         newCameraMatrix.SetValue(1, 2, ImageHeight / 2);
                     }
@@ -280,7 +280,7 @@ namespace FireFly.ViewModels
                         {
                             Mat map1 = new Mat();
                             Mat map2 = new Mat();
-                            Fisheye.InitUndistorRectifyMap(OrginalCameraMatrix, DistortionCoefficients, Mat.Eye(3, 3, DepthType.Cv64F, 1), CenteredCameraMatrix, new System.Drawing.Size(ImageWidth, ImageHeight), Emgu.CV.CvEnum.DepthType.Cv32F, map1, map2);
+                            Fisheye.InitUndistorRectifyMap(OrginalCameraMatrix, DistortionCoefficients, Mat.Eye(3, 3, DepthType.Cv64F, 1), CenteredCameraMatrix, new System.Drawing.Size(ImageWidth, ImageHeight), DepthType.Cv32F, map1, map2);
                             CvInvoke.Remap(mat, matUndist, map1, map2, Inter.Linear, BorderType.Constant);
                         }
                         else

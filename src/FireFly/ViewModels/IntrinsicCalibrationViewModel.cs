@@ -1,4 +1,5 @@
 ﻿using Emgu.CV;
+using Emgu.CV.CvEnum;
 using Emgu.CV.Util;
 using FireFly.Command;
 using FireFly.CustomDialogs;
@@ -166,18 +167,6 @@ namespace FireFly.ViewModels
             }
         }
 
-        private Task DoExportToClipboard(object o)
-        {
-            return Task.Run(() =>
-            {
-                Parent.SyncContext.Send(f =>
-                {
-                    Clipboard.SetText(string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t", Fx, Fy, Cx, Cy, K1, K2, K3, K4));
-                }, null);
-
-            });
-        }
-
         public double Fx
         {
             get { return (double)GetValue(FxProperty); }
@@ -278,6 +267,18 @@ namespace FireFly.ViewModels
         {
             get { return (Visibility)GetValue(TakeSnapshotControlVisibilityProperty); }
             set { SetValue(TakeSnapshotControlVisibilityProperty, value); }
+        }
+
+        public RelayCommand<object> UndistortImageCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoUndistortImage(o);
+                    });
+            }
         }
 
         public RelayCommand<object> ValidateCommand
@@ -535,6 +536,17 @@ namespace FireFly.ViewModels
             });
         }
 
+        private Task DoExportToClipboard(object o)
+        {
+            return Task.Run(() =>
+            {
+                Parent.SyncContext.Send(f =>
+                {
+                    Clipboard.SetText(string.Format("{0}\t{1}\t{2}\t{3}\t{4}\t{5}\t{6}\t{7}\t", Fx, Fy, Cx, Cy, K1, K2, K3, K4));
+                }, null);
+            });
+        }
+
         private Task DoLoadFromFile(object o)
         {
             return Task.Factory.StartNew(() =>
@@ -675,6 +687,58 @@ namespace FireFly.ViewModels
                     cauic.OriginalImage = Parent.CameraViewModel.Image;
                     Images.Add(cauic);
                 }, null);
+            });
+        }
+
+        private Task DoUndistortImage(object o)
+        {
+            return Task.Factory.StartNew(async () =>
+            {
+                System.Windows.Forms.OpenFileDialog openFileDialog = null;
+                System.Windows.Forms.SaveFileDialog saveFileDialog = null;
+                bool open = false;
+                bool save = false;
+
+                CameraViewModel cvm = null;
+
+                Parent.SyncContext.Send(c =>
+                {
+                    cvm = Parent.CameraViewModel;
+                    openFileDialog = new System.Windows.Forms.OpenFileDialog();
+                    openFileDialog.Filter = "Image (*.png) | *.png";
+                    open = openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK;
+
+                    saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                    saveFileDialog.Filter = "Image (*.png) | *.png";
+                    save = saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK;
+                }, null);
+
+                if (open && save)
+                {
+                    MetroDialogSettings settings = new MetroDialogSettings()
+                    {
+                        AnimateShow = false,
+                        AnimateHide = false
+                    };
+
+                    var controller = await Parent.DialogCoordinator.ShowProgressAsync(Parent, "Please wait...", "Export undistort image!", settings: Parent.MetroDialogSettings);
+
+                    controller.SetCancelable(false);
+
+                    Mat rawImage = CvInvoke.Imread(openFileDialog.FileName, Emgu.CV.CvEnum.ImreadModes.Grayscale);
+                    Mat rawImageUndist = new Mat();
+
+                    Mat map1 = new Mat();
+                    Mat map2 = new Mat();
+
+                    Fisheye.InitUndistorRectifyMap(cvm.OrginalCameraMatrix, cvm.DistortionCoefficients, Mat.Eye(3, 3, DepthType.Cv64F, 1), cvm.CenteredCameraMatrix, new System.Drawing.Size(512, 512), DepthType.Cv32F, map1, map2);
+
+                    CvInvoke.Remap(rawImage, rawImageUndist, map1, map2, Inter.Linear, BorderType.Constant);
+
+                    CvInvoke.Imwrite(saveFileDialog.FileName, rawImageUndist);
+
+                    await controller.CloseAsync();
+                }
             });
         }
 
