@@ -20,6 +20,11 @@
         </Grid.ColumnDefinitions>
 
         <oxy:Plot Grid.Row="0" Grid.Column="0">
+            <oxy:Plot.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Save data to..." Command="{Binding Path=SaveResponseFunctionCommand}" />
+                </ContextMenu>
+            </oxy:Plot.ContextMenu>
             <oxy:Plot.Axes>
                 <oxy:LinearAxis Position="Left" TickStyle="Inside" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Minimum="0" Maximum="256" MajorStep="64" MinorStep="16" Title="irradiance U(I)" />
                 <oxy:LinearAxis Position="Bottom" TickStyle="Inside" MajorGridlineStyle="Solid" MajorStep="64" MinorStep="16" MinorGridlineStyle="Dot" Minimum="0" Maximum="256" Title="pixel value I" IsZoomEnabled="False" />

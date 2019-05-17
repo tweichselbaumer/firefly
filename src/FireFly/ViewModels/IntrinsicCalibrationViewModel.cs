@@ -46,7 +46,7 @@ namespace FireFly.ViewModels
             DependencyProperty.Register("Fy", typeof(double), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(0.0));
 
         public static readonly DependencyProperty ImagesProperty =
-                                            DependencyProperty.Register("Images", typeof(ObservableCollection<ChArUcoImageContainer>), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(new ObservableCollection<ChArUcoImageContainer>()));
+            DependencyProperty.Register("Images", typeof(ObservableCollection<ChArUcoImageContainer>), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(new ObservableCollection<ChArUcoImageContainer>()));
 
         public static readonly DependencyProperty K1Property =
             DependencyProperty.Register("K1", typeof(double), typeof(IntrinsicCalibrationViewModel), new PropertyMetadata(0.0));

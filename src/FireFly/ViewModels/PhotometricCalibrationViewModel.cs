@@ -59,6 +59,18 @@ namespace FireFly.ViewModels
             }
         }
 
+        public RelayCommand<object> SaveResponseFunctionCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoSaveResponseFunction(o);
+                    });
+            }
+        }
+
         public RelayCommand<object> SaveVignetteCommand
         {
             get
@@ -133,6 +145,32 @@ namespace FireFly.ViewModels
                     customDialog.Content = new ReplaySelectDialog { DataContext = dataContext };
 
                     Parent.DialogCoordinator.ShowMetroDialogAsync(Parent, customDialog);
+                }, null);
+            });
+        }
+
+        private Task DoSaveResponseFunction(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    System.Windows.Forms.SaveFileDialog saveFileDialog = null;
+                    bool save = false;
+                    saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                    saveFileDialog.Filter = "Matlab (*.mat) | *.mat";
+                    save = saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK;
+
+                    if (save)
+                    {
+                        GenericToMatlabWritter genericToMatlabWritter = new GenericToMatlabWritter(saveFileDialog.FileName);
+                        Dictionary<string, List<List<double>>> data = new Dictionary<string, List<List<double>>>();
+
+                        data.Add("response", new List<List<double>>() { Parent.SettingContainer.Settings.CalibrationSettings.PhotometricCalibrationSettings.ResponseValues });
+
+                        genericToMatlabWritter.Write(data, "photometric");
+                        genericToMatlabWritter.Save();
+                    }
                 }, null);
             });
         }

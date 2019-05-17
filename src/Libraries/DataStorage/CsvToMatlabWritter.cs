@@ -1,61 +1,31 @@
-﻿using FireFly.Utilities;
-using MatFileHandler;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 
 namespace FireFly.Data.Storage
 {
     public class CsvToMatlabWritter
     {
-        private DataBuilder _DataBuilder;
-        private IStructureArray _DataStruct;
-        private string _FileName;
+        private GenericToMatlabWritter _GenericToMatlabWritter;
 
         public CsvToMatlabWritter(string filename)
         {
-            _FileName = filename;
+            _GenericToMatlabWritter = new GenericToMatlabWritter(filename);
         }
 
         public void Save()
         {
-            using (Stream stream = new FileStream(_FileName, FileMode.Create))
-            {
-                var writer = new MatFileWriter(stream);
-                writer.Write(_DataBuilder.NewFile(new[] { _DataBuilder.NewVariable("data", _DataStruct) }));
-            }
+            _GenericToMatlabWritter.Save();
         }
 
         public void Write(Dictionary<string, string> data, string name)
         {
-            _DataBuilder = new DataBuilder();
-            _DataStruct = _DataBuilder.NewStructureArray(new[] { name }, 1);
+            Dictionary<string, List<List<double>>> dataNew = new Dictionary<string, List<List<double>>>();
 
             foreach (string var in data.Keys)
             {
-                List<List<double>> values = ConvertToDouble(data[var]);
-
-                int n = values.Count;
-                int m = values.Max(c => c.Count);
-
-                _DataStruct[name, 0] = AddFieldToStructureArray(_DataStruct[name, 0], var, 1);
-                (_DataStruct[name, 0] as IStructureArray)[var, 0] = _DataBuilder.NewArray<double>(n, m);
-                IArrayOf<double> array = (IArrayOf<double>)(_DataStruct[name, 0] as IStructureArray)[var, 0];
-                for (int i = 0; i < n; i++)
-                {
-                    for (int j = 0; j < m; j++)
-                    {
-                        if (values[i] != null && j < values[i].Count)
-                            array[i, j] = values[i][j];
-                    }
-                }
+                dataNew.Add(var, ConvertToDouble(data[var]));
             }
-        }
-
-        private IStructureArray AddFieldToStructureArray(IArray structureArray, string fieldName, params int[] dimensions)
-        {
-            return MatlabUtilities.AddFieldToStructureArray(_DataBuilder, structureArray, fieldName, dimensions);
+            _GenericToMatlabWritter.Write(dataNew, name);
         }
 
         private List<List<double>> ConvertToDouble(string data)
@@ -89,11 +59,6 @@ namespace FireFly.Data.Storage
             }
 
             return result;
-        }
-
-        private IArray ResizeArray<T>(IArray array, params int[] dimensions) where T : struct
-        {
-            return MatlabUtilities.ResizeArray<T>(_DataBuilder, array, dimensions);
         }
     }
 }

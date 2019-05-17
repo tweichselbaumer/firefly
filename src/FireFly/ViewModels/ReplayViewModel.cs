@@ -1,5 +1,4 @@
-﻿using Emgu.CV;
-using FireFly.Command;
+﻿using FireFly.Command;
 using FireFly.Data.Storage;
 using FireFly.Models;
 using FireFly.Settings;
