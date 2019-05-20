@@ -21,6 +21,11 @@
         </Grid.ColumnDefinitions>
 
         <oxy:Plot Grid.Row="0" Grid.Column="0" LegendBackground="White" LegendBorder="Black">
+            <oxy:Plot.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Save data to..." Command="{Binding Path=SaveResponseFunctionCommand}" />
+                </ContextMenu>
+            </oxy:Plot.ContextMenu>
             <oxy:Plot.Axes>
                 <oxy:LogarithmicAxis Position="Bottom" TickStyle="Inside" UseSuperExponentialFormat="True"  MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Minimum="1e-3" Maximum="1e5" Title="τ [s]" />
                 <oxy:LogarithmicAxis Position="Left" TickStyle="Inside" UseSuperExponentialFormat="True" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Title="Allan Deviation [rad/s]" IsZoomEnabled="False" />
@@ -39,6 +44,11 @@
         </oxy:Plot>
 
         <oxy:Plot Grid.Row="0" Grid.Column="2" LegendBackground="White" LegendBorder="Black">
+            <oxy:Plot.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Save data to..." Command="{Binding Path=SaveResponseFunctionCommand}" />
+                </ContextMenu>
+            </oxy:Plot.ContextMenu>
             <oxy:Plot.Axes>
                 <oxy:LogarithmicAxis Position="Bottom" TickStyle="Inside" UseSuperExponentialFormat="True"  MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Minimum="1e-3" Maximum="1e5" Title="τ [s]" />
                 <oxy:LogarithmicAxis Position="Left" TickStyle="Inside" UseSuperExponentialFormat="True" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Title="Allan Deviation [m/s²]" IsZoomEnabled="False" />

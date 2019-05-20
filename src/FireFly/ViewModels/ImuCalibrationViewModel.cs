@@ -137,6 +137,18 @@ namespace FireFly.ViewModels
             set { SetValue(RandomWalkSlopeGyroProperty, value); }
         }
 
+        public RelayCommand<object> SaveResponseFunctionCommand
+        {
+            get
+            {
+                return new RelayCommand<object>(
+                    async (object o) =>
+                    {
+                        await DoSaveResponseFunction(o);
+                    });
+            }
+        }
+
         public RelayCommand<object> StartCalibrationCommand
         {
             get
@@ -270,6 +282,53 @@ namespace FireFly.ViewModels
             collection.AddRange(temp);
         }
 
+        private Task DoSaveResponseFunction(object o)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Parent.SyncContext.Post(c =>
+                {
+                    SaveFileDialog saveFileDialog = null;
+                    bool save = false;
+                    saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+                    saveFileDialog.Filter = "Matlab (*.mat) | *.mat";
+                    save = saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK;
+
+                    if (save)
+                    {
+                        GenericToMatlabWritter genericToMatlabWritter = new GenericToMatlabWritter(saveFileDialog.FileName);
+                        Dictionary<string, List<List<double>>> data = new Dictionary<string, List<List<double>>>();
+
+                        (List<double> timesGyroWN, List<double> sigmasGyroWN) = CalculateSlope(Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AllanDeviationTime, Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.GyroscopeNoiseDensity, -0.5, 1 / Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.SampleTime, 1, 1);
+
+                        (List<double> timesGyroRW, List<double> sigmasGyroRW) = CalculateSlope(Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AllanDeviationTime, Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.GyroscopeRandomWalk, +0.5, 1000, 6000, 3);
+
+                        (List<double> timesAccWN, List<double> sigmasAccWN) = CalculateSlope(Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AllanDeviationTime, Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AccelerometerNoiseDensity, -0.5, 1 / Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.SampleTime, 1, 1);
+
+                        (List<double> timesAccRW, List<double> sigmasAccRW) = CalculateSlope(Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AllanDeviationTime, Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AccelerometerRandomWalk, +0.5, 1000, 6000, 3);
+
+                        data.Add("sigma_w_acc", new List<List<double>>() { new List<double> { Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AccelerometerNoiseDensity } });
+                        data.Add("sigma_b_acc", new List<List<double>>() { new List<double> { Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AccelerometerRandomWalk } });
+                        data.Add("sigma_w_gyro", new List<List<double>>() { new List<double> { Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.GyroscopeNoiseDensity } });
+                        data.Add("sigma_b_gyro", new List<List<double>>() { new List<double> { Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.GyroscopeRandomWalk } });
+                        data.Add("sample_time", new List<List<double>>() { new List<double> { Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.SampleTime } });
+
+
+                        data.Add("time", new List<List<double>>() { Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AllanDeviationTime });
+                        data.Add("accX", new List<List<double>>() { Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AllanDeviationAccelerometerX });
+                        data.Add("accY", new List<List<double>>() { Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AllanDeviationAccelerometerY });
+                        data.Add("accZ", new List<List<double>>() { Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AllanDeviationAccelerometerZ });
+                        data.Add("gyroX", new List<List<double>>() { Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AllanDeviationGyroscopeX });
+                        data.Add("gyroY", new List<List<double>>() { Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AllanDeviationGyroscopeY });
+                        data.Add("gyroZ", new List<List<double>>() { Parent.SettingContainer.Settings.CalibrationSettings.ImuCalibration.AllanDeviationGyroscopeZ });
+
+                        genericToMatlabWritter.Write(data, "imu");
+                        genericToMatlabWritter.Save();
+                    }
+                }, null);
+            });
+        }
+
         private Task DoStartCalibration(object o)
         {
             return Task.Factory.StartNew(async () =>
@@ -287,7 +346,6 @@ namespace FireFly.ViewModels
 
                 if (open)
                 {
-
                     MetroDialogSettings settings = new MetroDialogSettings()
                     {
                         AnimateShow = false,
